@@ -1,0 +1,71 @@
+# Resembla: Word-based Japanese similar sentence search library
+# https://github.com/tuem/resembla
+#
+# Copyright 2017 Takashi Uemura
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Resembla custom normalization
+
+* Unicode 9.0.0
+
+# double quote
+201c>0022
+201d>0022
+
+# single quote
+2018>0027
+2019>0027
+
+# space
+200A>0020
+FEFF>0020
+0000>0020
+000D>0020
+000A>0020
+
+# hyphen
+00AD>002D
+02D7>002D
+058A>002D
+2010>002D
+2011>002D
+2012>002D
+2013>002D
+2043>002D
+207B>002D
+208B>002D
+2212>002D
+
+# macron
+2014>30FC
+2015>30FC
+2500>30FC
+2501>30FC
+FE63>30FC
+FF0D>30FC
+FF70>30FC
+
+# tilde
+301C>007E
+FF5E>007E
+02DC>007E
+1FC0>007E
+2053>007E
+223C>007E
+223F>007E
+3030>007E
+
+# yen sign
+005C>00A5
+FFE5>00A5
