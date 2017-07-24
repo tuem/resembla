@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
         {"wred_mecab_feature_pos", 7, {"weighted_romaji_edit_distance", "mecab_feature_pos"}, "wred-mecab-feature-pos", 0, "Position of pronunciation in feature for weighted romaji edit distance"},
         {"wred_mecab_pronunciation_of_marks", "", {"weighted_romaji_edit_distance", "mecab_pronunciation_of_marks"}, "wred-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"corpus_path", "", {"common", "corpus_path"}},
+        {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
@@ -106,34 +107,36 @@ int main(int argc, char* argv[])
         int wred_simstring_ngram_unit = pm.get<int>("wred_simstring_ngram_unit") != -1 ?
             pm.get<int>("wred_simstring_ngram_unit") : default_simstring_ngram_unit;
         auto simstring_text_preprocesses = split_to_text_preprocesses(pm.get<std::string>("simstring_text_preprocess"));
-#ifdef DEBUG
-        std::cerr << "Configurations:" << std::endl;
-        std::cerr << "  Common:" << std::endl;
-        std::cerr << "    corpus_path=" << corpus_path << std::endl;
-        std::cerr << "  SimString:" << std::endl;
-        std::cerr << "    ngram_unit=" << default_simstring_ngram_unit << std::endl;
-        for(auto simstring_text_preprocess: simstring_text_preprocesses){
-            if(simstring_text_preprocess == asis){
-                std::cerr << "  text_preprocess=" << STR(asis) << std::endl;
-                std::cerr << "    simstring_ngram_unit=" << wwed_simstring_ngram_unit << std::endl;
-                std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
-            }
-            else if(simstring_text_preprocess == pronunciation){
-                std::cerr << "  text_preprocess=" << STR(pronunciation) << std::endl;
-                std::cerr << "    simstring_ngram_unit=" << wped_simstring_ngram_unit << std::endl;
-                std::cerr << "    mecab_options=" << pm.get<std::string>("wped_mecab_options") << std::endl;
-                std::cerr << "    mecab_feature_pos=" << pm.get<int>("wped_mecab_feature_pos") << std::endl;
-                std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
-            }
-            else if(simstring_text_preprocess == romaji){
-                std::cerr << "  text_preprocess=" << STR(romaji) << std::endl;
-                std::cerr << "    simstring_ngram_unit=" << wred_simstring_ngram_unit << std::endl;
-                std::cerr << "    mecab_options=" << pm.get<std::string>("wred_mecab_options") << std::endl;
-                std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
-                std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
+
+		if(pm.get<bool>("varbose")){
+            std::cerr << "Configurations:" << std::endl;
+            std::cerr << "  Common:" << std::endl;
+            std::cerr << "    corpus_path=" << corpus_path << std::endl;
+            std::cerr << "  SimString:" << std::endl;
+            std::cerr << "    ngram_unit=" << default_simstring_ngram_unit << std::endl;
+            for(auto simstring_text_preprocess: simstring_text_preprocesses){
+                if(simstring_text_preprocess == asis){
+                    std::cerr << "  text_preprocess=" << STR(asis) << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << wwed_simstring_ngram_unit << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
+                }
+                else if(simstring_text_preprocess == pronunciation){
+                    std::cerr << "  text_preprocess=" << STR(pronunciation) << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << wped_simstring_ngram_unit << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wped_mecab_options") << std::endl;
+                    std::cerr << "    mecab_feature_pos=" << pm.get<int>("wped_mecab_feature_pos") << std::endl;
+                    std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
+                }
+                else if(simstring_text_preprocess == romaji){
+                    std::cerr << "  text_preprocess=" << STR(romaji) << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << wred_simstring_ngram_unit << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wred_mecab_options") << std::endl;
+                    std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
+                    std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
+                }
             }
         }
-#endif
+
         for(auto simstring_text_preprocess: simstring_text_preprocesses){
             std::string db_path = db_path_from_simstring_text_preprocess(corpus_path, simstring_text_preprocess);
             std::string inverse_path = inverse_path_from_simstring_text_preprocess(corpus_path, simstring_text_preprocess);
