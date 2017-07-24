@@ -27,7 +27,7 @@ all: $(BINS)
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json -isystem../../include/cmdline -isystem../../include/paramset `mecab-config --cflags` -I..
-CXXLIBS := `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs` -L.. -lresembla
+CXXLIBS := -lresembla `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: all
@@ -42,10 +42,10 @@ RESEMBLA_CLI_OBJS = resembla_cli.o
 
 
 resembla_index: $(RESEMBLA_INDEX_OBJS)
-	$(CXX) $(CXXLIBS) -o resembla_index $(RESEMBLA_INDEX_OBJS)
+	$(CXX) -o resembla_index $(RESEMBLA_INDEX_OBJS) $(CXXLIBS)
 
 resembla_cli: $(RESEMBLA_CLI_OBJS)
-	$(CXX) $(CXXLIBS) -o resembla_cli $(RESEMBLA_CLI_OBJS)
+	$(CXX) -o resembla_cli $(RESEMBLA_CLI_OBJS) $(CXXLIBS)
 
 
 install:
