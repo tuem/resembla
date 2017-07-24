@@ -33,18 +33,18 @@ public:
     using result_type = std::pair<Original, double>;
 
     template<
-        typename Preprocessed,
-        typename iterator,
+        typename Iterator,
         typename DistanceFunction
     >
     std::vector<result_type> rerank(
-        const Preprocessed& target,
-        const iterator begin,
-        const iterator end,
+        const typename std::iterator_traits<Iterator>::value_type& target,
+        const Iterator begin,
+        const Iterator end,
         DistanceFunction dist_func
     ) const
     {
 #ifdef DEBUG
+        std::wcerr << L"DEBUG: " << L"target=" << target.first << std::endl;
         std::wcerr << L"DEBUG: " << L"===========before reranking=============" << std::endl;
         for(auto i = begin; i != end; ++i){
             std::wcerr << L"DEBUG: " << i->first << std::endl;
@@ -52,7 +52,7 @@ public:
 #endif
         std::vector<result_type> result;
         for(auto i = begin; i != end; ++i){
-            result.push_back(std::make_pair(i->first, dist_func(i->second, target)));
+            result.push_back(std::make_pair(i->first, dist_func(i->second, target.second)));
         }
         std::sort(std::begin(result), std::end(result), compare_distance());
 #ifdef DEBUG

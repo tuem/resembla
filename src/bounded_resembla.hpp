@@ -94,7 +94,7 @@ public:
         }
 
         // execute reranking
-        auto reranked = reranker.rerank(builder.build(query, false), std::begin(candidates), std::end(candidates), dist_func);
+        auto reranked = reranker.rerank(std::make_pair(query, builder.build(query, false)), std::begin(candidates), std::end(candidates), dist_func);
 
         // return at most max_response texts those scores are greater than or equal to threshold
         std::vector<response_type> response;
