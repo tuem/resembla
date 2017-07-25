@@ -192,7 +192,7 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
     return result;
 }
 
-ResemblaEnsemble construct_resembla_ensemble(std::string corpus_path, paramset::manager& pm)
+std::shared_ptr<ResemblaInterface> construct_resembla_ensemble(std::string corpus_path, paramset::manager& pm)
 {
     int simstring_measure = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
@@ -217,7 +217,7 @@ ResemblaEnsemble construct_resembla_ensemble(std::string corpus_path, paramset::
         pm.get<int>("wred_max_reranking_num") : default_max_reranking_num;
 
     std::string resembla_measure_all = pm["resembla_measure"];
-    ResemblaEnsemble resembla_ensemble(resembla_measure_all);
+    std::shared_ptr<ResemblaEnsemble> resembla_ensemble = std::make_shared<ResemblaEnsemble>(resembla_measure_all);
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
         std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
         std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
@@ -229,39 +229,39 @@ ResemblaEnsemble construct_resembla_ensemble(std::string corpus_path, paramset::
                 if((weight = pm["ed_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla.reset(construct_bounded_resembla(
+                resembla = construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, ed_simstring_threshold, ed_max_reranking_num,
                         AsIsSequenceBuilder<string_type>(),
-                        EditDistance<>(STR(edit_distance))));
+                        EditDistance<>(STR(edit_distance)));
                 break;
             case weighted_word_edit_distance:
                 if((weight = pm["wwed_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla.reset(construct_bounded_resembla(
+                resembla = construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wwed_simstring_threshold, wwed_max_reranking_num,
                         WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>(
                                 WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
                                 FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
                                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        WeightedEditDistance<SurfaceMatchCost>(STR(weighted_word_edit_distance))));
+                        WeightedEditDistance<SurfaceMatchCost>(STR(weighted_word_edit_distance)));
                 break;
             case weighted_pronunciation_edit_distance:
                 if((weight = pm["wped_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla.reset(construct_bounded_resembla(
+                resembla = construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wped_simstring_threshold, wped_max_reranking_num,
                         PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
                                 pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        EditDistance<>(STR(weighted_pronunciation_edit_distance))));
+                        EditDistance<>(STR(weighted_pronunciation_edit_distance)));
                 break;
             case weighted_romaji_edit_distance:
                 if((weight = pm["wred_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla.reset(construct_bounded_resembla(
+                resembla = construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wred_simstring_threshold, wred_max_reranking_num,
                         WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>(
                                 RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
@@ -270,10 +270,10 @@ ResemblaEnsemble construct_resembla_ensemble(std::string corpus_path, paramset::
                                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
                         WeightedEditDistance<RomajiMatchCost>(STR(weighted_romaji_edit_distance),
-                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost")))));
+                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))));
                 break;
         }
-        resembla_ensemble.append(resembla, weight);
+        resembla_ensemble->append(resembla, weight);
     }
     return resembla_ensemble;
 }

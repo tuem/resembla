@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
             if(input == L"exit" || input == L"quit" || input == L"bye"){
                 break;
             }
-            auto result = resembla.getSimilarTexts(input, resembla_max_response, resembla_threshold);
+            auto result = resembla->getSimilarTexts(input, resembla_max_response, resembla_threshold);
             if(result.empty()){
                 std::wcout << L"No text found." << std::endl;
             }

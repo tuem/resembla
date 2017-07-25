@@ -17,10 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __RESEMBLA_COMMON_HPP__
-#define __RESEMBLA_COMMON_HPP__
+#ifndef __RESEMBLA_UTIL_HPP__
+#define __RESEMBLA_UTIL_HPP__
 
 #include <string>
+#include <memory>
 
 #include "paramset.hpp"
 
@@ -94,17 +95,17 @@ template<
     typename SequenceBuilder,
     typename DistanceFunction
 >
-ResemblaInterface* construct_bounded_resembla(const std::string& db_path, const std::string& inverse_path,
+std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string& db_path, const std::string& inverse_path,
         int simstring_measure, double simstring_threshold, int max_reranking_num,
         SequenceBuilder builder, DistanceFunction dist_func)
 {
-    return new BoundedResembla<SequenceBuilder, DistanceFunction>(
+    return std::make_shared<BoundedResembla<SequenceBuilder, DistanceFunction>>(
             db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
             builder, dist_func);
 }
 
 // utility function to construct ResemblaEnsemble instance
-ResemblaEnsemble construct_resembla_ensemble(std::string corpus_path, paramset::manager& pm);
+std::shared_ptr<ResemblaInterface> construct_resembla_ensemble(std::string corpus_path, paramset::manager& pm);
 
 }
 #endif
