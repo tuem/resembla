@@ -16,7 +16,7 @@
 # limitations under the License.
 
 BIN_DEST = /usr/local/bin
-BINS = resembla_index resembla_cli
+BINS = resembla_index resembla_cli resembla_regression_cli
 
 CONF_DEST = /usr/local/etc
 CONF_FILE = ../../conf/resembla.json.sample
@@ -27,7 +27,7 @@ all: $(BINS)
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json -isystem../../include/cmdline -isystem../../include/paramset `mecab-config --cflags` -I..
-CXXLIBS := -lresembla `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
+CXXLIBS := -lsvm -lresembla `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: all
@@ -39,13 +39,17 @@ DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
 RESEMBLA_INDEX_OBJS = resembla_index.o
 RESEMBLA_CLI_OBJS = resembla_cli.o
+RESEMBLA_REGRESSION_CLI_OBJS = resembla_regression_cli.o
 
 
 resembla_index: $(RESEMBLA_INDEX_OBJS)
-	$(CXX) -o resembla_index $(RESEMBLA_INDEX_OBJS) $(CXXLIBS)
+	$(CXX) -o $@ $(RESEMBLA_INDEX_OBJS) $(CXXLIBS)
 
 resembla_cli: $(RESEMBLA_CLI_OBJS)
-	$(CXX) -o resembla_cli $(RESEMBLA_CLI_OBJS) $(CXXLIBS)
+	$(CXX) -o $@ $(RESEMBLA_CLI_OBJS) $(CXXLIBS)
+
+resembla_regression_cli: $(RESEMBLA_REGRESSION_CLI_OBJS)
+	$(CXX) -o $@ $(RESEMBLA_REGRESSION_CLI_OBJS) $(CXXLIBS)
 
 
 install:

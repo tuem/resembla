@@ -25,6 +25,10 @@ LIB_FILE = $(LIB_NAME).so.$(MAJOR_VERSION).$(MINOR_VERSION)
 INCLUDE_DEST = /usr/local/include
 INCLUDE_HEADERS = *.hpp
 INCLUDE_HEADERS_MEASURE = measure/*.hpp
+INCLUDE_HEADERS_REGRESSION = regression/*.hpp
+INCLUDE_HEADERS_PREPROCESSOR = regression/preprocessor/*.hpp
+INCLUDE_HEADERS_AGGREGATOR = regression/aggregator/*.hpp
+INCLUDE_HEADERS_PREDICTOR = regression/predictor/*.hpp
 
 
 all: $(LIB_FILE)
@@ -42,28 +46,33 @@ debug: CXXFLAGS += -DDEBUG -g
 debug: SUBDIR_OPTIONS += debug
 debug: all
 
-SUBDIRS = measure executable
+SUBDIRS = measure regression executable
 
 
 SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
-MEASURE_SRCS = $(wildcard measure/*.cpp)
-MEASURE_OBJS = $(patsubst %.cpp,%.o,$(MEASURE_SRCS))
+SUBDIR_SRCS = $(wildcard measure/*.cpp) $(wildcard regression/*.cpp) $(wildcard regression/preprocessor/*.cpp) $(wildcard regression/aggregator/*.cpp) $(wildcard regression/predictor/*.cpp)
+SUBDIR_OBJS = $(patsubst %.cpp,%.o,$(SUBDIR_SRCS))
 
 
 $(SUBDIRS):
 	$(MAKE) -C $@ $(SUBDIR_OPTIONS)
 
-$(LIB_FILE): $(OBJS) measure
-	$(CXX) $(CXXLIBS) -shared $(CXXEXTRA) -o $(LIB_FILE) $(OBJS) $(MEASURE_OBJS)
+$(LIB_FILE): $(OBJS) measure regression
+	$(CXX) $(CXXLIBS) -shared $(CXXEXTRA) -o $(LIB_FILE) $(OBJS) $(SUBDIR_OBJS)
 
 
 install:
 	install -d $(INCLUDE_DEST)/resembla/measure $(INCLUDE_DEST)/resembla/simstring
+	install -d $(INCLUDE_DEST)/resembla/regression/preprocessor $(INCLUDE_DEST)/resembla/regression/aggregator $(INCLUDE_DEST)/resembla/regression/predictor
 	install -p $(INCLUDE_HEADERS) $(INCLUDE_DEST)/resembla/
 	install -p $(INCLUDE_HEADERS_MEASURE) $(INCLUDE_DEST)/resembla/measure/
+	install -p $(INCLUDE_HEADERS_REGRESSION) $(INCLUDE_DEST)/resembla/regression/
+	install -p $(INCLUDE_HEADERS_PREPROCESSOR) $(INCLUDE_DEST)/resembla/regression/preprocessor/
+	install -p $(INCLUDE_HEADERS_AGGREGATOR) $(INCLUDE_DEST)/resembla/regression/aggregator/
+	install -p $(INCLUDE_HEADERS_PREDICTOR) $(INCLUDE_DEST)/resembla/regression/predictor/
 	install -p ../include/simstring/* $(INCLUDE_DEST)/resembla/simstring/
 	install -p $(LIB_FILE) $(LIB_DEST)/
 	ln -fs $(LIB_DEST)/$(LIB_FILE) $(LIB_DEST)/$(LIB_NAME).so.$(MAJOR_VERSION)
@@ -77,6 +86,7 @@ uninstall:
 
 clean:
 	$(MAKE) -C measure clean
+	$(MAKE) -C regression clean
 	$(MAKE) -C executable clean
 	$(RM) $(OBJS) $(DEPS) $(LIB_FILE)
 
