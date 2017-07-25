@@ -36,7 +36,7 @@ SUBDIR_OPTIONS =
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../include -isystem../include/json -isystem../include/cmdline -isystem../include/paramset `pkg-config --cflags icu-uc icu-i18n` `mecab-config --cflags`
-CXXLIBS := `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
+CXXLIBS := -lsvm `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 CXXEXTRA :=
 ifeq ($(UNAME_S),Darwin)
 	CXXEXTRA := -Wl,-install_name,$(LIB_NAME).so
