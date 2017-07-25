@@ -58,7 +58,7 @@ public:
 #ifdef DEBUG
         std::wcerr << L"DEBUG: " << L"===========after reranking=============" << std::endl;
         for(auto i = std::begin(result); i != std::end(result); ++i){
-            std::wcerr << L"DEBUG: " << L"text=" << i->first << L", distance=" << i->second << std::endl;
+            std::wcerr << L"DEBUG: " << L"text=" << i->first << L", score=" << i->second << std::endl;
         }
 #endif
         return result;
