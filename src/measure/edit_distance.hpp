@@ -59,7 +59,7 @@ struct EditDistance
             }
         }
     
-        return D[a.size()][b.size()] / total_cost;
+        return 1.0 - D[a.size()][b.size()] / total_cost;
     }
 };
 

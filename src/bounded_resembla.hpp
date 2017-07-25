@@ -98,8 +98,8 @@ public:
 
         // return at most max_response texts those scores are greater than or equal to threshold
         std::vector<response_type> response;
-        for(auto i = std::begin(reranked); i != std::end(reranked) && 1L - i->second >= threshold && response.size() < max_response; ++i){
-            response.push_back({i->first, dist_func.name, 1L - i->second});
+        for(auto i = std::begin(reranked); i != std::end(reranked) && i->second >= threshold && response.size() < max_response; ++i){
+            response.push_back({i->first, dist_func.name, i->second});
         }
         return response;
     }
