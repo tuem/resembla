@@ -25,7 +25,7 @@ limitations under the License.
 #include <initializer_list>
 
 #include <resembla/string_util.hpp>
-#include <resembla/resembla_response.hpp>
+#include <resembla/resembla_interface.hpp>
 
 #include "../feature.hpp"
 
@@ -57,7 +57,7 @@ public:
         }
 
     private:
-        F f;
+        const F f;
     };
 
     FeatureExtractor(const std::string base_similarity_key = "base_similarity");
@@ -70,9 +70,9 @@ public:
     // extract features from unknown text
     return_type operator()(const string_type& text) const;
     // extract features from corpus text
-    return_type operator()(const resembla::ResemblaResponse& data) const;
+    return_type operator()(const ResemblaInterface::response_type& data) const;
     // extract features from corpus text using already loaded features
-    return_type operator()(const resembla::ResemblaResponse& data, const return_type& given_features) const;
+    return_type operator()(const ResemblaInterface::response_type& data, const return_type& given_features) const;
 
 protected:
     const std::string base_similarity_key;

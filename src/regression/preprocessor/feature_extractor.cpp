@@ -56,7 +56,7 @@ FeatureExtractor::return_type FeatureExtractor::operator()(const std::string& ra
 #ifdef DEBUG
     std::cerr << "load features from saved data: text=" << raw_text << ", features=" << raw_features << std::endl;
 #else
-    raw_text;
+    (void)raw_text;
 #endif
     return_type features;
     for(const auto& f: split(raw_features, FEATURE_DELIMITER)){
