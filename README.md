@@ -2,6 +2,7 @@
 
 ## Requirements
 - [MeCab](http://taku910.github.io/mecab/)
+- [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvm/)
 - [ICU](http://site.icu-project.org/)
 
 ### Other included libraries
@@ -34,6 +35,11 @@ sudo /sbin/ldconfig
 sudo rpm -ivh http://packages.groonga.org/centos/groonga-release-1.1.0-1.noarch.rpm
 sudo yum makecache
 sudo yum install mecab mecab-ipadic mecab-devel
+```
+
+- install LIBSVM
+```sh
+sudo yum install libsvm-devel
 ```
 
 - install ICU
