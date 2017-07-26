@@ -43,7 +43,7 @@ struct RegexFeatureExtractor: public FeatureExtractor::Function
     Feature::text_type operator()(const string_type& text) const;
 
 protected:
-    using regex = std::wregex;
+    using regex = std::basic_regex<string_type::value_type>;
 
     std::vector<std::pair<Feature::real_type, regex>> re_all;
 
