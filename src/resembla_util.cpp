@@ -50,7 +50,7 @@ limitations under the License.
 
 #include "regression/predictor/svr_predictor.hpp"
 
-#include "regression/aggregate_regression_function.hpp"
+#include "composite_function.hpp"
 
 #include "hierarchical_resembla.hpp"
 
@@ -250,10 +250,10 @@ std::shared_ptr<ResemblaInterface> construct_regression_resembla(
     }
 
     auto predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
-    auto score_func = std::make_shared<AggregateRegressionFunction<FeatureAggregator, SVRPredictor>>(aggregator, predictor);
+    auto score_func = std::make_shared<CompositeFunction<FeatureAggregator, SVRPredictor>>(aggregator, predictor);
 
     return std::make_shared<HierarchicalResembla<FeatureExtractor,
-           AggregateRegressionFunction<FeatureAggregator, SVRPredictor>>>(
+           CompositeFunction<FeatureAggregator, SVRPredictor>>>(
                 resembla, max_candidate, preprocessor, score_func, corpus_path, features_col);
 }
 

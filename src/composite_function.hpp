@@ -17,29 +17,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __AGGREGATE_REGRESSION_FUNCTION_HPP__
-#define __AGGREGATE_REGRESSION_FUNCTION_HPP__
+#ifndef __COMPOSITE_FUNCTION_HPP__
+#define __COMPOSITE_FUNCTION_HPP__
+
+#include <memory>
 
 namespace resembla {
 
-template<class AggregateFunction, class RegressionFunction>
-class AggregateRegressionFunction
+template<class F, class G>
+class CompositeFunction
 {
 public:
+    using input_type = typename F::input_type;
+    using output_type = typename G::output_type;
+
     const std::string name;
 
-    AggregateRegressionFunction(std::shared_ptr<AggregateFunction> aggregate_func, std::shared_ptr<RegressionFunction> regression_func):
-        name(regression_func->name), aggregate_func(aggregate_func), regression_func(regression_func)
+    CompositeFunction(const std::shared_ptr<F> f, const std::shared_ptr<G> g, std::string name = ""):
+        name(name), f(f), g(g)
     {}
 
-    double operator()(const StringFeatureMap& a, const StringFeatureMap& b) const
+    output_type operator()(const input_type& a, const input_type& b) const
     {
-        return (*regression_func)((*aggregate_func)(a, b));
+        return (*g)((*f)(a, b));
     }
 
 protected:
-    std::shared_ptr<AggregateFunction> aggregate_func;
-    std::shared_ptr<RegressionFunction> regression_func;
+    const std::shared_ptr<F> f;
+    const std::shared_ptr<G> g;
 };
 
 }
