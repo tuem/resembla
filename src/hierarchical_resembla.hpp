@@ -38,9 +38,9 @@ public:
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
             const std::string corpus_path = "", int col = 2):
         resembla(resembla), max_candidate(max_candidate),
-        preprocess(preprocess), score_func(score_func), reranker()
+        preprocess(preprocess), score_func(score_func), reranker(), preprocess_corpus(!corpus_path.empty())
     {
-        if(!corpus_path.empty()){
+        if(preprocess_corpus){
             loadCorpusFeatures(corpus_path, col);
         }
     }
@@ -52,7 +52,12 @@ public:
         std::vector<WorkData> candidates;
         auto original_results = resembla->getSimilarTexts(input, max_candidate, threshold);
         for(const auto& original_result: original_results){
-            candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result)));
+            if(preprocess_corpus){
+                candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result, corpus_features[original_result.text])));
+            }
+            else{
+                candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result)));
+            }
         }
 
         // rerank by its own metric
@@ -78,6 +83,8 @@ protected:
     const std::shared_ptr<Preprocessor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
     const Reranker<string_type> reranker;
+
+    bool preprocess_corpus;
 
     void loadCorpusFeatures(const std::string& corpus_path, size_t col)
     {

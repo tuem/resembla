@@ -67,6 +67,7 @@ public:
     return_type operator()(const string_type& text) const;
     return_type operator()(const resembla::ResemblaResponse& data) const;
     return_type operator()(const std::string& raw_text, const std::string& raw_features) const;
+    return_type operator()(const resembla::ResemblaResponse& data, const return_type& given_features) const;
 
 protected:
     const std::string base_similarity_key;
