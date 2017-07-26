@@ -23,6 +23,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include <fstream>
 
 #include <resembla/resembla_interface.hpp>
@@ -36,7 +37,7 @@ class HierarchicalResembla: public ResemblaInterface
 public:
     HierarchicalResembla(std::shared_ptr<ResemblaInterface> resembla, size_t max_candidate,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
-            const std::string corpus_path = "", int col = 2):
+            std::string corpus_path = "", size_t col = 2):
         resembla(resembla), max_candidate(max_candidate),
         preprocess(preprocess), score_func(score_func), reranker(), preprocess_corpus(!corpus_path.empty())
     {
@@ -52,12 +53,9 @@ public:
         std::vector<WorkData> candidates;
         auto original_results = resembla->getSimilarTexts(input, max_candidate, threshold);
         for(const auto& original_result: original_results){
-            if(preprocess_corpus){
-                candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result, corpus_features[original_result.text])));
-            }
-            else{
-                candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result)));
-            }
+            candidates.push_back(std::make_pair(original_result.text, preprocess_corpus ?
+                    (*preprocess)(original_result, corpus_features[original_result.text]) :
+                    (*preprocess)(original_result)));
         }
 
         // rerank by its own metric
@@ -84,7 +82,7 @@ protected:
     const std::shared_ptr<ScoreFunction> score_func;
     const Reranker<string_type> reranker;
 
-    bool preprocess_corpus;
+    const bool preprocess_corpus;
 
     void loadCorpusFeatures(const std::string& corpus_path, size_t col)
     {
