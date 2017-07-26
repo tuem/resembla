@@ -63,29 +63,20 @@ FeatureExtractor::return_type FeatureExtractor::operator()(
 #ifdef DEBUG
     std::cerr << "extract features" << std::endl;
 #endif
-    return_type features;
+    return_type features(given_features);
     features[base_similarity_key] = Feature::toText(data.score);
     for(const auto& i: functions){
-        auto j = given_features.find(i.first);
-        if(j != std::end(given_features)){
+        auto k = features.find(i.first);
+        if(k == std::end(features)){
 #ifdef DEBUG
-                std::cerr << "use loaded feature: key=" << i.first << ", value=" << j->second << std::endl;
+            std::cerr << "extract feature: " << i.first << std::endl;
 #endif
-                features[i.first] = j->second;
+            features[i.first] = (*i.second)(data.text);
         }
         else{
-            auto k = features.find(i.first);
-            if(k == std::end(features)){
 #ifdef DEBUG
-                std::cerr << "extract feature: " << i.first << std::endl;
+            std::cerr << "skip already computed feature: " << i.first << std::endl;
 #endif
-                features[i.first] = (*i.second)(data.text);
-            }
-            else{
-#ifdef DEBUG
-                std::cerr << "skip already computed feature: " << i.first << std::endl;
-#endif
-            }
         }
     }
     return features;
