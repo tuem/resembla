@@ -27,7 +27,7 @@ all: $(BINS)
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json -isystem../../include/cmdline -isystem../../include/paramset `mecab-config --cflags` -I..
-CXXLIBS := -lsvm -lresembla `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
+CXXLIBS := -lresembla -lsvm `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: all
