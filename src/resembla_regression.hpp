@@ -26,22 +26,23 @@ limitations under the License.
 #include <unordered_map>
 #include <fstream>
 
-#include <resembla/resembla_interface.hpp>
-#include <resembla/reranker.hpp>
+#include "resembla_interface.hpp"
+#include "regression/extractor/feature_extractor.hpp"
+#include "reranker.hpp"
 
 namespace resembla {
 
-template<class Preprocessor, class ScoreFunction>
+template<typename ScoreFunction>
 class ResemblaRegression: public ResemblaInterface
 {
 public:
     ResemblaRegression(size_t max_candidate,
-            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+            std::shared_ptr<FeatureExtractor> extract, std::shared_ptr<ScoreFunction> score_func,
             std::string corpus_path = "", size_t feature_col = 2):
         max_candidate(max_candidate),
-        preprocess(preprocess), score_func(score_func), reranker(), preprocess_corpus(!corpus_path.empty())
+        extract(extract), score_func(score_func), reranker(), extract_corpus(!corpus_path.empty())
     {
-        if(preprocess_corpus){
+        if(extract_corpus){
             loadCorpusFeatures(corpus_path, feature_col);
         }
     }
@@ -62,7 +63,7 @@ public:
         // primary resembla
         for(auto r: resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold)){
             candidate_texts.push_back(r.text);
-            candidate_features[r.text] = preprocess_corpus ? corpus_features[r.text] : (*preprocess)(r.text);
+            candidate_features[r.text] = extract_corpus ? corpus_features[r.text] : (*extract)(r.text);
             candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
         }
 
@@ -73,20 +74,21 @@ public:
             }
             for(auto r: p.second->getSimilarTexts(input, candidate_texts)){
                 if(candidate_features.find(r.text) == candidate_features.end()){
-                    candidate_features[r.text] = preprocess_corpus ?
-                            corpus_features[r.text] : (*preprocess)(r.text);
+                    candidate_features[r.text] = extract_corpus ?
+                            corpus_features[r.text] : (*extract)(r.text);
                 }
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
 
+        // prepare data for reranking
         std::vector<WorkData> candidates;
         for(auto c: candidate_features){
             candidates.push_back(std::make_pair(c.first, c.second));
         }
+        WorkData input_data = std::make_pair(input, (*extract)(input));
 
         // rerank by its own metric
-        WorkData input_data = std::make_pair(input, (*preprocess)(input));
         std::vector<ResemblaInterface::response_type> results;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             if(r.second < threshold || results.size() >= max_response){
@@ -104,12 +106,12 @@ public:
         std::vector<WorkData> candidates;
         auto original_results = resembla->getSimilarTexts(query, targets);
         for(const auto& r: original_results){
-            candidates.push_back(std::make_pair(r.text, (*preprocess)(r,
-                    preprocess_corpus ? corpus_features[r.text] : decltype((*preprocess)(r.text))())));
+            candidates.push_back(std::make_pair(r.text, (*extract)(r,
+                    extract_corpus ? corpus_features[r.text] : decltype((*extract)(r.text))())));
         }
 
         // rerank by its own metric
-        WorkData query_data = std::make_pair(query, (*preprocess)(query));
+        WorkData query_data = std::make_pair(query, (*extract)(query));
         auto reranked = reranker.rerank(query_data, std::begin(candidates), std::end(candidates), *score_func);
 
         std::vector<ResemblaInterface::response_type> results;
@@ -121,18 +123,18 @@ public:
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename Preprocessor::return_type>;
+    using WorkData = std::pair<string_type, typename FeatureExtractor::return_type>;
 
     std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
     std::string primary_resembla_name;
     const size_t max_candidate;
 
-    const std::shared_ptr<Preprocessor> preprocess;
+    const std::shared_ptr<FeatureExtractor> extract;
     const std::shared_ptr<ScoreFunction> score_func;
     const Reranker<string_type> reranker;
 
-    const bool preprocess_corpus;
-    std::unordered_map<string_type, typename Preprocessor::return_type> corpus_features;
+    const bool extract_corpus;
+    std::unordered_map<string_type, typename FeatureExtractor::return_type> corpus_features;
 
     void loadCorpusFeatures(const std::string& corpus_path, size_t col)
     {
@@ -148,9 +150,8 @@ protected:
             }
             auto columns = split(line, '\t');
             if(columns.size() + 1 < col){
-                continue;
+                corpus_features[cast_string<string_type>(columns[0])] = (*extract)(columns[0], columns[1]);
             }
-            corpus_features[cast_string<string_type>(columns[0])] = (*preprocess)(columns[0], columns[1]);
         }
     }
 };
