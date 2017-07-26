@@ -16,7 +16,7 @@
 # limitations under the License.
 
 BIN_DEST = /usr/local/bin
-BINS = resembla_index resembla_cli resembla_regression_cli
+BINS = resembla_index resembla_cli
 
 CONF_DEST = /usr/local/etc
 CONF_FILE = ../../conf/resembla.json.sample
@@ -39,7 +39,6 @@ DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
 RESEMBLA_INDEX_OBJS = resembla_index.o
 RESEMBLA_CLI_OBJS = resembla_cli.o
-RESEMBLA_REGRESSION_CLI_OBJS = resembla_regression_cli.o
 
 
 resembla_index: $(RESEMBLA_INDEX_OBJS)
@@ -47,9 +46,6 @@ resembla_index: $(RESEMBLA_INDEX_OBJS)
 
 resembla_cli: $(RESEMBLA_CLI_OBJS)
 	$(CXX) -o $@ $(RESEMBLA_CLI_OBJS) $(CXXLIBS)
-
-resembla_regression_cli: $(RESEMBLA_REGRESSION_CLI_OBJS)
-	$(CXX) -o $@ $(RESEMBLA_REGRESSION_CLI_OBJS) $(CXXLIBS)
 
 
 install:
