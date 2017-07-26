@@ -46,8 +46,7 @@ public:
         }
     }
 
-    std::vector<ResemblaInterface::response_type> getSimilarTexts(
-            const string_type& input, size_t max_response, double threshold)
+    std::vector<response_type> getSimilarTexts(const string_type& input, size_t max_response, double threshold)
     {
         // extract candidates using original resembla
         std::vector<WorkData> candidates;
@@ -66,6 +65,26 @@ public:
             if(r.second < threshold || results.size() >= max_response){
                 break;
             }
+            results.push_back({r.first, score_func->name, r.second});
+        }
+        return results;
+    }
+
+    std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
+    {
+        std::vector<WorkData> candidates;
+        auto original_results = resembla->getSimilarTexts(query, targets);
+        for(const auto& r: original_results){
+            candidates.push_back(std::make_pair(r.text, (*preprocess)(r,
+                    preprocess_corpus ? corpus_features[r.text] : decltype((*preprocess)(r.text))())));
+        }
+
+        // rerank by its own metric
+        WorkData query_data = std::make_pair(query, (*preprocess)(query));
+        auto reranked = reranker.rerank(query_data, std::begin(candidates), std::end(candidates), *score_func);
+
+        std::vector<ResemblaInterface::response_type> results;
+        for(const auto& r: reranked){
             results.push_back({r.first, score_func->name, r.second});
         }
         return results;

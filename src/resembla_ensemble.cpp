@@ -26,20 +26,16 @@ limitations under the License.
 
 namespace resembla {
 
-ResemblaEnsemble::ResemblaEnsemble(const std::string& measure_name): measure_name(measure_name) {}
+ResemblaEnsemble::ResemblaEnsemble(const std::string& measure_name): measure_name(measure_name), total_weight(0.0) {}
 
 void ResemblaEnsemble::append(const std::shared_ptr<ResemblaInterface> resembla, const double weight)
 {
     resemblas.push_back(std::make_pair(resembla, weight));
+    total_weight += weight;
 }
 
 std::vector<ResemblaEnsemble::response_type> ResemblaEnsemble::getSimilarTexts(const string_type& input, size_t max_response, double threshold)
 {
-    double total_weight = 0.;
-    for(auto p: resemblas){
-        total_weight += p.second;
-    }
-
     // find similar texts using all measures
     std::unordered_map<string_type, double> aggregated;
     for(auto p: resemblas){
@@ -62,6 +58,29 @@ std::vector<ResemblaEnsemble::response_type> ResemblaEnsemble::getSimilarTexts(c
     if(response.size() > max_response){
         response.erase(std::begin(response) + max_response, std::end(response));
     }
+    return response;
+}
+
+std::vector<ResemblaInterface::response_type> ResemblaEnsemble::getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
+{
+    // calculate similarity using all measures
+    std::unordered_map<string_type, double> aggregated;
+    for(auto p: resemblas){
+        for(auto r: p.first->getSimilarTexts(query, targets)){
+            if(aggregated.find(r.text) == std::end(aggregated)){
+                aggregated[r.text] = 0.0;
+            }
+            aggregated[r.text] += p.second * r.score * r.score;
+        }
+    }
+
+    // sort combined result
+    std::vector<response_type> response;
+    for(auto r: aggregated){
+        response.push_back({r.first, measure_name, sqrt(r.second / total_weight)});
+    }
+    std::sort(std::begin(response), std::end(response));
+
     return response;
 }
 

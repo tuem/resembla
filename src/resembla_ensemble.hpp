@@ -35,10 +35,13 @@ public:
     void append(const std::shared_ptr<ResemblaInterface> resembla, const double weight = 1.0);
 
     std::vector<response_type> getSimilarTexts(const string_type& input, size_t max_response = 20, double threshold = 0.0);
+    std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets);
 
 protected:
     // name to be used in response
     const std::string measure_name;
+
+    double total_weight;
 
     // pairs of Resembla and its weight
     std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> resemblas;

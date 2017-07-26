@@ -106,6 +106,34 @@ public:
         return response;
     }
 
+    std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
+    {
+        // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
+        std::vector<std::pair<string_type, sequence_type>> candidates;
+        for(auto target: targets){
+            auto j = inverse.find(target);
+            if(j != std::end(inverse)){
+                for(const string_type& t: j->second){
+                    candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
+                }
+            }
+        }
+        if(candidates.empty()){
+            return {};
+        }
+
+        // execute reranking
+        auto reranked = reranker.rerank(std::make_pair(query, builder->build(query, false)),
+                std::begin(candidates), std::end(candidates), *score_func);
+
+        // return at most max_response texts those scores are greater than or equal to threshold
+        std::vector<response_type> response;
+        for(auto r: reranked){
+            response.push_back({r.first, score_func->name, r.second});
+        }
+        return response;
+    }
+
 protected:
     simstring::reader db;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
