@@ -137,7 +137,7 @@ protected:
     const bool extract_corpus;
     std::unordered_map<string_type, typename FeatureExtractor::return_type> corpus_features;
 
-    void loadCorpusFeatures(const std::string& corpus_path, size_t col)
+    void loadCorpusFeatures(const std::string& corpus_path, size_t features_col)
     {
         std::ifstream ifs(corpus_path);
         if(ifs.fail()){
@@ -150,8 +150,8 @@ protected:
                 break;
             }
             auto columns = split(line, '\t');
-            if(columns.size() + 1 < col){
-                corpus_features[cast_string<string_type>(columns[0])] = (*extract)(columns[0], columns[1]);
+            if(features_col - 1 < columns.size()){
+                corpus_features[cast_string<string_type>(columns[0])] = (*extract)(columns[0], columns[features_col - 1]);
             }
         }
     }
