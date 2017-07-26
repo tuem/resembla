@@ -64,9 +64,14 @@ public:
 
     void append(Feature::key_type key, std::shared_ptr<Function> func);
 
-    return_type operator()(const string_type& text) const;
-    return_type operator()(const resembla::ResemblaResponse& data) const;
+    // TODO: reduce functions
+    // load features from corpus
     return_type operator()(const std::string& raw_text, const std::string& raw_features) const;
+    // extract features from unknown text
+    return_type operator()(const string_type& text) const;
+    // extract features from corpus text
+    return_type operator()(const resembla::ResemblaResponse& data) const;
+    // extract features from corpus text using already loaded features
     return_type operator()(const resembla::ResemblaResponse& data, const return_type& given_features) const;
 
 protected:
