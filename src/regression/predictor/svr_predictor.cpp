@@ -35,14 +35,14 @@ SVRPredictor::~SVRPredictor()
     svm_free_and_destroy_model(&model);
 }
 
-double SVRPredictor::operator()(const FeatureMap& x) const
+SVRPredictor::output_type SVRPredictor::operator()(const input_type& x) const
 {
     auto nodes = toNodes(x);
     double s = svm_predict(model, &nodes[0]);
     return std::max(std::min(s, 1.0), 0.0);
 }
 
-std::vector<svm_node> SVRPredictor::toNodes(const FeatureMap& x) const
+std::vector<svm_node> SVRPredictor::toNodes(const input_type& x) const
 {
     std::vector<svm_node> nodes(feature_definitions.size() + 1);
     size_t i = 0;

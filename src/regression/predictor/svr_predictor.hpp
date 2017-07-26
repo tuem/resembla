@@ -33,6 +33,9 @@ namespace resembla {
 class SVRPredictor
 {
 public:
+    using input_type = FeatureMap;
+    using output_type = Feature::real_type;
+
     static const std::string DEFAULT_NAME;
 
     const std::string name;
@@ -41,13 +44,13 @@ public:
             const std::string model_file_path, const std::string name = DEFAULT_NAME);
     virtual ~SVRPredictor();
 
-    double operator()(const FeatureMap& x) const;
+    output_type operator()(const input_type& x) const;
 
 protected:
     const std::vector<Feature::key_type> feature_definitions;
     svm_model *model;
 
-    std::vector<svm_node> toNodes(const FeatureMap& x) const;
+    std::vector<svm_node> toNodes(const input_type& x) const;
 };
 
 }
