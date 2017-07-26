@@ -70,6 +70,10 @@ int main(int argc, char* argv[])
         {"wred_case_mismatch_cost", 1L, {"weighted_romaji_edit_distance", "case_mismatch_cost"}, "wred-case-mismatch-cost", 0, "cost to replace case mismatches for weighted romaji edit distance"},
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_ensemble_weight", 0.5, {"weighted_romaji_edit_distance", "ensemble_weight"}, "wred-ensemble-weight", 0, "weight coefficient for weighted romaji edit distance in ensemble mode"},
+        {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
+        {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
+        {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
+        {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
         {"corpus_path", "", {"common", "corpus_path"}},
         {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
@@ -161,6 +165,13 @@ int main(int argc, char* argv[])
                     std::cerr << "    case_mismatch_cost=" << pm.get<double>("wred_case_mismatch_cost") << std::endl;
                     std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
+                }
+                else if(measure == svr){
+                    std::cerr << "  SVR:" << std::endl;
+                    std::cerr << "    max_candidate=" << pm.get<int>("svr_max_candidate") << std::endl;
+                    std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
+                    std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
+                    std::cerr << "    model_path=" << pm.get<std::string>("svr_model_path") << std::endl;
                 }
             }
         }
