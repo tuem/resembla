@@ -29,26 +29,12 @@ const char FeatureExtractor::FEATURE_DELIMITER = '&';
 const char FeatureExtractor::KEYVALUE_DELIMITER = '=';
 
 FeatureExtractor::FeatureExtractor(const std::string base_similarity_key): 
-    base_similarity_key(base_similarity_key){}
+    base_similarity_key(base_similarity_key)
+{}
 
 void FeatureExtractor::append(Feature::key_type key, std::shared_ptr<Function> func)
 {
     functions[key] = func;
-}
-
-FeatureExtractor::return_type FeatureExtractor::operator()(const string_type& text) const
-{
-#ifdef DEBUG
-    std::cerr << "extract features from text" << std::endl;
-#endif
-    return_type features;
-    for(const auto& i: functions){
-#ifdef DEBUG
-        std::cerr << "extract feature: " << i.first << std::endl;
-#endif
-        features[i.first] = (*i.second)(text);
-    }
-    return features;
 }
 
 FeatureExtractor::return_type FeatureExtractor::operator()(const std::string& raw_text, const std::string& raw_features) const
@@ -63,33 +49,9 @@ FeatureExtractor::return_type FeatureExtractor::operator()(const std::string& ra
         auto kv = split(f, KEYVALUE_DELIMITER);
         if(kv.size() == 2){
 #ifdef DEBUG
-            std::cerr << "load feature: " << kv[0] << "=" << kv[1] << std::endl;
+            std::cerr << "load feature: key=" << kv[0] << ", value=" << kv[1] << std::endl;
 #endif
             features[kv[0]] = kv[1];
-        }
-    }
-    return features;
-}
-
-FeatureExtractor::return_type FeatureExtractor::operator()(const resembla::ResemblaResponse& data) const
-{
-#ifdef DEBUG
-    std::cerr << "extract features: text=" << cast_string<std::string>(data.text) << std::endl;
-#endif
-    return_type features;
-    features[base_similarity_key] = Feature::toText(data.score);
-    for(const auto& i: functions){
-        auto j = features.find(i.first);
-        if(j == std::end(features)){
-#ifdef DEBUG
-            std::cerr << "extract feature: " << i.first << std::endl;
-#endif
-            features[i.first] = (*i.second)(data.text);
-        }
-        else{
-#ifdef DEBUG
-            std::cerr << "skip already computed feature: " << i.first << std::endl;
-#endif
         }
     }
     return features;
@@ -125,6 +87,21 @@ FeatureExtractor::return_type FeatureExtractor::operator()(
 #endif
             }
         }
+    }
+    return features;
+}
+
+FeatureExtractor::return_type FeatureExtractor::operator()(const string_type& text) const
+{
+#ifdef DEBUG
+    std::cerr << "extract features from text" << std::endl;
+#endif
+    return_type features;
+    for(const auto& i: functions){
+#ifdef DEBUG
+        std::cerr << "extract feature: " << i.first << std::endl;
+#endif
+        features[i.first] = (*i.second)(text);
     }
     return features;
 }

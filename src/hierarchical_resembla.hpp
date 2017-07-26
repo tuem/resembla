@@ -53,9 +53,8 @@ public:
         std::vector<WorkData> candidates;
         auto original_results = resembla->getSimilarTexts(input, max_candidate, threshold);
         for(const auto& original_result: original_results){
-            candidates.push_back(std::make_pair(original_result.text, preprocess_corpus ?
-                    (*preprocess)(original_result, corpus_features[original_result.text]) :
-                    (*preprocess)(original_result)));
+            candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result,
+                    preprocess_corpus ? corpus_features[original_result.text] : typename Preprocessor::return_type())));
         }
 
         // rerank by its own metric
