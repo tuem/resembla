@@ -1,6 +1,6 @@
-りんごおいしい
-りんごおいしいねえ
-りんごおいしいな
-りんごおいしくない
-りんごおいしい?
-りんごおいしいかな?
+りんごおいしい	is_negative=0&is_question=0
+りんごおいしいねえ	is_negative=0&is_question=0
+りんごおいしいな	is_negative=0&is_question=0
+りんごおいしくない	is_negative=1&is_question=0
+りんごおいしい?	is_negative=0&is_question=1
+りんごおいしいかな?	is_negative=0&is_question=1
