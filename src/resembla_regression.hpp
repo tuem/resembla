@@ -125,15 +125,9 @@ public:
     }
 
 protected:
-    struct WorkData
-    {
-        string_type text;
-        typename Preprocessor::return_type features;
-    };
-    //using WorkData = std::pair<string_type, typename Preprocessor::return_type>;
+    using WorkData = std::pair<string_type, typename Preprocessor::return_type>;
 
     std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
-    //const std::shared_ptr<ResemblaInterface> resembla;
     std::string primary_resembla_name;
     const size_t max_candidate;
 
