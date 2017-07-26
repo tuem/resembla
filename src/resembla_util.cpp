@@ -210,7 +210,7 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
 
 std::shared_ptr<ResemblaInterface> construct_regression_resembla(
         const std::shared_ptr<ResemblaInterface> resembla, std::string corpus_path, int max_candidate,
-        std::string features_path, std::string patterns_home, std::string model_path)
+        std::string features_path, std::string patterns_home, std::string model_path, int features_col)
 {
     auto features = load_features(features_path);
     if(features.empty()){
@@ -254,7 +254,7 @@ std::shared_ptr<ResemblaInterface> construct_regression_resembla(
 
     return std::make_shared<HierarchicalResembla<FeatureExtractor,
            AggregateRegressionFunction<FeatureAggregator, SVRPredictor>>>(
-                resembla, max_candidate, corpus_path, preprocessor, score_func);
+                resembla, max_candidate, preprocessor, score_func, corpus_path, features_col);
 }
 
 std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
@@ -287,7 +287,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
         if(resembla_measure == svr){
             resembla = construct_regression_resembla(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
-                    pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"), pm.get<std::string>("svr_model_path"));
+                    pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
+                    pm.get<std::string>("svr_model_path"), pm.get<int>("svr_features_col"));
             continue;
         }
 

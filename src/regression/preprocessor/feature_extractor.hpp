@@ -37,6 +37,9 @@ public:
     using string_type = resembla::string_type;
     using return_type = StringFeatureMap;
 
+    static const char FEATURE_DELIMITER;
+    static const char KEYVALUE_DELIMITER;
+
     struct Function
     {
         virtual Feature::text_type operator()(const string_type& text) const = 0;
@@ -61,8 +64,9 @@ public:
 
     void append(Feature::key_type key, std::shared_ptr<Function> func);
 
-    return_type operator()(const string_type& input_text) const;
-    return_type operator()(const resembla::ResemblaResponse& input_data) const;
+    return_type operator()(const string_type& text) const;
+    return_type operator()(const resembla::ResemblaResponse& data) const;
+    return_type operator()(const std::string& raw_text, const std::string& raw_features) const;
 
 protected:
     const std::string base_similarity_key;

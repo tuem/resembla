@@ -21,7 +21,12 @@ limitations under the License.
 
 #include <iostream>
 
+#include "../../string_util.hpp"
+
 namespace resembla {
+
+const char FeatureExtractor::FEATURE_DELIMITER = '&';
+const char FeatureExtractor::KEYVALUE_DELIMITER = '=';
 
 FeatureExtractor::FeatureExtractor(const std::string base_similarity_key): 
     base_similarity_key(base_similarity_key){}
@@ -59,8 +64,30 @@ FeatureExtractor::return_type FeatureExtractor::operator()(const string_type& in
 {
     return_type features;
     for(const auto& i: functions){
+#ifdef DEBUG
         std::cerr << "analyze feature: " << i.first << std::endl;
+#endif
         features[i.first] = (*i.second)(input_text);
+    }
+    return features;
+}
+
+FeatureExtractor::return_type FeatureExtractor::operator()(const std::string& raw_text, const std::string& raw_features) const
+{
+    return_type features;
+#ifdef DEBUG
+    std::cerr << "load features: text=" << raw_text << ", features=" << raw_features << std::endl;
+#else
+    raw_text;
+#endif
+    for(const auto& f: split(raw_features, FEATURE_DELIMITER)){
+        auto kv = split(f, KEYVALUE_DELIMITER);
+        if(kv.size() == 2){
+#ifdef DEBUG
+            std::cerr << "load feature: " << kv[0] << "=" << kv[1] << std::endl;
+#endif
+            features[kv[0]] = kv[1];
+        }
     }
     return features;
 }

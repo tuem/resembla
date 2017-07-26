@@ -23,6 +23,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <memory>
+#include <fstream>
 
 #include <resembla/resembla_interface.hpp>
 #include <resembla/reranker.hpp>
@@ -34,13 +35,13 @@ class HierarchicalResembla: public ResemblaInterface
 {
 public:
     HierarchicalResembla(std::shared_ptr<ResemblaInterface> resembla, size_t max_candidate,
-            const std::string corpus_features_path, 
-            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func):
-        resembla(resembla), max_candidate(max_candidate), preprocess(preprocess), score_func(score_func),
-        reranker()
+            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+            const std::string corpus_path = "", int col = 2):
+        resembla(resembla), max_candidate(max_candidate),
+        preprocess(preprocess), score_func(score_func), reranker()
     {
-        if(!corpus_features_path.empty()){
-            // TODO: load features of corpus texts
+        if(!corpus_path.empty()){
+            loadCorpusFeatures(corpus_path, col);
         }
     }
 
@@ -77,6 +78,28 @@ protected:
     const std::shared_ptr<Preprocessor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
     const Reranker<string_type> reranker;
+
+    void loadCorpusFeatures(const std::string& corpus_path, size_t col)
+    {
+        std::ifstream ifs(corpus_path);
+        if(ifs.fail()){
+            throw std::runtime_error("input file is not available: " + corpus_path);
+        }
+        while(ifs.good()){
+            std::string line;
+            std::getline(ifs, line);
+            if(ifs.eof() || line.length() == 0){
+                break;
+            }
+            auto columns = split(line, '\t');
+            if(columns.size() + 1 < col){
+                continue;
+            }
+            corpus_features[cast_string<string_type>(columns[0])] = (*preprocess)(columns[0], columns[1]);
+        }
+    }
+
+    std::unordered_map<string_type, typename Preprocessor::return_type> corpus_features;
 };
 
 }
