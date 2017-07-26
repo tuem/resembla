@@ -70,8 +70,6 @@ int main(int argc, char* argv[])
         {"wred_case_mismatch_cost", 1L, {"weighted_romaji_edit_distance", "case_mismatch_cost"}, "wred-case-mismatch-cost", 0, "cost to replace case mismatches for weighted romaji edit distance"},
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_ensemble_weight", 0.5, {"weighted_romaji_edit_distance", "ensemble_weight"}, "wred-ensemble-weight", 0, "weight coefficient for weighted romaji edit distance in ensemble mode"},
-        {"chat_user_intention", "reaction", {"chat", "user_intention"}, "chat-user-intention", 0, "user intention in chat response data"},
-        {"chat_main_goal", "chat.greeting", {"chat", "main_goal"}, "chat-main-goal", 0, "main goal in chat response data"},
         {"corpus_path", "", {"common", "corpus_path"}},
         {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
@@ -82,9 +80,9 @@ int main(int argc, char* argv[])
         pm.load(argc, argv, "config");
 
         std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
-        int resembla_max_response = pm["resembla_max_response"];
-        double resembla_threshold = pm["resembla_threshold"];
-        auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int max_response = pm["resembla_max_response"];
+        double threshold = pm["resembla_threshold"];
+        auto measures = split_to_resembla_measures(pm["resembla_measure"]);
 
 		if(pm.get<bool>("varbose")){
             double default_simstring_threshold = pm["simstring_threshold"];
@@ -117,17 +115,14 @@ int main(int argc, char* argv[])
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
             std::cerr << "    max_reranking_num=" << default_max_reranking_num << std::endl;
-            std::cerr << "  Chat:" << std::endl;
-            std::cerr << "    user_intention=" << pm.get<std::string>("chat_user_intention") << std::endl;
-            std::cerr << "    main_goal=" << pm.get<std::string>("chat_main_goal") << std::endl;
-            for(const auto& resembla_measure: resembla_measures){
-                if(resembla_measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
+            for(const auto& measure: measures){
+                if(measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                     std::cerr << "  Edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << ed_simstring_threshold << std::endl;
                     std::cerr << "    max_reranking_num=" << ed_max_reranking_num << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("ed_ensemble_weight") << std::endl;
                 }
-                else if(resembla_measure == weighted_word_edit_distance && pm.get<double>("wwed_ensemble_weight") > 0){
+                else if(measure == weighted_word_edit_distance && pm.get<double>("wwed_ensemble_weight") > 0){
                     std::cerr << "  Weighted word edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << wwed_simstring_threshold << std::endl;
                     std::cerr << "    max_reranking_num=" << wwed_max_reranking_num << std::endl;
@@ -139,7 +134,7 @@ int main(int argc, char* argv[])
                     std::cerr << "    adj_coefficient=" << pm.get<double>("wwed_adj_coefficient") << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("wwed_ensemble_weight") << std::endl;
                 }
-                else if(resembla_measure == weighted_pronunciation_edit_distance && pm.get<double>("wped_ensemble_weight") > 0){
+                else if(measure == weighted_pronunciation_edit_distance && pm.get<double>("wped_ensemble_weight") > 0){
                     std::cerr << "  Weighted pronunciation edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << wped_simstring_threshold << std::endl;
                     std::cerr << "    max_reranking_num=" << wped_max_reranking_num << std::endl;
@@ -150,7 +145,7 @@ int main(int argc, char* argv[])
                     std::cerr << "    delete_insert_ratio=" << pm.get<double>("wped_delete_insert_ratio") << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("wped_ensemble_weight") << std::endl;
                 }
-                else if(resembla_measure == weighted_romaji_edit_distance && pm.get<double>("wred_ensemble_weight") > 0){
+                else if(measure == weighted_romaji_edit_distance && pm.get<double>("wred_ensemble_weight") > 0){
                     std::cerr << "  Weighted romaji edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << wred_simstring_threshold << std::endl;
                     std::cerr << "    max_reranking_num=" << wred_max_reranking_num << std::endl;
@@ -177,7 +172,7 @@ int main(int argc, char* argv[])
             if(input == L"exit" || input == L"quit" || input == L"bye"){
                 break;
             }
-            auto result = resembla->getSimilarTexts(input, resembla_max_response, resembla_threshold);
+            auto result = resembla->getSimilarTexts(input, max_response, threshold);
             if(result.empty()){
                 std::wcout << L"No text found." << std::endl;
             }
