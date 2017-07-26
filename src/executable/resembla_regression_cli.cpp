@@ -158,8 +158,8 @@ int main(int argc, char* argv[])
             std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
         }
 
-        auto resembla_ensemble = construct_resembla_ensemble(corpus_path, pm);
-        auto resembla = construct_regression_resembla(resembla_ensemble, pm);
+        std::shared_ptr<ResemblaInterface> resembla_ensemble = construct_resembla_ensemble(corpus_path, pm);
+        std::shared_ptr<ResemblaInterface> resembla = construct_regression_resembla(resembla_ensemble, pm);
 
         while(true){
             std::wstring input;
