@@ -23,7 +23,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 
-#include <svm.h>
+#include <libsvm/svm.h>
 
 #include "../feature.hpp"
 
