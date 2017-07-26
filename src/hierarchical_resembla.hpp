@@ -52,9 +52,9 @@ public:
         // extract candidates using original resembla
         std::vector<WorkData> candidates;
         auto original_results = resembla->getSimilarTexts(input, max_candidate, threshold);
-        for(const auto& original_result: original_results){
-            candidates.push_back(std::make_pair(original_result.text, (*preprocess)(original_result,
-                    preprocess_corpus ? corpus_features[original_result.text] : typename Preprocessor::return_type())));
+        for(const auto& r: original_results){
+            candidates.push_back(std::make_pair(r.text, (*preprocess)(r,
+                    preprocess_corpus ? corpus_features[r.text] : decltype((*preprocess)(r.text))())));
         }
 
         // rerank by its own metric
