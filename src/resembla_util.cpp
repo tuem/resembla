@@ -41,6 +41,19 @@ limitations under the License.
 #include "measure/romaji_match_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
 
+#include "regression/preprocessor/feature_extractor.hpp"
+#include "regression/preprocessor/regex_feature_extractor.hpp"
+
+#include "regression/aggregator/feature_aggregator.hpp"
+#include "regression/aggregator/flag_feature_aggregator.hpp"
+#include "regression/aggregator/real_feature_aggregator.hpp"
+
+#include "regression/predictor/svr_predictor.hpp"
+
+#include "regression/aggregate_regression_function.hpp"
+
+#include "hierarchical_resembla.hpp"
+
 namespace resembla {
 
 const std::string SIMSTRING_DB_FILE_SUFFIX = ".simstring.cdb";
@@ -183,6 +196,9 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
         else if(resembla_measure_str == STR(weighted_romaji_edit_distance)){
             result.push_back(weighted_romaji_edit_distance);
         }
+        else if(resembla_measure_str == STR(svr)){
+            result.push_back(svr);
+        }
         else{
             if(!ignore_unknown_measure){
                 throw std::invalid_argument("unknown resembla_measure: " + resembla_measure_str);
@@ -192,7 +208,56 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
     return result;
 }
 
-std::shared_ptr<ResemblaInterface> construct_resembla_ensemble(std::string corpus_path, paramset::manager& pm)
+std::shared_ptr<ResemblaInterface> construct_regression_resembla(
+        const std::shared_ptr<ResemblaInterface> resembla, std::string corpus_path, int max_candidate,
+        std::string features_path, std::string patterns_home, std::string model_path)
+{
+    auto features = load_features(features_path);
+    if(features.empty()){
+        throw std::runtime_error("no feature");
+    }
+    const auto& base_feature = features[0][0];
+
+    std::vector<std::string> feature_names;
+    auto preprocessor = std::make_shared<FeatureExtractor>();
+    auto aggregator= std::make_shared<FeatureAggregator>();
+    for(const auto& feature: features){
+        const auto& name = feature[0];
+        feature_names.push_back(name);
+        if(name == base_feature){
+            aggregator->append(name, nullptr);
+            continue;
+        }
+
+        const auto& feature_extractor_type = feature[1];
+        if(feature_extractor_type == "re"){
+            preprocessor->append(name, std::make_shared<RegexFeatureExtractor>(patterns_home + "/" + name + ".tsv"));
+        }
+        else{
+            throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
+        }
+
+        const auto& feature_aggregator_type = feature[2];
+        if(feature_aggregator_type == "flag"){
+            aggregator->append(name, std::make_shared<FlagFeatureAggregator>());
+        }
+        else if(feature_aggregator_type == "real"){
+            aggregator->append(name, std::make_shared<RealFeatureAggregator>());
+        }
+        else{
+            throw std::runtime_error("unknown feature aggregator type: " + feature_aggregator_type);
+        }
+    }
+
+    auto predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
+    auto score_func = std::make_shared<AggregateRegressionFunction<FeatureAggregator, SVRPredictor>>(aggregator, predictor);
+
+    return std::make_shared<HierarchicalResembla<FeatureExtractor,
+           AggregateRegressionFunction<FeatureAggregator, SVRPredictor>>>(
+                resembla, max_candidate, corpus_path, preprocessor, score_func);
+}
+
+std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
 {
     int simstring_measure = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
@@ -218,50 +283,56 @@ std::shared_ptr<ResemblaInterface> construct_resembla_ensemble(std::string corpu
 
     std::string resembla_measure_all = pm["resembla_measure"];
     std::shared_ptr<ResemblaEnsemble> resembla_ensemble = std::make_shared<ResemblaEnsemble>(resembla_measure_all);
+    std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
+        if(resembla_measure == svr){
+            resembla = construct_regression_resembla(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
+                    pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"), pm.get<std::string>("svr_model_path"));
+            continue;
+        }
+
         std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
         std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
 
-        std::shared_ptr<ResemblaInterface> resembla;
         double weight = 0;
         switch(resembla_measure){
             case edit_distance:
                 if((weight = pm["ed_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla = construct_bounded_resembla(
+                resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, ed_simstring_threshold, ed_max_reranking_num,
                         AsIsSequenceBuilder<string_type>(),
-                        EditDistance<>(STR(edit_distance)));
+                        EditDistance<>(STR(edit_distance))));
                 break;
             case weighted_word_edit_distance:
                 if((weight = pm["wwed_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla = construct_bounded_resembla(
+                resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wwed_simstring_threshold, wwed_max_reranking_num,
                         WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>(
                                 WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
                                 FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
                                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        WeightedEditDistance<SurfaceMatchCost>(STR(weighted_word_edit_distance)));
+                        WeightedEditDistance<SurfaceMatchCost>(STR(weighted_word_edit_distance))));
                 break;
             case weighted_pronunciation_edit_distance:
                 if((weight = pm["wped_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla = construct_bounded_resembla(
+                resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wped_simstring_threshold, wped_max_reranking_num,
                         PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
                                 pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        EditDistance<>(STR(weighted_pronunciation_edit_distance)));
+                        EditDistance<>(STR(weighted_pronunciation_edit_distance))));
                 break;
             case weighted_romaji_edit_distance:
                 if((weight = pm["wred_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla = construct_bounded_resembla(
+                resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wred_simstring_threshold, wred_max_reranking_num,
                         WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>(
                                 RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
@@ -270,12 +341,36 @@ std::shared_ptr<ResemblaInterface> construct_resembla_ensemble(std::string corpu
                                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
                         WeightedEditDistance<RomajiMatchCost>(STR(weighted_romaji_edit_distance),
-                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))));
+                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost")))));
+                break;
+            default:
                 break;
         }
-        resembla_ensemble->append(resembla, weight);
     }
-    return resembla_ensemble;
+
+    return resembla;
+}
+
+std::vector<std::vector<std::string>> load_features(const std::string file_path)
+{
+    std::ifstream ifs(file_path);
+    if(ifs.fail()){
+        throw std::runtime_error("input file is not available: " + file_path);
+    }
+
+    std::vector<std::vector<std::string>> features;
+    while(ifs.good()){
+        std::string line;
+        std::getline(ifs, line);
+        if(ifs.eof() || line.length() == 0){
+            break;
+        }
+        auto values = split(line, '\t');
+        if(values.size() == 3){
+            features.push_back(values);
+        }
+    }
+    return features;
 }
 
 }

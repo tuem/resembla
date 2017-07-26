@@ -50,7 +50,8 @@ enum measure: int
     edit_distance,
     weighted_word_edit_distance,
     weighted_pronunciation_edit_distance,
-    weighted_romaji_edit_distance
+    weighted_romaji_edit_distance,
+    svr
 };
 
 // utility function for converting string that represents a simstring measure to int
@@ -104,8 +105,14 @@ std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string&
             builder, dist_func);
 }
 
-// utility function to construct ResemblaEnsemble instance
-std::shared_ptr<ResemblaInterface> construct_resembla_ensemble(std::string corpus_path, paramset::manager& pm);
+std::shared_ptr<ResemblaInterface> construct_regression_resembla(
+        const std::shared_ptr<ResemblaInterface> resembla, std::string corpus_path, int max_candidate,
+        std::string features_path, std::string patterns_home, std::string model_path);
+
+// utility function to construct Resembla instance
+std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm);
+
+std::vector<std::vector<std::string>> load_features(const std::string file_path);
 
 }
 #endif
