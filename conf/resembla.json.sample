@@ -1,6 +1,7 @@
 {
     "common": {
-        "corpus_path": "../misc/sample/sample.tsv"
+        "corpus_path": "../misc/sample/sample.tsv",
+        "varbose": true
     },
     "simstring": {
         "ngram_unit": 2,
@@ -46,6 +47,7 @@
     "svr": {
         "features_path": "../../misc/regression/features.tsv",
         "patterns_home": "../../misc/regression/patterns",
-        "model_path": "../../misc/regression/model"
+        "model_path": "../../misc/regression/model",
+        "features_col": 2
     }
 }
