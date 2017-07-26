@@ -61,29 +61,25 @@ public:
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
 
         // primary resembla
-        for(auto r: resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold)){
+        for(const auto& r: resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold)){
             candidate_texts.push_back(r.text);
             candidate_features[r.text] = extract_corpus ? corpus_features[r.text] : (*extract)(r.text);
             candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
         }
 
         // other resemblas
-        for(auto p: resemblas){
+        for(const auto& p: resemblas){
             if(p.first == primary_resembla_name){
                 continue;
             }
             for(auto r: p.second->getSimilarTexts(input, candidate_texts)){
-                if(candidate_features.find(r.text) == candidate_features.end()){
-                    candidate_features[r.text] = extract_corpus ?
-                            corpus_features[r.text] : (*extract)(r.text);
-                }
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
 
         // prepare data for reranking
         std::vector<WorkData> candidates;
-        for(auto c: candidate_features){
+        for(const auto& c: candidate_features){
             candidates.push_back(std::make_pair(c.first, c.second));
         }
         WorkData input_data = std::make_pair(input, (*extract)(input));
@@ -101,25 +97,30 @@ public:
 
     std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
     {
-        return resemblas[primary_resembla_name]->getSimilarTexts(query, targets);
-        /*TODO
-        std::vector<WorkData> candidates;
-        auto original_results = resembla->getSimilarTexts(query, targets);
-        for(const auto& r: original_results){
-            candidates.push_back(std::make_pair(r.text, (*extract)(r,
-                    extract_corpus ? corpus_features[r.text] : decltype((*extract)(r.text))())));
+        std::unordered_map<string_type, StringFeatureMap> candidate_features;
+        for(const auto& t: targets){
+            candidate_features[t] = extract_corpus ? corpus_features[t] : (*extract)(t);
         }
 
-        // rerank by its own metric
-        WorkData query_data = std::make_pair(query, (*extract)(query));
-        auto reranked = reranker.rerank(query_data, std::begin(candidates), std::end(candidates), *score_func);
+        for(const auto& p: resemblas){
+            for(const auto& r: p.second->getSimilarTexts(query, targets)){
+                candidate_features[r.text][p.first] = Feature::toText(r.score);
+            }
+        }
 
+        // prepare data for reranking
+        std::vector<WorkData> candidates;
+        for(const auto& c: candidate_features){
+            candidates.push_back(std::make_pair(c.first, c.second));
+        }
+        WorkData input_data = std::make_pair(query, (*extract)(query));
+
+        // rerank by its own metric
         std::vector<ResemblaInterface::response_type> results;
-        for(const auto& r: reranked){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             results.push_back({r.first, score_func->name, r.second});
         }
         return results;
-        */
     }
 
 protected:
