@@ -48,7 +48,7 @@ public:
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
             std::shared_ptr<SequenceBuilder> builder, std::shared_ptr<ScoreFunction> score_func, bool preprocess_corpus = true):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
-        builder(builder), score_func(score_func), preprocess_corpus(preprocess_corpus)
+        reranker(), builder(builder), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
         db.open(db_path);
         std::basic_ifstream<string_type::value_type> ifs(inverse_path);
