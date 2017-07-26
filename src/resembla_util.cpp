@@ -53,6 +53,7 @@ limitations under the License.
 #include "composite_function.hpp"
 
 #include "hierarchical_resembla.hpp"
+#include "resembla_regression.hpp"
 
 namespace resembla {
 
@@ -257,6 +258,12 @@ std::shared_ptr<ResemblaInterface> construct_regression_resembla(
     return std::make_shared<HierarchicalResembla<FeatureExtractor,
            CompositeFunction<FeatureAggregator, SVRPredictor>>>(
                 resembla, max_candidate, extractor, predictor, corpus_path, features_col);
+    // TODO: use ResemblaRegression to use multiple resemblas
+    //auto resembla_regression = std::make_shared<ResemblaRegression<FeatureExtractor,
+    //       CompositeFunction<FeatureAggregator, SVRPredictor>>>(
+    //            max_candidate, extractor, predictor, corpus_path, features_col);
+    //resembla_regression->append("base_similarity", resembla, true);
+    //return resembla_regression;
 }
 
 std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
