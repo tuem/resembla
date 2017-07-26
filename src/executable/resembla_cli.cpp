@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
         {"svr_features_col", 2, {"svr", "features_col"}, "svr-features-col", 0, "column number of features for support vector regression"},
         {"corpus_path", "", {"common", "corpus_path"}},
-        {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
+        {"varbose", false, {"common", "varbose"}, "varbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
