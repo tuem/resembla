@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
+        {"svr_features_col", 2, {"svr", "features_col"}, "svr-features-col", 0, "column number of features for support vector regression"},
         {"corpus_path", "", {"common", "corpus_path"}},
         {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
@@ -172,6 +173,7 @@ int main(int argc, char* argv[])
                     std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                     std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
                     std::cerr << "    model_path=" << pm.get<std::string>("svr_model_path") << std::endl;
+                    std::cerr << "    features_col=" << pm.get<int>("svr_features_col") << std::endl;
                 }
             }
         }
