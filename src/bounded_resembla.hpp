@@ -42,8 +42,6 @@ template<
 class BoundedResembla: public ResemblaInterface
 {
 public:
-    using sequence_type = typename SequenceBuilder::sequence_type;
-
     BoundedResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
             std::shared_ptr<SequenceBuilder> builder, std::shared_ptr<ScoreFunction> score_func, bool preprocess_corpus = true):
@@ -87,21 +85,24 @@ public:
         }
 
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
-        std::vector<std::pair<string_type, sequence_type>> candidates;
-        for(size_t i = 0; i < simstring_result.size() && candidates.size() < max_reranking_num; ++i){
-            for(const string_type& t: inverse[simstring_result[i]]){
+        std::vector<WorkData> candidates;
+        for(const auto& i: simstring_result){
+            for(const string_type& t: inverse[i]){
                 candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
+                if(candidates.size() == max_reranking_num){
+                    break;
+                }
             }
         }
 
         // execute reranking
-        auto reranked = reranker.rerank(std::make_pair(query, builder->build(query, false)),
-                std::begin(candidates), std::end(candidates), *score_func);
-
-        // return at most max_response texts those scores are greater than or equal to threshold
+        WorkData input_data = std::make_pair(query, builder->build(query, false));
         std::vector<response_type> response;
-        for(auto i = std::begin(reranked); i != std::end(reranked) && i->second >= threshold && response.size() < max_response; ++i){
-            response.push_back({i->first, score_func->name, i->second});
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
+            if(r.second < threshold || response.size() == max_response){
+                break;
+            }
+            response.push_back({r.first, score_func->name, r.second});
         }
         return response;
     }
@@ -109,32 +110,23 @@ public:
     std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
     {
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
-        std::vector<std::pair<string_type, sequence_type>> candidates;
-        for(auto target: targets){
-            auto j = inverse.find(target);
-            if(j != std::end(inverse)){
-                for(const string_type& t: j->second){
-                    candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
-                }
-            }
-        }
-        if(candidates.empty()){
-            return {};
+        std::vector<WorkData> candidates;
+        for(const auto& t: targets){
+            candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
         }
 
         // execute reranking
-        auto reranked = reranker.rerank(std::make_pair(query, builder->build(query, false)),
-                std::begin(candidates), std::end(candidates), *score_func);
-
-        // return at most max_response texts those scores are greater than or equal to threshold
+        WorkData input_data = std::make_pair(query, builder->build(query, false));
         std::vector<response_type> response;
-        for(auto r: reranked){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             response.push_back({r.first, score_func->name, r.second});
         }
         return response;
     }
 
 protected:
+    using WorkData = std::pair<string_type, typename SequenceBuilder::sequence_type>;
+
     simstring::reader db;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
@@ -147,7 +139,7 @@ protected:
     const std::shared_ptr<ScoreFunction> score_func;
 
     const bool preprocess_corpus;
-    std::unordered_map<string_type, std::pair<string_type, sequence_type>> preprocessed_corpus;
+    std::unordered_map<string_type, WorkData> preprocessed_corpus;
 };
 
 }
