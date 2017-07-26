@@ -19,8 +19,6 @@ limitations under the License.
 
 #include "feature_aggregator.hpp"
 
-#include <iostream>
-
 namespace resembla {
 
 void FeatureAggregator::append(Feature::key_type key, std::shared_ptr<Function> func)
@@ -28,9 +26,9 @@ void FeatureAggregator::append(Feature::key_type key, std::shared_ptr<Function> 
     functions[key] = func;
 }
 
-FeatureMap FeatureAggregator::operator()(const StringFeatureMap& a, const StringFeatureMap& b) const
+FeatureAggregator::output_type FeatureAggregator::operator()(const input_type& a, const input_type& b) const
 {
-    FeatureMap features;
+    output_type features;
     for(const auto& i: functions){
         auto j = a.find(i.first);
         auto k = b.find(i.first);

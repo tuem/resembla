@@ -33,7 +33,8 @@ namespace resembla {
 class FeatureAggregator
 {
 public:
-    using string_type = resembla::string_type;
+    using input_type = StringFeatureMap;
+    using output_type = FeatureMap;
 
     struct Function
     {
@@ -57,7 +58,7 @@ public:
 
     void append(Feature::key_type key, std::shared_ptr<Function> func);
 
-    FeatureMap operator()(const StringFeatureMap& a, const StringFeatureMap& b) const;
+    output_type operator()(const input_type& a, const input_type& b) const;
 
 protected:
     std::unordered_map<Feature::key_type, std::shared_ptr<Function>> functions;
