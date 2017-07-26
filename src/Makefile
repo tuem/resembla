@@ -26,7 +26,7 @@ INCLUDE_DEST = /usr/local/include
 INCLUDE_HEADERS = *.hpp
 INCLUDE_HEADERS_MEASURE = measure/*.hpp
 INCLUDE_HEADERS_REGRESSION = regression/*.hpp
-INCLUDE_HEADERS_PREPROCESSOR = regression/preprocessor/*.hpp
+INCLUDE_HEADERS_EXTRACTOR = regression/extractor/*.hpp
 INCLUDE_HEADERS_AGGREGATOR = regression/aggregator/*.hpp
 INCLUDE_HEADERS_PREDICTOR = regression/predictor/*.hpp
 
@@ -53,7 +53,7 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
-SUBDIR_SRCS = $(wildcard measure/*.cpp) $(wildcard regression/*.cpp) $(wildcard regression/preprocessor/*.cpp) $(wildcard regression/aggregator/*.cpp) $(wildcard regression/predictor/*.cpp)
+SUBDIR_SRCS = $(wildcard measure/*.cpp) $(wildcard regression/*.cpp) $(wildcard regression/extractor/*.cpp) $(wildcard regression/aggregator/*.cpp) $(wildcard regression/predictor/*.cpp)
 SUBDIR_OBJS = $(patsubst %.cpp,%.o,$(SUBDIR_SRCS))
 
 
@@ -66,11 +66,11 @@ $(LIB_FILE): $(OBJS) measure regression
 
 install:
 	install -d $(INCLUDE_DEST)/resembla/measure $(INCLUDE_DEST)/resembla/simstring
-	install -d $(INCLUDE_DEST)/resembla/regression/preprocessor $(INCLUDE_DEST)/resembla/regression/aggregator $(INCLUDE_DEST)/resembla/regression/predictor
+	install -d $(INCLUDE_DEST)/resembla/regression/extractor $(INCLUDE_DEST)/resembla/regression/aggregator $(INCLUDE_DEST)/resembla/regression/predictor
 	install -p $(INCLUDE_HEADERS) $(INCLUDE_DEST)/resembla/
 	install -p $(INCLUDE_HEADERS_MEASURE) $(INCLUDE_DEST)/resembla/measure/
 	install -p $(INCLUDE_HEADERS_REGRESSION) $(INCLUDE_DEST)/resembla/regression/
-	install -p $(INCLUDE_HEADERS_PREPROCESSOR) $(INCLUDE_DEST)/resembla/regression/preprocessor/
+	install -p $(INCLUDE_HEADERS_EXTRACTOR) $(INCLUDE_DEST)/resembla/regression/extractor/
 	install -p $(INCLUDE_HEADERS_AGGREGATOR) $(INCLUDE_DEST)/resembla/regression/aggregator/
 	install -p $(INCLUDE_HEADERS_PREDICTOR) $(INCLUDE_DEST)/resembla/regression/predictor/
 	install -p ../include/simstring/* $(INCLUDE_DEST)/resembla/simstring/

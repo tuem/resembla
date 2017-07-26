@@ -22,7 +22,7 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
-SUBDIRS = preprocessor aggregator predictor
+SUBDIRS = extractor aggregator predictor
 
 all: $(OBJS) $(SUBDIRS)
 debug: all
@@ -40,7 +40,7 @@ $(SUBDIRS):
 
 
 clean:
-	$(MAKE) -C preprocessor clean
+	$(MAKE) -C extractor clean
 	$(MAKE) -C aggregator clean
 	$(MAKE) -C predictor clean
 	$(RM) $(OBJS) $(DEPS)

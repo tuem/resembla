@@ -41,8 +41,8 @@ limitations under the License.
 #include "measure/romaji_match_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
 
-#include "regression/preprocessor/feature_extractor.hpp"
-#include "regression/preprocessor/regex_feature_extractor.hpp"
+#include "regression/extractor/feature_extractor.hpp"
+#include "regression/extractor/regex_feature_extractor.hpp"
 
 #include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/aggregator/flag_feature_aggregator.hpp"
@@ -219,7 +219,7 @@ std::shared_ptr<ResemblaInterface> construct_regression_resembla(
     const auto& base_feature = features[0][0];
 
     std::vector<std::string> feature_names;
-    auto preprocessor = std::make_shared<FeatureExtractor>();
+    auto extractor = std::make_shared<FeatureExtractor>();
     auto aggregator= std::make_shared<FeatureAggregator>();
     for(const auto& feature: features){
         const auto& name = feature[0];
@@ -231,7 +231,7 @@ std::shared_ptr<ResemblaInterface> construct_regression_resembla(
 
         const auto& feature_extractor_type = feature[1];
         if(feature_extractor_type == "re"){
-            preprocessor->append(name, std::make_shared<RegexFeatureExtractor>(patterns_home + "/" + name + ".tsv"));
+            extractor->append(name, std::make_shared<RegexFeatureExtractor>(patterns_home + "/" + name + ".tsv"));
         }
         else{
             throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
@@ -249,12 +249,14 @@ std::shared_ptr<ResemblaInterface> construct_regression_resembla(
         }
     }
 
-    auto predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
-    auto score_func = std::make_shared<CompositeFunction<FeatureAggregator, SVRPredictor>>(aggregator, predictor);
+    // aggregated features => score
+    auto _predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
+    // pair of features => score
+    auto predictor = std::make_shared<CompositeFunction<FeatureAggregator, SVRPredictor>>(aggregator, _predictor);
 
     return std::make_shared<HierarchicalResembla<FeatureExtractor,
            CompositeFunction<FeatureAggregator, SVRPredictor>>>(
-                resembla, max_candidate, preprocessor, score_func, corpus_path, features_col);
+                resembla, max_candidate, extractor, predictor, corpus_path, features_col);
 }
 
 std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
