@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        auto resembla = construct_resembla_ensemble(corpus_path, pm);
+        auto resembla = construct_resembla(corpus_path, pm);
         while(true){
             std::wstring input;
             std::wcin >> input;
