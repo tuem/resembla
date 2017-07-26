@@ -303,8 +303,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, ed_simstring_threshold, ed_max_reranking_num,
-                        AsIsSequenceBuilder<string_type>(),
-                        EditDistance<>(STR(edit_distance))));
+                        std::make_shared<AsIsSequenceBuilder<string_type>>(),
+                        std::make_shared<EditDistance<>>(STR(edit_distance))));
                 break;
             case weighted_word_edit_distance:
                 if((weight = pm["wwed_ensemble_weight"]) == 0){
@@ -312,12 +312,12 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wwed_simstring_threshold, wwed_max_reranking_num,
-                        WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>(
+                        std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>>(
                                 WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
                                 FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
                                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        WeightedEditDistance<SurfaceMatchCost>(STR(weighted_word_edit_distance))));
+                        std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance))));
                 break;
             case weighted_pronunciation_edit_distance:
                 if((weight = pm["wped_ensemble_weight"]) == 0){
@@ -325,9 +325,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wped_simstring_threshold, wped_max_reranking_num,
-                        PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
+                        std::make_shared<PronunciationSequenceBuilder>(pm.get<std::string>("wped_mecab_options"),
                                 pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        EditDistance<>(STR(weighted_pronunciation_edit_distance))));
+                        std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance))));
                 break;
             case weighted_romaji_edit_distance:
                 if((weight = pm["wred_ensemble_weight"]) == 0){
@@ -335,13 +335,13 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure, wred_simstring_threshold, wred_max_reranking_num,
-                        WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>(
+                        std::make_shared<WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>>(
                                 RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
                                         pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
                                 RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
-                        WeightedEditDistance<RomajiMatchCost>(STR(weighted_romaji_edit_distance),
+                        std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
                                 RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost")))));
                 break;
             default:

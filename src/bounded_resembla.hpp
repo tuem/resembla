@@ -24,6 +24,7 @@ limitations under the License.
 #include <fstream>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 #include <stdexcept>
 
 #include "simstring/simstring.h"
@@ -45,7 +46,7 @@ public:
 
     BoundedResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
-            SequenceBuilder builder, ScoreFunction score_func, bool preprocess_corpus = true):
+            std::shared_ptr<SequenceBuilder> builder, std::shared_ptr<ScoreFunction> score_func, bool preprocess_corpus = true):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
         builder(builder), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
@@ -70,7 +71,7 @@ public:
                 inverse[indexed].push_back(original);
             }
             if(preprocess_corpus){
-                preprocessed_corpus[original] = std::make_pair(original, builder.build(original, true));
+                preprocessed_corpus[original] = std::make_pair(original, builder->build(original, true));
             }
         }
     }
@@ -78,7 +79,7 @@ public:
     std::vector<response_type> getSimilarTexts(const string_type& query, size_t max_response = 20, double threshold = 0L)
     {
         // search from N-gram index
-        string_type search_query = builder.buildIndexingText(query);
+        string_type search_query = builder->buildIndexingText(query);
         std::vector<string_type> simstring_result;
         db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
         if(simstring_result.empty()){
@@ -89,17 +90,18 @@ public:
         std::vector<std::pair<string_type, sequence_type>> candidates;
         for(size_t i = 0; i < simstring_result.size() && candidates.size() < max_reranking_num; ++i){
             for(const string_type& t: inverse[simstring_result[i]]){
-                candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder.build(t, true)));
+                candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
             }
         }
 
         // execute reranking
-        auto reranked = reranker.rerank(std::make_pair(query, builder.build(query, false)), std::begin(candidates), std::end(candidates), score_func);
+        auto reranked = reranker.rerank(std::make_pair(query, builder->build(query, false)),
+                std::begin(candidates), std::end(candidates), *score_func);
 
         // return at most max_response texts those scores are greater than or equal to threshold
         std::vector<response_type> response;
         for(auto i = std::begin(reranked); i != std::end(reranked) && i->second >= threshold && response.size() < max_response; ++i){
-            response.push_back({i->first, score_func.name, i->second});
+            response.push_back({i->first, score_func->name, i->second});
         }
         return response;
     }
@@ -113,8 +115,8 @@ protected:
     size_t max_reranking_num;
     Reranker<string_type> reranker;
 
-    SequenceBuilder builder;
-    ScoreFunction score_func;
+    const std::shared_ptr<SequenceBuilder> builder;
+    const std::shared_ptr<ScoreFunction> score_func;
 
     bool preprocess_corpus;
     std::unordered_map<string_type, std::pair<string_type, sequence_type>> preprocessed_corpus;

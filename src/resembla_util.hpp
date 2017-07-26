@@ -98,7 +98,7 @@ template<
 >
 std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string& db_path, const std::string& inverse_path,
         int simstring_measure, double simstring_threshold, int max_reranking_num,
-        SequenceBuilder builder, ScoreFunction score_func)
+        std::shared_ptr<SequenceBuilder> builder, std::shared_ptr<ScoreFunction> score_func)
 {
     return std::make_shared<BoundedResembla<SequenceBuilder, ScoreFunction>>(
             db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
