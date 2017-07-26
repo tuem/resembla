@@ -94,15 +94,15 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
 // utility function for creating Resembla instance
 template<
     typename SequenceBuilder,
-    typename DistanceFunction
+    typename ScoreFunction
 >
 std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string& db_path, const std::string& inverse_path,
         int simstring_measure, double simstring_threshold, int max_reranking_num,
-        SequenceBuilder builder, DistanceFunction dist_func)
+        SequenceBuilder builder, ScoreFunction score_func)
 {
-    return std::make_shared<BoundedResembla<SequenceBuilder, DistanceFunction>>(
+    return std::make_shared<BoundedResembla<SequenceBuilder, ScoreFunction>>(
             db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
-            builder, dist_func);
+            builder, score_func);
 }
 
 std::shared_ptr<ResemblaInterface> construct_regression_resembla(

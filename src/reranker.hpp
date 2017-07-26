@@ -34,13 +34,13 @@ public:
 
     template<
         typename Iterator,
-        typename DistanceFunction
+        typename ScoreFunction
     >
     std::vector<result_type> rerank(
         const typename std::iterator_traits<Iterator>::value_type& target,
         const Iterator begin,
         const Iterator end,
-        DistanceFunction dist_func
+        ScoreFunction score_func
     ) const
     {
 #ifdef DEBUG
@@ -52,7 +52,7 @@ public:
 #endif
         std::vector<result_type> result;
         for(auto i = begin; i != end; ++i){
-            result.push_back(std::make_pair(i->first, dist_func(i->second, target.second)));
+            result.push_back(std::make_pair(i->first, score_func(i->second, target.second)));
         }
         std::sort(std::begin(result), std::end(result), Sorter());
 #ifdef DEBUG
