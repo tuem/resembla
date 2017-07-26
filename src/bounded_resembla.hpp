@@ -33,10 +33,10 @@ limitations under the License.
 
 namespace resembla {
 
-// Resembla with a fixed pair of sequence builder and distance function
+// Resembla with a fixed pair of sequence builder and score function
 template<
     typename SequenceBuilder,
-    typename DistanceFunction
+    typename ScoreFunction
 >
 class BoundedResembla: public ResemblaInterface
 {
@@ -45,9 +45,9 @@ public:
 
     BoundedResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
-            SequenceBuilder builder, DistanceFunction dist_func, bool preprocess_corpus = true):
+            SequenceBuilder builder, ScoreFunction score_func, bool preprocess_corpus = true):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
-        builder(builder), dist_func(dist_func), preprocess_corpus(preprocess_corpus)
+        builder(builder), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
         db.open(db_path);
         std::basic_ifstream<string_type::value_type> ifs(inverse_path);
@@ -94,12 +94,12 @@ public:
         }
 
         // execute reranking
-        auto reranked = reranker.rerank(std::make_pair(query, builder.build(query, false)), std::begin(candidates), std::end(candidates), dist_func);
+        auto reranked = reranker.rerank(std::make_pair(query, builder.build(query, false)), std::begin(candidates), std::end(candidates), score_func);
 
         // return at most max_response texts those scores are greater than or equal to threshold
         std::vector<response_type> response;
         for(auto i = std::begin(reranked); i != std::end(reranked) && i->second >= threshold && response.size() < max_response; ++i){
-            response.push_back({i->first, dist_func.name, i->second});
+            response.push_back({i->first, score_func.name, i->second});
         }
         return response;
     }
@@ -114,7 +114,7 @@ protected:
     Reranker<string_type> reranker;
 
     SequenceBuilder builder;
-    DistanceFunction dist_func;
+    ScoreFunction score_func;
 
     bool preprocess_corpus;
     std::unordered_map<string_type, std::pair<string_type, sequence_type>> preprocessed_corpus;
