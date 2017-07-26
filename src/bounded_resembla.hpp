@@ -110,15 +110,15 @@ protected:
     simstring::reader db;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
-    int simstring_measure;
-    double simstring_threshold;
-    size_t max_reranking_num;
-    Reranker<string_type> reranker;
+    const int simstring_measure;
+    const double simstring_threshold;
+    const size_t max_reranking_num;
+    const Reranker<string_type> reranker;
 
     const std::shared_ptr<SequenceBuilder> builder;
     const std::shared_ptr<ScoreFunction> score_func;
 
-    bool preprocess_corpus;
+    const bool preprocess_corpus;
     std::unordered_map<string_type, std::pair<string_type, sequence_type>> preprocessed_corpus;
 };
 
