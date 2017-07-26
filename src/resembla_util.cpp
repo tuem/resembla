@@ -50,9 +50,8 @@ limitations under the License.
 
 #include "regression/predictor/svr_predictor.hpp"
 
-#include "composite_function.hpp"
+#include "composition.hpp"
 
-#include "hierarchical_resembla.hpp"
 #include "resembla_regression.hpp"
 
 namespace resembla {
@@ -251,15 +250,12 @@ std::shared_ptr<ResemblaInterface> construct_resembla_regression(
     }
 
     // aggregated features => score
-    auto _predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
+    auto original_predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
     // pair of features => score
-    auto predictor = std::make_shared<CompositeFunction<FeatureAggregator, SVRPredictor>>(aggregator, _predictor);
+    auto predictor = std::make_shared<Composition<FeatureAggregator, SVRPredictor>>(aggregator, original_predictor);
 
-    //return std::make_shared<HierarchicalResembla<FeatureExtractor,
-    //       CompositeFunction<FeatureAggregator, SVRPredictor>>>(
-    //            resembla, max_candidate, extractor, predictor, corpus_path, features_col);
     auto resembla_regression = std::make_shared<
-            ResemblaRegression<CompositeFunction<FeatureAggregator, SVRPredictor>>>(
+            ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>>(
                 max_candidate, extractor, predictor, corpus_path, features_col);
     resembla_regression->append("base_similarity", resembla, true);
     return resembla_regression;

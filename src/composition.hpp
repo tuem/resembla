@@ -17,15 +17,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __COMPOSITE_FUNCTION_HPP__
-#define __COMPOSITE_FUNCTION_HPP__
+#ifndef __COMPOSITION_HPP__
+#define __COMPOSITION_HPP__
 
 #include <memory>
 
 namespace resembla {
 
 template<class F, class G>
-class CompositeFunction
+class Composition
 {
 public:
     using input_type = typename F::input_type;
@@ -33,7 +33,7 @@ public:
 
     const std::string name;
 
-    CompositeFunction(const std::shared_ptr<F> f, const std::shared_ptr<G> g, std::string name = ""):
+    Composition(const std::shared_ptr<F> f, const std::shared_ptr<G> g, std::string name = ""):
         name(name), f(f), g(g)
     {}
 
