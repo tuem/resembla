@@ -105,7 +105,7 @@ std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string&
             builder, score_func);
 }
 
-std::shared_ptr<ResemblaInterface> construct_regression_resembla(
+std::shared_ptr<ResemblaInterface> construct_resembla_regression(
         const std::shared_ptr<ResemblaInterface> resembla, int max_candidate,
         std::string features_path, std::string patterns_home, std::string model_path,
         std::string corpus_path, int features_col);

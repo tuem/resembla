@@ -37,19 +37,19 @@ class ResemblaRegression: public ResemblaInterface
 public:
     ResemblaRegression(size_t max_candidate,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
-            std::string corpus_path = "", size_t col = 2):
+            std::string corpus_path = "", size_t feature_col = 2):
         max_candidate(max_candidate),
         preprocess(preprocess), score_func(score_func), reranker(), preprocess_corpus(!corpus_path.empty())
     {
         if(preprocess_corpus){
-            loadCorpusFeatures(corpus_path, col);
+            loadCorpusFeatures(corpus_path, feature_col);
         }
     }
 
-    void append(const std::string name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary)
+    void append(const std::string name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary = true)
     {
         resemblas[name] = resembla;
-        if(is_primary){
+        if(is_primary && primary_resembla_name.empty()){
             primary_resembla_name = name;
         }
     }
@@ -57,15 +57,13 @@ public:
     std::vector<response_type> getSimilarTexts(const string_type& input, size_t max_response, double threshold)
     {
         std::vector<string_type> candidate_texts;
-        std::unordered_map<string_type, StringFeatureMap> aggregated;
+        std::unordered_map<string_type, StringFeatureMap> candidate_features;
 
         // primary resembla
-        auto initial_results = resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold);
-        for(auto c: initial_results){
-            candidate_texts.push_back(c.text);
-            aggregated[c.text] = preprocess_corpus ?
-                    corpus_features[c.text] : ((*preprocess)(c.text));
-            aggregated[c.text][primary_resembla_name] = Feature::toText(c.score);
+        for(auto r: resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold)){
+            candidate_texts.push_back(r.text);
+            candidate_features[r.text] = preprocess_corpus ? corpus_features[r.text] : (*preprocess)(r.text);
+            candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
         }
 
         // other resemblas
@@ -74,25 +72,23 @@ public:
                 continue;
             }
             for(auto r: p.second->getSimilarTexts(input, candidate_texts)){
-                if(aggregated.find(r.text) == aggregated.end()){
-                    aggregated[r.text] = preprocess_corpus ?
-                            corpus_features[r.text] : ((*preprocess)(r.text));
+                if(candidate_features.find(r.text) == candidate_features.end()){
+                    candidate_features[r.text] = preprocess_corpus ?
+                            corpus_features[r.text] : (*preprocess)(r.text);
                 }
-                aggregated[r.text][p.first] = Feature::toText(r.score);
+                candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
 
-        std::vector<std::pair<string_type, StringFeatureMap>> candidates;
-        for(auto a: aggregated){
-            candidates.push_back(std::make_pair(a.first, a.second));
+        std::vector<WorkData> candidates;
+        for(auto c: candidate_features){
+            candidates.push_back(std::make_pair(c.first, c.second));
         }
 
         // rerank by its own metric
-        std::pair<string_type, StringFeatureMap> input_data = std::make_pair(input, (*preprocess)(input));
-        auto reranked = reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func);
-
+        WorkData input_data = std::make_pair(input, (*preprocess)(input));
         std::vector<ResemblaInterface::response_type> results;
-        for(const auto& r: reranked){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             if(r.second < threshold || results.size() >= max_response){
                 break;
             }

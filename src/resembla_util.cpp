@@ -209,7 +209,7 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
     return result;
 }
 
-std::shared_ptr<ResemblaInterface> construct_regression_resembla(
+std::shared_ptr<ResemblaInterface> construct_resembla_regression(
         const std::shared_ptr<ResemblaInterface> resembla, std::string corpus_path, int max_candidate,
         std::string features_path, std::string patterns_home, std::string model_path, int features_col)
 {
@@ -295,7 +295,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
         if(resembla_measure == svr){
-            resembla = construct_regression_resembla(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
+            resembla = construct_resembla_regression(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
                     pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
                     pm.get<std::string>("svr_model_path"), pm.get<int>("svr_features_col"));
             continue;
