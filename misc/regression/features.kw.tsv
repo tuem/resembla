@@ -1,0 +1,4 @@
+base_similarity	-	-
+keyword_match	-	-
+is_question	re	flag
+is_negative	re	flag
