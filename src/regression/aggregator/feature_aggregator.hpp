@@ -24,9 +24,8 @@ limitations under the License.
 #include <memory>
 #include <initializer_list>
 
-#include <resembla/string_util.hpp>
-
 #include "../feature.hpp"
+#include "../../string_util.hpp"
 
 namespace resembla {
 

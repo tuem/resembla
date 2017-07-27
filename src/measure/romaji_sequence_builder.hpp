@@ -35,7 +35,7 @@ public:
 
     output_type operator()(const string_type& text, bool is_original = false) const;
 
-    string_type buildIndexingText(const string_type& text) const;
+    string_type index(const string_type& text) const;
 
 protected:
     static const std::unordered_map<string_type, string_type> ROMAJI_MAP;

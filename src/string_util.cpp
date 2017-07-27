@@ -86,18 +86,4 @@ void cast_string(const UnicodeString& src, std::wstring& dest)
     cast_string(tmp, dest);
 }
 
-std::vector<std::string> split(std::string text, char delimiter)
-{
-    std::vector<std::string> result;
-    for(size_t start = 0, end; start < text.length(); start = end + 1){
-        end = text.find(delimiter, start);
-        if(end == std::string::npos){
-            end = text.length();
-        }
-        result.push_back(text.substr(start, end - start));
-        start = end + 1;
-    }
-    return result;
-}
-
 }

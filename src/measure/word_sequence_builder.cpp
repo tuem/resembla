@@ -60,7 +60,7 @@ WordSequenceBuilder::output_type WordSequenceBuilder::operator()(const string_ty
     return s;
 }
 
-string_type WordSequenceBuilder::buildIndexingText(const string_type& text) const
+string_type WordSequenceBuilder::index(const string_type& text) const
 {
     return text;
 }

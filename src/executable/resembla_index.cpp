@@ -34,8 +34,9 @@ limitations under the License.
 
 using namespace resembla;
 
-template<typename SequenceBuilder>
-void create_simstring_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path, int n, SequenceBuilder builder)
+template<typename Preprocessor>
+void create_simstring_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
+        int n, Preprocessor preprocess/*TODO, size_t extra_col = 0*/)
 {
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
@@ -52,7 +53,7 @@ void create_simstring_index(const std::string corpus_path, const std::string db_
         }
         size_t i = line.find(L"\t");
         auto original = line.substr(0, i);
-        auto s = builder.buildIndexingText(original);
+        auto s = preprocess.index(original);
         if(inserted.count(s) == 0){
             dbw.insert(s);
             inserted[s] = {original};

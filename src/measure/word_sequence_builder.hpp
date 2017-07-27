@@ -41,7 +41,7 @@ public:
     output_type operator()(const string_type& text, bool is_original = false) const;
 
     // returns text as-is
-    string_type buildIndexingText(const string_type& text) const;
+    string_type index(const string_type& text) const;
 
 protected:
     static const int FEATURE_SIZE;

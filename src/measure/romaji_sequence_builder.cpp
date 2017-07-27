@@ -266,7 +266,7 @@ RomajiSequenceBuilder::output_type RomajiSequenceBuilder::operator()(const strin
     return s;
 }
 
-string_type RomajiSequenceBuilder::buildIndexingText(const string_type& text) const
+string_type RomajiSequenceBuilder::index(const string_type& text) const
 {
     string_type t;
     for(auto p: operator()(text)){

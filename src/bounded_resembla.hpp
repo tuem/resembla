@@ -44,7 +44,8 @@ class BoundedResembla: public ResemblaInterface
 public:
     BoundedResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
-            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func, bool preprocess_corpus = true):
+            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+            bool preprocess_corpus = true, size_t extra_col = 0):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
         reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
@@ -59,15 +60,23 @@ public:
             if(ifs.eof() || line.length() == 0){
                 break;
             }
-            size_t i = line.find(L"\t");
-            string_type indexed = line.substr(0, i);
-            string_type original = line.substr(i + 1);
+
+            auto columns = split(line, L'\t');
+            const auto& indexed = columns[0];
+            auto original = columns[1];
+
+            // due to the limited interface of preprocessors, concatenate extra data to the original text
+            if(extra_col > 0 && extra_col - 1 < columns.size() && !columns[extra_col - 1].empty()){
+                original += cast_string<string_type>(std::string("\t")) + columns[extra_col - 1]; // TODO
+            }
+
             if(inverse.count(indexed) == 0){
                 inverse[indexed] = {original};
             }
             else{
                 inverse[indexed].push_back(original);
             }
+
             if(preprocess_corpus){
                 preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
             }
@@ -77,7 +86,7 @@ public:
     std::vector<response_type> getSimilarTexts(const string_type& query, size_t max_response, double threshold)
     {
         // search from N-gram index
-        string_type search_query = preprocess->buildIndexingText(query);
+        string_type search_query = preprocess->index(query);
         std::vector<string_type> simstring_result;
         db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
         if(simstring_result.empty()){

@@ -51,9 +51,9 @@ public:
         return ws;
     }
 
-    string_type buildIndexingText(const string_type& text) const
+    string_type index(const string_type& text) const
     {
-        return tokenize.buildIndexingText(text);
+        return tokenize.index(text);
     }
 
 protected:

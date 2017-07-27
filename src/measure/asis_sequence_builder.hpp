@@ -34,7 +34,7 @@ public:
         return text;
     }
 
-    string_type buildIndexingText(const string_type& text) const
+    string_type index(const string_type& text) const
     {
         return text;
     }

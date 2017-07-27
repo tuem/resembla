@@ -49,7 +49,20 @@ dest_type cast_string(const src_type& src)
 }
 
 // split text by delimiter
-std::vector<std::string> split(std::string text, char delimiter = ',');
+template<typename string_type>
+std::vector<string_type> split(const string_type& text, const typename string_type::value_type delimiter)
+{
+    std::vector<string_type> result;
+    for(size_t start = 0, end; start < text.length(); start = end + 1){
+        end = text.find(delimiter, start);
+        if(end == string_type::npos){
+            end = text.length();
+        }
+        result.push_back(text.substr(start, end - start));
+        start = end + 1;
+    }
+    return result;
+}
 
 }
 #endif

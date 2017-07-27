@@ -298,7 +298,7 @@ PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator
     return s;
 }
 
-string_type PronunciationSequenceBuilder::buildIndexingText(const string_type& text) const
+string_type PronunciationSequenceBuilder::index(const string_type& text) const
 {
     return operator()(text);
 }
