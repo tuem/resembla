@@ -19,6 +19,8 @@ limitations under the License.
 
 #include "feature_aggregator.hpp"
 
+#include <iostream>
+
 namespace resembla {
 
 void FeatureAggregator::append(Feature::key_type key, std::shared_ptr<Function> func)
@@ -45,6 +47,12 @@ FeatureAggregator::output_type FeatureAggregator::operator()(const input_type& a
             features[i.first] = Feature::toReal(k->second);
         }
     }
+#ifdef DEBUG
+    std::cerr << "aggregated features" << std::endl;
+    for(auto f: features){
+        std::cerr << "  key=" << f.first << ", value=" << f.second << std::endl;
+    }
+#endif
     return features;
 }
 
