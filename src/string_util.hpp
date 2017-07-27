@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace resembla {
 
@@ -49,6 +50,15 @@ dest_type cast_string(const src_type& src)
 
 // split text by delimiter
 std::vector<std::string> split(std::string text, char delimiter = ',');
+
+template<typename char_type> struct cio
+{
+    static std::basic_ostream<char_type>& out;
+    static std::basic_ostream<char_type>& err;
+    static std::basic_istream<char_type>& in;
+};
+
+using _c = cio<string_type::value_type>;
 
 }
 #endif

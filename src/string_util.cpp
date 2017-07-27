@@ -100,4 +100,12 @@ std::vector<std::string> split(std::string text, char delimiter)
     return result;
 }
 
+template<> std::basic_ostream<char>& cio<char>::out = std::cout;
+template<> std::basic_ostream<char>& cio<char>::err = std::cerr;
+template<> std::basic_istream<char>& cio<char>::in = std::cin;
+
+template<> std::basic_ostream<wchar_t>& cio<wchar_t>::out = std::wcout;
+template<> std::basic_ostream<wchar_t>& cio<wchar_t>::err = std::wcerr;
+template<> std::basic_istream<wchar_t>& cio<wchar_t>::in = std::wcin;
+
 }
