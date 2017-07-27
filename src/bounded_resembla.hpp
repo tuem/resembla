@@ -34,9 +34,9 @@ limitations under the License.
 
 namespace resembla {
 
-// Resembla with a fixed pair of sequence builder and score function
+// Resembla with a fixed pair of preprocessor and score function
 template<
-    typename SequenceBuilder,
+    typename Preprocessor,
     typename ScoreFunction
 >
 class BoundedResembla: public ResemblaInterface
@@ -44,9 +44,9 @@ class BoundedResembla: public ResemblaInterface
 public:
     BoundedResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
-            std::shared_ptr<SequenceBuilder> builder, std::shared_ptr<ScoreFunction> score_func, bool preprocess_corpus = true):
+            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func, bool preprocess_corpus = true):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
-        reranker(), builder(builder), score_func(score_func), preprocess_corpus(preprocess_corpus)
+        reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
         db.open(db_path);
         std::basic_ifstream<string_type::value_type> ifs(inverse_path);
@@ -69,7 +69,7 @@ public:
                 inverse[indexed].push_back(original);
             }
             if(preprocess_corpus){
-                preprocessed_corpus[original] = std::make_pair(original, builder->build(original, true));
+                preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
             }
         }
     }
@@ -77,7 +77,7 @@ public:
     std::vector<response_type> getSimilarTexts(const string_type& query, size_t max_response, double threshold)
     {
         // search from N-gram index
-        string_type search_query = builder->buildIndexingText(query);
+        string_type search_query = preprocess->buildIndexingText(query);
         std::vector<string_type> simstring_result;
         db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
         if(simstring_result.empty()){
@@ -88,7 +88,7 @@ public:
         std::vector<WorkData> candidates;
         for(const auto& i: simstring_result){
             for(const string_type& t: inverse[i]){
-                candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
+                candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, (*preprocess)(t, true)));
                 if(candidates.size() == max_reranking_num){
                     break;
                 }
@@ -96,7 +96,7 @@ public:
         }
 
         // execute reranking
-        WorkData input_data = std::make_pair(query, builder->build(query, false));
+        WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<response_type> response;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             if(r.second < threshold || response.size() == max_response){
@@ -112,11 +112,11 @@ public:
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> candidates;
         for(const auto& t: targets){
-            candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, builder->build(t, true)));
+            candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, (*preprocess)(t, true)));
         }
 
         // execute reranking
-        WorkData input_data = std::make_pair(query, builder->build(query, false));
+        WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<response_type> response;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             response.push_back({r.first, score_func->name, r.second});
@@ -125,7 +125,7 @@ public:
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename SequenceBuilder::output_type>;
+    using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
 
     simstring::reader db;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
@@ -135,7 +135,7 @@ protected:
     const size_t max_reranking_num;
     const Reranker<string_type> reranker;
 
-    const std::shared_ptr<SequenceBuilder> builder;
+    const std::shared_ptr<Preprocessor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
 
     const bool preprocess_corpus;

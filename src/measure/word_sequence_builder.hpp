@@ -38,7 +38,7 @@ public:
     WordSequenceBuilder(const std::string mecab_options = "");
 
     // parses to a sequence of words
-    output_type build(const string_type& text, bool is_original = false) const;
+    output_type operator()(const string_type& text, bool is_original = false) const;
 
     // returns text as-is
     string_type buildIndexingText(const string_type& text) const;

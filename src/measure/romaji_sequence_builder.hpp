@@ -33,7 +33,7 @@ public:
     RomajiSequenceBuilder(const std::string mecab_options = "", const size_t mecab_feature_pos = 7,
             const std::string mecab_pronunciation_of_marks = "", bool keep_case = false);
 
-    output_type build(const string_type& text, bool is_original = false) const;
+    output_type operator()(const string_type& text, bool is_original = false) const;
 
     string_type buildIndexingText(const string_type& text) const;
 

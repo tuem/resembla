@@ -26,7 +26,7 @@ const int WordSequenceBuilder::FEATURE_SIZE = 9;
 
 WordSequenceBuilder::WordSequenceBuilder(const std::string mecab_options): tagger(MeCab::createTagger(mecab_options.c_str())) {}
 
-WordSequenceBuilder::output_type WordSequenceBuilder::build(const string_type& text, bool) const
+WordSequenceBuilder::output_type WordSequenceBuilder::operator()(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);
     output_type s;

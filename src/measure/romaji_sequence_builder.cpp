@@ -230,10 +230,10 @@ RomajiSequenceBuilder::RomajiSequenceBuilder(const std::string mecab_options, co
         const std::string mecab_pronunciation_of_marks, bool keep_case):
     PronunciationSequenceBuilder(mecab_options, mecab_feature_pos, mecab_pronunciation_of_marks), keep_case(keep_case) {}
 
-RomajiSequenceBuilder::output_type RomajiSequenceBuilder::build(const string_type& text, bool) const
+RomajiSequenceBuilder::output_type RomajiSequenceBuilder::operator()(const string_type& text, bool) const
 {
     output_type s;
-    auto pronunciation = PronunciationSequenceBuilder::build(text);
+    auto pronunciation = PronunciationSequenceBuilder::operator()(text);
     for(size_t i = 0; i < pronunciation.size(); ++i){
         string_type p = {pronunciation[i]};
         // try to read-ahead next letter
@@ -269,7 +269,7 @@ RomajiSequenceBuilder::output_type RomajiSequenceBuilder::build(const string_typ
 string_type RomajiSequenceBuilder::buildIndexingText(const string_type& text) const
 {
     string_type t;
-    for(auto p: build(text)){
+    for(auto p: operator()(text)){
         auto c = p;
         if(!keep_case && L'A' <= c && c <= L'Z'){
             c = c - L'A' + L'a';

@@ -38,13 +38,13 @@ public:
 
     using output_type = std::vector<token_type>;
 
-    WeightedSequenceBuilder(const SequenceTokenizer tokenizer = SequenceTokenizer(), const WeightFunction weight_func = WeightFunction()): 
-        tokenizer(tokenizer), weight_func(weight_func) {}
+    WeightedSequenceBuilder(const SequenceTokenizer tokenize = SequenceTokenizer(), const WeightFunction weight_func = WeightFunction()): 
+        tokenize(tokenize), weight_func(weight_func) {}
 
-    output_type build(const string_type& text, bool is_original = false) const
+    output_type operator()(const string_type& text, bool is_original = false) const
     {
         output_type ws;
-        auto s = tokenizer.build(text, is_original);
+        auto s = tokenize(text, is_original);
         for(size_t i = 0; i < s.size(); ++i){
             ws.push_back({s[i], weight_func(s[i], is_original, s.size(), i)});
         }
@@ -53,11 +53,11 @@ public:
 
     string_type buildIndexingText(const string_type& text) const
     {
-        return tokenizer.buildIndexingText(text);
+        return tokenize.buildIndexingText(text);
     }
 
 protected:
-    SequenceTokenizer tokenizer;
+    SequenceTokenizer tokenize;
     WeightFunction weight_func;
 };
 

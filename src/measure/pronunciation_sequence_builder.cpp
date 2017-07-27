@@ -241,7 +241,7 @@ PronunciationSequenceBuilder::PronunciationSequenceBuilder(
     tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
     mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
 
-PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::build(const string_type& text, bool) const
+PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);
     output_type s;
@@ -300,7 +300,7 @@ PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::build(co
 
 string_type PronunciationSequenceBuilder::buildIndexingText(const string_type& text) const
 {
-    return build(text);
+    return operator()(text);
 }
 
 }
