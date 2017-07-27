@@ -104,18 +104,14 @@ public:
                     candidates.push_back(preprocessed_corpus[t]);
                 }
                 else{
-                    // TODO: improve efficiency
-                    auto values = split(t, L'\t');
-                    if(values.size() == 2){
-                        candidates.push_back(std::make_pair(values[0], (*preprocess)(t, true)));
-                    }
-                    else{
-                        candidates.push_back(std::make_pair(t, (*preprocess)(t, true)));
-                    }
+                    auto tabpos = t.find(L'\t');
+                    candidates.push_back(std::make_pair(
+                        tabpos != string_type::npos ? t.substr(0, tabpos) : t,
+                        (*preprocess)(t, true)));
                 }
-                if(candidates.size() == max_reranking_num){
-                    break;
-                }
+            }
+            if(candidates.size() == max_reranking_num){
+                break;
             }
         }
 
@@ -140,14 +136,10 @@ public:
                 candidates.push_back(preprocessed_corpus[t]);
             }
             else{
-                // TODO: improve efficiency
-                auto values = split(t, L'\t');
-                if(values.size() == 2){
-                    candidates.push_back(std::make_pair(values[0], (*preprocess)(t, true)));
-                }
-                else{
-                    candidates.push_back(std::make_pair(t, (*preprocess)(t, true)));
-                }
+                auto tabpos = t.find(L'\t');
+                candidates.push_back(std::make_pair(
+                    tabpos != string_type::npos ? t.substr(0, tabpos) : t,
+                    (*preprocess)(t, true)));
             }
         }
 
