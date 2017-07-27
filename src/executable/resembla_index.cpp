@@ -55,10 +55,11 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
 
         auto columns = split(line, L'\t');
         auto original = columns[0];
-        if(extra_col > 0 && extra_col - 1 < columns.size()){
-            original += columns[extra_col - 1];
-        }
         auto s = preprocess.index(original);
+
+        if(extra_col > 0 && extra_col - 1 < columns.size()){
+            original += L"\t" + columns[extra_col - 1];
+        }
 
         if(inserted.count(s) == 0){
             dbw.insert(s);
