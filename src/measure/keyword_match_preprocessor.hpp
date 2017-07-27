@@ -38,12 +38,6 @@ public:
     using output_type = output_type;
 
     KeywordMatchPreprocessor()
-    /*
-    KeywordMatchPreprocessor(std::string synonym_path, size_t text_col, size_t features_col, 
-            const std::string feature_key, size_t keyword_delimiter):
-        text_col(text_col), features_col(features_col),
-        feature_key(feature_key), keyword_delimiter(keyword_delimiter)
-    */
     {
         // TODO: loadSynonyms(synonym_path);
     }
@@ -78,6 +72,7 @@ public:
     }
 
 protected:
+// TODO: use synonym dictionary to improve keyword matching quality
 //    std::vector<std::vector<string_type>> synonyms;
 //    std::unordered_map<string_type, size_t> synonym_index;
 };
