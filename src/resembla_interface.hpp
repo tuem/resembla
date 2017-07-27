@@ -32,8 +32,8 @@ class ResemblaInterface
 public:
     using response_type = ResemblaResponse;
 
-    virtual std::vector<response_type> getSimilarTexts(const string_type& input, size_t max_response, double threshold) = 0;
-    virtual std::vector<response_type> calcSimilarity(const string_type& input, const std::vector<string_type>& targets) = 0;
+    virtual std::vector<response_type> find(const string_type& input, size_t max_response, double threshold) = 0;
+    virtual std::vector<response_type> eval(const string_type& input, const std::vector<string_type>& candidates) = 0;
 };
 
 }

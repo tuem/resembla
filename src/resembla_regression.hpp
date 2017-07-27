@@ -27,7 +27,7 @@ limitations under the License.
 #include <fstream>
 
 #include "resembla_interface.hpp"
-#include "regression/extractor/feature_preprocessor.hpp"
+#include "regression/extractor/feature_extractor.hpp"
 #include "reranker.hpp"
 
 namespace resembla {
@@ -55,13 +55,13 @@ public:
         }
     }
 
-    std::vector<response_type> getSimilarTexts(const string_type& input, size_t max_response, double threshold)
+    std::vector<response_type> find(const string_type& input, size_t max_response, double threshold)
     {
         std::vector<string_type> candidate_texts;
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
 
         // primary resembla
-        for(const auto& r: resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold)){
+        for(const auto& r: resemblas[primary_resembla_name]->find(input, max_candidate, threshold)){
             candidate_texts.push_back(r.text);
             candidate_features[r.text] = preprocess_corpus ? corpus_features[r.text] : (*preprocess)(r.text);
             candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
@@ -72,7 +72,7 @@ public:
             if(p.first == primary_resembla_name){
                 continue;
             }
-            for(auto r: p.second->calcSimilarity(input, candidate_texts)){
+            for(auto r: p.second->eval(input, candidate_texts)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
@@ -95,7 +95,7 @@ public:
         return results;
     }
 
-    std::vector<response_type> calcSimilarity(const string_type& query, const std::vector<string_type>& targets)
+    std::vector<response_type> eval(const string_type& query, const std::vector<string_type>& targets)
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& t: targets){
@@ -103,7 +103,7 @@ public:
         }
 
         for(const auto& p: resemblas){
-            for(const auto& r: p.second->calcSimilarity(query, targets)){
+            for(const auto& r: p.second->eval(query, targets)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
