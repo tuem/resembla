@@ -34,7 +34,7 @@ void ResemblaEnsemble::append(const std::shared_ptr<ResemblaInterface> resembla,
     total_weight += weight;
 }
 
-std::vector<ResemblaEnsemble::response_type> ResemblaEnsemble::find(const string_type& input, size_t max_response, double threshold)
+std::vector<ResemblaEnsemble::output_type> ResemblaEnsemble::find(const string_type& input, size_t max_response, double threshold)
 {
     // find similar texts using all measures
     std::unordered_map<string_type, double> aggregated;
@@ -48,7 +48,7 @@ std::vector<ResemblaEnsemble::response_type> ResemblaEnsemble::find(const string
     }
 
     // sort combined result
-    std::vector<response_type> response;
+    std::vector<output_type> response;
     for(auto r: aggregated){
         response.push_back({r.first, measure_name, sqrt(r.second / total_weight)});
     }
@@ -61,7 +61,7 @@ std::vector<ResemblaEnsemble::response_type> ResemblaEnsemble::find(const string
     return response;
 }
 
-std::vector<ResemblaInterface::response_type> ResemblaEnsemble::eval(const string_type& query, const std::vector<string_type>& targets)
+std::vector<ResemblaInterface::output_type> ResemblaEnsemble::eval(const string_type& query, const std::vector<string_type>& targets)
 {
     // calculate similarity using all measures
     std::unordered_map<string_type, double> aggregated;
@@ -75,7 +75,7 @@ std::vector<ResemblaInterface::response_type> ResemblaEnsemble::eval(const strin
     }
 
     // sort combined result
-    std::vector<response_type> response;
+    std::vector<output_type> response;
     for(auto r: aggregated){
         response.push_back({r.first, measure_name, sqrt(r.second / total_weight)});
     }

@@ -37,14 +37,14 @@ void FeatureExtractor::append(Feature::key_type key, std::shared_ptr<Function> f
     functions[key] = func;
 }
 
-FeatureExtractor::return_type FeatureExtractor::operator()(const std::string& raw_text, const std::string& raw_features) const
+FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& raw_text, const std::string& raw_features) const
 {
 #ifdef DEBUG
     std::cerr << "load features from saved data: text=" << raw_text << ", features=" << raw_features << std::endl;
 #else
     (void)raw_text;
 #endif
-    return_type features;
+    output_type features;
     for(const auto& f: split(raw_features, FEATURE_DELIMITER)){
         auto kv = split(f, KEYVALUE_DELIMITER);
         if(kv.size() == 2){
@@ -57,13 +57,13 @@ FeatureExtractor::return_type FeatureExtractor::operator()(const std::string& ra
     return features;
 }
 
-FeatureExtractor::return_type FeatureExtractor::operator()(
-        const resembla::ResemblaResponse& data, const return_type& given_features) const
+FeatureExtractor::output_type FeatureExtractor::operator()(
+        const resembla::ResemblaResponse& data, const output_type& given_features) const
 {
 #ifdef DEBUG
     std::cerr << "extract features" << std::endl;
 #endif
-    return_type features(given_features);
+    output_type features(given_features);
     features[base_similarity_key] = Feature::toText(data.score);
     for(const auto& i: functions){
         auto k = features.find(i.first);
@@ -82,12 +82,12 @@ FeatureExtractor::return_type FeatureExtractor::operator()(
     return features;
 }
 
-FeatureExtractor::return_type FeatureExtractor::operator()(const string_type& text) const
+FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& text) const
 {
 #ifdef DEBUG
     std::cerr << "extract features from text" << std::endl;
 #endif
-    return_type features;
+    output_type features;
     for(const auto& i: functions){
 #ifdef DEBUG
         std::cerr << "extract feature: " << i.first << std::endl;

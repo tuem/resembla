@@ -55,7 +55,7 @@ public:
         }
     }
 
-    std::vector<response_type> find(const string_type& input, size_t max_response, double threshold)
+    std::vector<output_type> find(const string_type& input, size_t max_response, double threshold)
     {
         std::vector<string_type> candidate_texts;
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
@@ -85,7 +85,7 @@ public:
         WorkData input_data = std::make_pair(input, (*preprocess)(input));
 
         // rerank by its own metric
-        std::vector<ResemblaInterface::response_type> results;
+        std::vector<ResemblaInterface::output_type> results;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             if(r.second < threshold || results.size() >= max_response){
                 break;
@@ -95,7 +95,7 @@ public:
         return results;
     }
 
-    std::vector<response_type> eval(const string_type& query, const std::vector<string_type>& targets)
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets)
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& t: targets){
@@ -116,7 +116,7 @@ public:
         WorkData input_data = std::make_pair(query, (*preprocess)(query));
 
         // rerank by its own metric
-        std::vector<ResemblaInterface::response_type> results;
+        std::vector<ResemblaInterface::output_type> results;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
             results.push_back({r.first, score_func->name, r.second});
         }
@@ -124,7 +124,7 @@ public:
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename FeatureExtractor::return_type>;
+    using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
 
     std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
     std::string primary_resembla_name;
@@ -135,7 +135,7 @@ protected:
     const Reranker<string_type> reranker;
 
     const bool preprocess_corpus;
-    std::unordered_map<string_type, typename FeatureExtractor::return_type> corpus_features;
+    std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
 
     void loadCorpusFeatures(const std::string& corpus_path, size_t features_col)
     {

@@ -34,7 +34,7 @@ class FeatureExtractor
 {
 public:
     using string_type = resembla::string_type;
-    using return_type = StringFeatureMap;
+    using output_type = StringFeatureMap;
 
     static const char FEATURE_DELIMITER;
     static const char KEYVALUE_DELIMITER;
@@ -64,11 +64,11 @@ public:
     void append(Feature::key_type key, std::shared_ptr<Function> func);
 
     // load features of corpus texts
-    return_type operator()(const std::string& raw_text, const std::string& raw_features) const;
+    output_type operator()(const std::string& raw_text, const std::string& raw_features) const;
     // extract features from corpus text using already loaded features
-    return_type operator()(const ResemblaInterface::response_type& data, const return_type& given_features) const;
+    output_type operator()(const ResemblaInterface::output_type& data, const output_type& given_features) const;
     // extract features from unknown text
-    return_type operator()(const string_type& text) const;
+    output_type operator()(const string_type& text) const;
 
 protected:
     const std::string base_similarity_key;
