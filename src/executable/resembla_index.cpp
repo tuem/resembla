@@ -38,16 +38,16 @@ template<typename SequenceBuilder>
 void create_simstring_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path, int n, SequenceBuilder builder)
 {
     simstring::ngram_generator gen(n, false);
-    simstring::writer_base<std::wstring> dbw(gen, db_path);
-    std::unordered_map<std::wstring, std::set<std::wstring>> inserted;
-    std::wifstream wifs(corpus_path);
-    if(wifs.fail()){
+    simstring::writer_base<string_type> dbw(gen, db_path);
+    std::unordered_map<string_type, std::set<string_type>> inserted;
+    std::basic_ifstream<string_type::value_type> ifs(corpus_path);
+    if(ifs.fail()){
         throw std::runtime_error("input file is not available: " + corpus_path);
     }
-    while(wifs.good()){
-        std::wstring line;
-        std::getline(wifs, line);
-        if(wifs.eof() || line.length() == 0){
+    while(ifs.good()){
+        string_type line;
+        std::getline(ifs, line);
+        if(ifs.eof() || line.length() == 0){
             break;
         }
         size_t i = line.find(L"\t");
@@ -62,11 +62,11 @@ void create_simstring_index(const std::string corpus_path, const std::string db_
         }
     }
     dbw.close();
-    std::wofstream wofs;
-    wofs.open(inverse_path);
+    std::basic_ofstream<string_type::value_type> ofs;
+    ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            wofs << p.first << L'\t' << original << std::endl;
+            ofs << p.first << L'\t' << original << std::endl;
         }
     }
 }

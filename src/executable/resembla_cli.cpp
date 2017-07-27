@@ -181,18 +181,18 @@ int main(int argc, char* argv[])
 
         auto resembla = construct_resembla(corpus_path, pm);
         while(true){
-            std::wstring input;
-            std::wcin >> input;
+            string_type input;
+            _c::in >> input;
             if(input == L"exit" || input == L"quit" || input == L"bye"){
                 break;
             }
             auto result = resembla->getSimilarTexts(input, max_response, threshold);
             if(result.empty()){
-                std::wcout << L"No text found." << std::endl;
+                _c::out << L"No text found." << std::endl;
             }
             else{
                 for(const auto& r: result){
-                    std::wcout << r.text << ", " << r.score << std::endl;
+                    _c::out << r.text << ", " << r.score << std::endl;
                 }
             }
         }
