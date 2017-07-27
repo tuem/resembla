@@ -78,7 +78,7 @@ public:
             }
 
             if(preprocess_corpus){
-                preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
+                preprocessed_corpus[columns[1]] = std::make_pair(columns[1], (*preprocess)(original, true));
             }
         }
     }
@@ -97,7 +97,19 @@ public:
         std::vector<WorkData> candidates;
         for(const auto& i: simstring_result){
             for(const string_type& t: inverse[i]){
-                candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, (*preprocess)(t, true)));
+                if(preprocess_corpus){
+                    candidates.push_back(preprocessed_corpus[t]);
+                }
+                else{
+                    // TODO: improve efficiency
+                    auto values = split(t, L'\t');
+                    if(values.size() == 2){
+                        candidates.push_back(std::make_pair(values[0], (*preprocess)(t, true)));
+                    }
+                    else{
+                        candidates.push_back(std::make_pair(t, (*preprocess)(t, true)));
+                    }
+                }
                 if(candidates.size() == max_reranking_num){
                     break;
                 }
@@ -121,7 +133,19 @@ public:
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> candidates;
         for(const auto& t: targets){
-            candidates.push_back(preprocess_corpus ? preprocessed_corpus[t] : std::make_pair(t, (*preprocess)(t, true)));
+            if(preprocess_corpus){
+                candidates.push_back(preprocessed_corpus[t]);
+            }
+            else{
+                // TODO: improve efficiency
+                auto values = split(t, L'\t');
+                if(values.size() == 2){
+                    candidates.push_back(std::make_pair(values[0], (*preprocess)(t, true)));
+                }
+                else{
+                    candidates.push_back(std::make_pair(t, (*preprocess)(t, true)));
+                }
+            }
         }
 
         // execute reranking
