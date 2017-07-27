@@ -1,6 +1,6 @@
 {
     "common": {
-        "corpus_path": "../misc/sample/sample.tsv",
+        "corpus_path": "../../misc/sample/sample.tsv",
         "varbose": true
     },
     "simstring": {
