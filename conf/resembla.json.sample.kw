@@ -5,7 +5,7 @@
     },
     "simstring": {
         "ngram_unit": 2,
-        "text_preprocess": "asis",
+        "text_preprocess": "asis,keyword",
         "measure": "cosine",
         "threshold": 0.001
     },
@@ -52,12 +52,6 @@
         "features_path": "../../misc/regression/features.kw.tsv",
         "patterns_home": "../../misc/regression/patterns",
         "model_path": "../../misc/regression/model.kw",
-        "features_col": 2
-    },
-    "svr": {
-        "features_path": "../../misc/regression/features.tsv",
-        "patterns_home": "../../misc/regression/patterns",
-        "model_path": "../../misc/regression/model",
         "features_col": 2
     }
 }
