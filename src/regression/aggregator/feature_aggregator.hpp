@@ -38,7 +38,7 @@ public:
 
     struct Function
     {
-        virtual Feature::real_type operator()(const Feature::text_type& a, const Feature::text_type& b) const = 0;
+        virtual Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const = 0;
     };
 
     template<class F>
@@ -47,9 +47,9 @@ public:
         StringsToRealFunction(){}
         StringsToRealFunction(F f): f(f){}
 
-        Feature::real_type operator()(const Feature::text_type& a, const Feature::text_type& b) const
+        Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const
         {
-            return f(Feature::toReal(a), Feature::toReal(b));
+            return f(Feature::toReal(target), Feature::toReal(reference));
         }
 
     private:
@@ -58,7 +58,7 @@ public:
 
     void append(Feature::key_type key, std::shared_ptr<Function> func);
 
-    output_type operator()(const input_type& a, const input_type& b) const;
+    output_type operator()(const input_type& target, const input_type& reference) const;
 
 protected:
     std::unordered_map<Feature::key_type, std::shared_ptr<Function>> functions;
