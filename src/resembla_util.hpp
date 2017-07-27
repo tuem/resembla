@@ -100,11 +100,12 @@ template<
 >
 std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string& db_path, const std::string& inverse_path,
         int simstring_measure, double simstring_threshold, int max_reranking_num,
-        std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func)
+        std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+        bool preprocess_corpus = true, size_t feature_col = 2)
 {
     return std::make_shared<BoundedResembla<Preprocessor, ScoreFunction>>(
             db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
-            preprocess, score_func);
+            preprocess, score_func, preprocess_corpus, feature_col);
 }
 
 std::shared_ptr<ResemblaInterface> construct_resembla_regression(
