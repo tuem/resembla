@@ -26,10 +26,10 @@ const int WordSequenceBuilder::FEATURE_SIZE = 9;
 
 WordSequenceBuilder::WordSequenceBuilder(const std::string mecab_options): tagger(MeCab::createTagger(mecab_options.c_str())) {}
 
-WordSequenceBuilder::sequence_type WordSequenceBuilder::build(const string_type& text, bool) const
+WordSequenceBuilder::output_type WordSequenceBuilder::build(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);
-    sequence_type s;
+    output_type s;
     for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
         // skip BOS/EOS nodes
         if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){

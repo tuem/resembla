@@ -241,10 +241,10 @@ PronunciationSequenceBuilder::PronunciationSequenceBuilder(
     tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
     mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
 
-PronunciationSequenceBuilder::sequence_type PronunciationSequenceBuilder::build(const string_type& text, bool) const
+PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::build(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);
-    sequence_type s;
+    output_type s;
     for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
         // skip BOS/EOS nodes
         if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){

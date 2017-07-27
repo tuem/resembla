@@ -29,9 +29,9 @@ class AsIsSequenceBuilder
 {
 public:
     using token_type = typename string_type::value_type;
-    using sequence_type = string_type;
+    using output_type = string_type;
 
-    sequence_type build(const string_type& text, bool) const
+    output_type build(const string_type& text, bool) const
     {
         return text;
     }

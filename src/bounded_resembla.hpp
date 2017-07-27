@@ -125,7 +125,7 @@ public:
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename SequenceBuilder::sequence_type>;
+    using WorkData = std::pair<string_type, typename SequenceBuilder::output_type>;
 
     simstring::reader db;
     std::unordered_map<string_type, std::vector<string_type>> inverse;

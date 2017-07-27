@@ -36,14 +36,14 @@ public:
         double weight;
     };
 
-    using sequence_type = std::vector<token_type>;
+    using output_type = std::vector<token_type>;
 
     WeightedSequenceBuilder(const SequenceTokenizer tokenizer = SequenceTokenizer(), const WeightFunction weight_func = WeightFunction()): 
         tokenizer(tokenizer), weight_func(weight_func) {}
 
-    sequence_type build(const string_type& text, bool is_original = false) const
+    output_type build(const string_type& text, bool is_original = false) const
     {
-        sequence_type ws;
+        output_type ws;
         auto s = tokenizer.build(text, is_original);
         for(size_t i = 0; i < s.size(); ++i){
             ws.push_back({s[i], weight_func(s[i], is_original, s.size(), i)});

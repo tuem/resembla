@@ -33,12 +33,12 @@ class WordSequenceBuilder final
 {
 public:
     using token_type = Word;
-    using sequence_type = std::vector<token_type>;
+    using output_type = std::vector<token_type>;
 
     WordSequenceBuilder(const std::string mecab_options = "");
 
     // parses to a sequence of words
-    sequence_type build(const string_type& text, bool is_original = false) const;
+    output_type build(const string_type& text, bool is_original = false) const;
 
     // returns text as-is
     string_type buildIndexingText(const string_type& text) const;
