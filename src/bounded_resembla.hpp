@@ -62,6 +62,9 @@ public:
             }
 
             auto columns = split(line, L'\t');
+            if(columns.size() < 2){
+                throw std::runtime_error("invalid line in " + inverse_path + ": " + cast_string<std::string>(line));
+            }
             const auto& indexed = columns[0];
             auto original = columns[1];
 
