@@ -37,6 +37,9 @@ limitations under the License.
 #include "measure/pronunciation_sequence_builder.hpp"
 #include "measure/uniform_cost.hpp"
 
+#include "measure/keyword_match_preprocessor.hpp"
+#include "measure/keyword_matcher.hpp"
+
 #include "measure/romaji_sequence_builder.hpp"
 #include "measure/romaji_match_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
@@ -99,6 +102,9 @@ std::string db_path_from_simstring_text_preprocess(const std::string& corpus_pat
     else if(simstring_text_preprocess == romaji){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(romaji);
     }
+    else if(simstring_text_preprocess == keyword){
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword);
+    }
     else{
         throw std::invalid_argument("unknown preprocessing method: " + std::string(STR(simstring_text_preprocess)));
     }
@@ -114,6 +120,9 @@ std::string inverse_path_from_simstring_text_preprocess(const std::string& corpu
     }
     else if(simstring_text_preprocess == romaji){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(romaji);
+    }
+    else if(simstring_text_preprocess == keyword){
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword);
     }
     else{
         throw std::invalid_argument("unknown preprocessing method: " + std::string(STR(simstring_text_preprocess)));
@@ -134,6 +143,9 @@ std::string db_path_from_resembla_measure(const std::string& corpus_path, const 
     else if(resembla_measure == weighted_romaji_edit_distance){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(romaji);
     }
+    else if(resembla_measure == keyword_match){
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword_match);
+    }
     else{
         throw std::invalid_argument("unknown Resembla measure: " + std::string(STR(resembla_measure)));
     }
@@ -153,6 +165,9 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
     else if(resembla_measure == weighted_romaji_edit_distance){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(romaji);
     }
+    else if(resembla_measure == keyword_match){
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword_match);
+    }
     else{
         throw std::invalid_argument("unknown Resembla measure: " + std::string(STR(resembla_measure)));
     }
@@ -170,6 +185,9 @@ std::vector<text_preprocess> split_to_text_preprocesses(std::string text, char d
         }
         else if(text_preprocess_str == STR(romaji)){
             result.push_back(romaji);
+        }
+        else if(text_preprocess_str == STR(keyword)){
+            result.push_back(keyword);
         }
         else{
             if(!ignore_unknown_measure){
@@ -195,6 +213,9 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
         }
         else if(resembla_measure_str == STR(weighted_romaji_edit_distance)){
             result.push_back(weighted_romaji_edit_distance);
+        }
+        else if(resembla_measure_str == STR(keyword_match)){
+            result.push_back(keyword_match);
         }
         else if(resembla_measure_str == STR(svr)){
             result.push_back(svr);
@@ -347,6 +368,16 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
                         std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
                                 RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost")))));
+                break;
+            case keyword_match:
+                if((weight = pm["ed_ensemble_weight"]) == 0){
+                    continue;
+                }
+                resembla_ensemble->append(construct_bounded_resembla(
+                        db_path, inverse_path, simstring_measure, 0, 0,
+                        // TODO: db_path, inverse_path, simstring_measure, km_simstring_threshold, km_max_reranking_num,
+                        std::make_shared<KeywordMatchPreprocessor<string_type>>(),
+                        std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match))));
                 break;
             default:
                 break;

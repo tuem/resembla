@@ -42,7 +42,8 @@ enum text_preprocess: int
 {
     asis,
     pronunciation,
-    romaji
+    romaji,
+    keyword
 };
 
 enum measure: int
@@ -51,6 +52,7 @@ enum measure: int
     weighted_word_edit_distance,
     weighted_pronunciation_edit_distance,
     weighted_romaji_edit_distance,
+    keyword_match,
     svr
 };
 

@@ -28,6 +28,7 @@ limitations under the License.
 #include "measure/word_sequence_builder.hpp"
 #include "measure/pronunciation_sequence_builder.hpp"
 #include "measure/romaji_sequence_builder.hpp"
+#include "measure/keyword_match_preprocessor.hpp"
 
 #include "paramset.hpp"
 #include "resembla_util.hpp"
@@ -35,8 +36,8 @@ limitations under the License.
 using namespace resembla;
 
 template<typename Preprocessor>
-void create_simstring_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
-        int n, Preprocessor preprocess/*TODO, size_t extra_col = 0*/)
+void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
+        int n, Preprocessor preprocess, size_t extra_col = 0)
 {
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
@@ -51,9 +52,14 @@ void create_simstring_index(const std::string corpus_path, const std::string db_
         if(ifs.eof() || line.length() == 0){
             break;
         }
-        size_t i = line.find(L"\t");
-        auto original = line.substr(0, i);
+
+        auto columns = split(line, L'\t');
+        auto original = columns[0];
+        if(extra_col > 0 && extra_col - 1 < columns.size()){
+            original += columns[extra_col - 1];
+        }
         auto s = preprocess.index(original);
+
         if(inserted.count(s) == 0){
             dbw.insert(s);
             inserted[s] = {original};
@@ -91,6 +97,7 @@ int main(int argc, char* argv[])
         {"wred_mecab_feature_pos", 7, {"weighted_romaji_edit_distance", "mecab_feature_pos"}, "wred-mecab-feature-pos", 0, "Position of pronunciation in feature for weighted romaji edit distance"},
         {"wred_mecab_pronunciation_of_marks", "", {"weighted_romaji_edit_distance", "mecab_pronunciation_of_marks"}, "wred-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"corpus_path", "", {"common", "corpus_path"}},
+        {"feature_col", 0, {"common", "feature_col"}, "feature-col", 0, "index of feature column in corpus rows"},
         {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
@@ -144,17 +151,21 @@ int main(int argc, char* argv[])
 
             if(simstring_text_preprocess == asis){
                 WordSequenceBuilder builder(pm.get<std::string>("wwed_mecab_options"));
-                create_simstring_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder);
+                create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder, 0);
             }
             else if(simstring_text_preprocess == pronunciation){
                 PronunciationSequenceBuilder builder(pm.get<std::string>("wped_mecab_options"),
                         pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
-                create_simstring_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit, builder);
+                create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit, builder, 0);
             }
             else if(simstring_text_preprocess == romaji){
                 RomajiSequenceBuilder builder(pm.get<std::string>("wred_mecab_options"),
                         pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
-                create_simstring_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit, builder);
+                create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit, builder, 0);
+            }
+            else if(simstring_text_preprocess == keyword){
+                create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
+                        KeywordMatchPreprocessor<string_type>(), pm.get<int>("feature_col"));
             }
 
             std::cerr << "database saved to " << db_path << std::endl;
