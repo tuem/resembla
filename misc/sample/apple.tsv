@@ -4,3 +4,8 @@
 りんごおいしくない	is_negative=1&is_question=0
 りんごおいしい?	is_negative=0&is_question=1
 りんごおいしいかな?	is_negative=0&is_question=1
+りんごが好きです	is_negative=0&is_question=0&keyword=好き
+りんごは好きですか?	is_negative=0&is_question=1&keyword=好き
+りんご好きじゃない	is_negative=1&is_question=0&keyword=好き
+りんごが嫌いです	is_negative=0&is_question=0&keyword=嫌い
+りんごまずい	is_negative=0&is_question=0&keyword=まずい
