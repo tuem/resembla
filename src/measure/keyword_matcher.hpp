@@ -22,6 +22,8 @@ limitations under the License.
 
 #include "keyword_match_preprocessor.hpp"
 
+#include <iostream>
+
 namespace resembla {
 
 template<typename string_type>
@@ -37,19 +39,26 @@ public:
     {
         // TODO: normalize target text
         // TODO: use synonyms
-        if(reference.text.empty()){
+        if(reference.keywords.empty()){
             return 0.0;
         }
-        double score = 1.0;
+        double score = 0.0;
         for(const auto& keyword: reference.keywords){
             // TODO: approximate match
             if(target.text.find(keyword) != string_type::npos){
+#ifdef DEBUG
+                std::cerr << "matced: keyword=" << cast_string<std::string>(keyword) << ", target=" << cast_string<std::string>(target.text) << ", reference=" << cast_string<std::string>(reference.text) << std::endl;
+#endif
                 score += 1.0;
             }
             else{
+                std::cerr << "not matced: keyword=" << cast_string<std::string>(keyword) << ", target=" << cast_string<std::string>(target.text) << ", reference=" << cast_string<std::string>(reference.text) << std::endl;
                 score -= 1.0;
             }
         }
+#ifdef DEBUG
+        std::cerr << "keyword match score=" << score / reference.keywords.size() << std::endl;
+#endif
         return score / reference.keywords.size();
     }
 };

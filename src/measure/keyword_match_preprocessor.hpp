@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace resembla {
 
@@ -52,11 +53,17 @@ public:
         if(!is_original){
             return {raw_text, {}};
         }
+        std::cerr << "load text: " << cast_string<std::string>(raw_text) << std::endl;
         auto columns = split(raw_text, L'\t');//TODO
         if(columns.size() > 1){
             for(auto f: split(columns[1], L'&')){
                 auto kv = split(f, L'=');
                 if(kv.size() == 2 && kv[0] == L"keyword"){
+#ifdef DEBUG
+                    for(auto w: split(kv[1], L',')){
+                        std::cerr << "load keyword: text=" << cast_string<std::string>(columns[0]) << ", keyword=" << cast_string<std::string>(w) << std::endl;
+                    }
+#endif
                     return {columns[0], split(kv[1], L',')};
                 }
             }
