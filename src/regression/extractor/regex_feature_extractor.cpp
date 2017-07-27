@@ -39,7 +39,7 @@ Feature::real_type RegexFeatureExtractor::match(const string_type& text) const
     for(const auto& i: re_all){
         if(std::regex_match(text, i.second)){
 #ifdef DEBUG
-            std::wcerr << L"regex detector: evidence found, text=" << text << L", score=" << i.first << std::endl;
+            std::cerr << "regex detector: evidence found, text=" << cast_string<std::string>(text) << ", score=" << i.first << std::endl;
 #endif
             return i.first;
         }

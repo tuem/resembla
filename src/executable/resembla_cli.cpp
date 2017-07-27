@@ -181,18 +181,18 @@ int main(int argc, char* argv[])
 
         auto resembla = construct_resembla(corpus_path, pm);
         while(true){
-            string_type input;
-            _c::in >> input;
-            if(input == L"exit" || input == L"quit" || input == L"bye"){
+            std::string input;
+            std::cin >> input;
+            if(input == "exit" || input == "quit" || input == "bye"){
                 break;
             }
-            auto result = resembla->getSimilarTexts(input, max_response, threshold);
+            auto result = resembla->getSimilarTexts(cast_string<string_type>(input), max_response, threshold);
             if(result.empty()){
-                _c::out << L"No text found." << std::endl;
+                std::cout << "No text found." << std::endl;
             }
             else{
                 for(const auto& r: result){
-                    _c::out << r.text << ", " << r.score << std::endl;
+                    std::cout << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
                 }
             }
         }

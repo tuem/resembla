@@ -44,10 +44,10 @@ public:
     ) const
     {
 #ifdef DEBUG
-        std::wcerr << L"DEBUG: " << L"target=" << target.first << std::endl;
-        std::wcerr << L"DEBUG: " << L"===========before reranking=============" << std::endl;
+        std::cerr << "DEBUG: " << "target=" << cast_string<std::string>(target.first) << std::endl;
+        std::cerr << "DEBUG: " << "===========before reranking=============" << std::endl;
         for(auto i = begin; i != end; ++i){
-            std::wcerr << L"DEBUG: " << i->first << std::endl;
+            std::cerr << "DEBUG: " << cast_string<std::string>(i->first) << std::endl;
         }
 #endif
         std::vector<result_type> result;
@@ -56,9 +56,9 @@ public:
         }
         std::sort(std::begin(result), std::end(result), Sorter());
 #ifdef DEBUG
-        std::wcerr << L"DEBUG: " << L"===========after reranking=============" << std::endl;
+        std::cerr << "DEBUG: " << "===========after reranking=============" << std::endl;
         for(auto i = std::begin(result); i != std::end(result); ++i){
-            std::wcerr << L"DEBUG: " << L"text=" << i->first << L", score=" << i->second << std::endl;
+            std::cerr << "DEBUG: " << "text=" << cast_string<std::string>(i->first) << ", score=" << i->second << std::endl;
         }
 #endif
         return result;
