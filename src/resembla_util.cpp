@@ -243,7 +243,6 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
     auto aggregator= std::make_shared<FeatureAggregator>();
     for(const auto& feature: features){
         const auto& name = feature[0];
-        std::cerr << "load feature extractor and aggregator: name=" << name << ", extractor=" << feature[1] << ", aggregator=" << feature[2] << std::endl;
         feature_names.push_back(name);
         if(name == base_feature){
             aggregator->append(name, nullptr);

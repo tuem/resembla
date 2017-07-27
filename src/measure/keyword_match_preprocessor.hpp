@@ -47,7 +47,6 @@ public:
         if(!is_original){
             return {raw_text, {}};
         }
-        std::cerr << "load text: " << cast_string<std::string>(raw_text) << std::endl;
         auto columns = split(raw_text, L'\t');//TODO
         if(columns.size() > 1){
             for(auto f: split(columns[1], L'&')){
