@@ -27,7 +27,7 @@ limitations under the License.
 #include <fstream>
 
 #include "resembla_interface.hpp"
-#include "regression/extractor/feature_extractor.hpp"
+#include "regression/extractor/feature_preprocessor.hpp"
 #include "reranker.hpp"
 
 namespace resembla {
@@ -37,12 +37,12 @@ class ResemblaRegression: public ResemblaInterface
 {
 public:
     ResemblaRegression(size_t max_candidate,
-            std::shared_ptr<FeatureExtractor> extract, std::shared_ptr<ScoreFunction> score_func,
+            std::shared_ptr<FeatureExtractor> feature_extractor, std::shared_ptr<ScoreFunction> score_func,
             std::string corpus_path = "", size_t feature_col = 2):
-        max_candidate(max_candidate),
-        extract(extract), score_func(score_func), reranker(), extract_corpus(!corpus_path.empty())
+        max_candidate(max_candidate), preprocess(feature_extractor), score_func(score_func),
+        reranker(), preprocess_corpus(!corpus_path.empty())
     {
-        if(extract_corpus){
+        if(preprocess_corpus){
             loadCorpusFeatures(corpus_path, feature_col);
         }
     }
@@ -63,7 +63,7 @@ public:
         // primary resembla
         for(const auto& r: resemblas[primary_resembla_name]->getSimilarTexts(input, max_candidate, threshold)){
             candidate_texts.push_back(r.text);
-            candidate_features[r.text] = extract_corpus ? corpus_features[r.text] : (*extract)(r.text);
+            candidate_features[r.text] = preprocess_corpus ? corpus_features[r.text] : (*preprocess)(r.text);
             candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
         }
 
@@ -82,7 +82,7 @@ public:
         for(const auto& c: candidate_features){
             candidates.push_back(std::make_pair(c.first, c.second));
         }
-        WorkData input_data = std::make_pair(input, (*extract)(input));
+        WorkData input_data = std::make_pair(input, (*preprocess)(input));
 
         // rerank by its own metric
         std::vector<ResemblaInterface::response_type> results;
@@ -99,7 +99,7 @@ public:
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& t: targets){
-            candidate_features[t] = extract_corpus ? corpus_features[t] : (*extract)(t);
+            candidate_features[t] = preprocess_corpus ? corpus_features[t] : (*preprocess)(t);
         }
 
         for(const auto& p: resemblas){
@@ -113,7 +113,7 @@ public:
         for(const auto& c: candidate_features){
             candidates.push_back(std::make_pair(c.first, c.second));
         }
-        WorkData input_data = std::make_pair(query, (*extract)(query));
+        WorkData input_data = std::make_pair(query, (*preprocess)(query));
 
         // rerank by its own metric
         std::vector<ResemblaInterface::response_type> results;
@@ -130,11 +130,11 @@ protected:
     std::string primary_resembla_name;
     const size_t max_candidate;
 
-    const std::shared_ptr<FeatureExtractor> extract;
+    const std::shared_ptr<FeatureExtractor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
     const Reranker<string_type> reranker;
 
-    const bool extract_corpus;
+    const bool preprocess_corpus;
     std::unordered_map<string_type, typename FeatureExtractor::return_type> corpus_features;
 
     void loadCorpusFeatures(const std::string& corpus_path, size_t features_col)
@@ -151,7 +151,7 @@ protected:
             }
             auto columns = split(line, '\t');
             if(features_col - 1 < columns.size()){
-                corpus_features[cast_string<string_type>(columns[0])] = (*extract)(columns[0], columns[features_col - 1]);
+                corpus_features[cast_string<string_type>(columns[0])] = (*preprocess)(columns[0], columns[features_col - 1]);
             }
         }
     }
