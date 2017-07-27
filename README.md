@@ -39,6 +39,7 @@ sudo yum install mecab mecab-ipadic mecab-devel
 
 - install LIBSVM
 ```sh
+sudo yum install epel-release # if you have not installed
 sudo yum install libsvm-devel
 ```
 
