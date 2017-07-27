@@ -61,12 +61,12 @@ std::vector<ResemblaEnsemble::response_type> ResemblaEnsemble::getSimilarTexts(c
     return response;
 }
 
-std::vector<ResemblaInterface::response_type> ResemblaEnsemble::getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
+std::vector<ResemblaInterface::response_type> ResemblaEnsemble::calcSimilarity(const string_type& query, const std::vector<string_type>& targets)
 {
     // calculate similarity using all measures
     std::unordered_map<string_type, double> aggregated;
     for(auto p: resemblas){
-        for(auto r: p.first->getSimilarTexts(query, targets)){
+        for(auto r: p.first->calcSimilarity(query, targets)){
             if(aggregated.find(r.text) == std::end(aggregated)){
                 aggregated[r.text] = 0.0;
             }

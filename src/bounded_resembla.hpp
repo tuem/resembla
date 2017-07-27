@@ -74,7 +74,7 @@ public:
         }
     }
 
-    std::vector<response_type> getSimilarTexts(const string_type& query, size_t max_response = 20, double threshold = 0L)
+    std::vector<response_type> getSimilarTexts(const string_type& query, size_t max_response, double threshold)
     {
         // search from N-gram index
         string_type search_query = builder->buildIndexingText(query);
@@ -107,7 +107,7 @@ public:
         return response;
     }
 
-    std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
+    std::vector<response_type> calcSimilarity(const string_type& query, const std::vector<string_type>& targets)
     {
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> candidates;

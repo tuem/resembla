@@ -72,7 +72,7 @@ public:
             if(p.first == primary_resembla_name){
                 continue;
             }
-            for(auto r: p.second->getSimilarTexts(input, candidate_texts)){
+            for(auto r: p.second->calcSimilarity(input, candidate_texts)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
@@ -95,7 +95,7 @@ public:
         return results;
     }
 
-    std::vector<response_type> getSimilarTexts(const string_type& query, const std::vector<string_type>& targets)
+    std::vector<response_type> calcSimilarity(const string_type& query, const std::vector<string_type>& targets)
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& t: targets){
@@ -103,7 +103,7 @@ public:
         }
 
         for(const auto& p: resemblas){
-            for(const auto& r: p.second->getSimilarTexts(query, targets)){
+            for(const auto& r: p.second->calcSimilarity(query, targets)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
