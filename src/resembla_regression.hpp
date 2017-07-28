@@ -55,13 +55,13 @@ public:
         }
     }
 
-    std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0)
+    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0)
     {
         std::vector<string_type> candidate_texts;
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
 
         // primary resembla
-        for(const auto& r: resemblas[primary_resembla_name]->find(input, threshold / 2.0, max_candidate * 2)){
+        for(const auto& r: resemblas[primary_resembla_name]->find(query, threshold / 2.0, max_candidate * 2)){
             candidate_texts.push_back(r.text);
             candidate_features[r.text] = preprocess_corpus ? corpus_features[r.text] : (*preprocess)(r.text);
             candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
@@ -72,24 +72,12 @@ public:
             if(p.first == primary_resembla_name){
                 continue;
             }
-            for(auto r: p.second->eval(input, candidate_texts, threshold / 2.0, max_candidate * 2)){
+            for(auto r: p.second->eval(query, candidate_texts, threshold / 2.0, max_candidate * 2)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
 
-        // prepare data for reranking
-        std::vector<WorkData> candidates;
-        for(const auto& c: candidate_features){
-            candidates.push_back(std::make_pair(c.first, c.second));
-        }
-        WorkData input_data = std::make_pair(input, (*preprocess)(input));
-
-        // rerank by its own metric
-        std::vector<ResemblaInterface::output_type> results;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, threshold, max_response)){
-            results.push_back({r.first, score_func->name, r.second});
-        }
-        return results;
+        return eval(query, candidate_features, threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, double threshold = 0.0, size_t max_response = 0)
@@ -105,6 +93,13 @@ public:
             }
         }
 
+        return eval(query, candidate_features, threshold, max_response);
+    }
+
+protected:
+    std::vector<output_type> eval(const string_type& query, const std::unordered_map<string_type, StringFeatureMap>& candidate_features,
+            double threshold, size_t max_response)
+    {
         // prepare data for reranking
         std::vector<WorkData> candidates;
         for(const auto& c: candidate_features){
@@ -120,7 +115,6 @@ public:
         return results;
     }
 
-protected:
     using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
 
     std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
