@@ -228,9 +228,9 @@ class ResemblaResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::std::string* release_text();
   void set_allocated_text(::std::string* text);
 
-  // float score = 3;
+  // float score = 2;
   void clear_score();
-  static const int kScoreFieldNumber = 3;
+  static const int kScoreFieldNumber = 2;
   float score() const;
   void set_score(float value);
 
@@ -359,7 +359,7 @@ inline void ResemblaResponse::set_allocated_text(::std::string* text) {
   // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.text)
 }
 
-// float score = 3;
+// float score = 2;
 inline void ResemblaResponse::clear_score() {
   score_ = 0;
 }

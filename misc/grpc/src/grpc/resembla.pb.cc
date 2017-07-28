@@ -104,7 +104,7 @@ void AddDescriptorsImpl() {
   static const char descriptor[] = {
       "\n\016resembla.proto\022\017resembla.server\" \n\017Res"
       "emblaRequest\022\r\n\005query\030\001 \001(\t\"/\n\020ResemblaR"
-      "esponse\022\014\n\004text\030\001 \001(\t\022\r\n\005score\030\003 \001(\0022b\n\017"
+      "esponse\022\014\n\004text\030\001 \001(\t\022\r\n\005score\030\002 \001(\0022b\n\017"
       "ResemblaService\022O\n\004find\022 .resembla.serve"
       "r.ResemblaRequest\032!.resembla.server.Rese"
       "mblaResponse\"\0000\001b\006proto3"
@@ -508,9 +508,9 @@ bool ResemblaResponse::MergePartialFromCodedStream(
         break;
       }
 
-      // float score = 3;
-      case 3: {
-        if (tag == 29u) {
+      // float score = 2;
+      case 2: {
+        if (tag == 21u) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
@@ -555,9 +555,9 @@ void ResemblaResponse::SerializeWithCachedSizes(
       1, this->text(), output);
   }
 
-  // float score = 3;
+  // float score = 2;
   if (this->score() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->score(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->score(), output);
   }
 
   // @@protoc_insertion_point(serialize_end:resembla.server.ResemblaResponse)
@@ -578,9 +578,9 @@ void ResemblaResponse::SerializeWithCachedSizes(
         1, this->text(), target);
   }
 
-  // float score = 3;
+  // float score = 2;
   if (this->score() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->score(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->score(), target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:resembla.server.ResemblaResponse)
@@ -598,7 +598,7 @@ size_t ResemblaResponse::ByteSizeLong() const {
         this->text());
   }
 
-  // float score = 3;
+  // float score = 2;
   if (this->score() != 0) {
     total_size += 1 + 4;
   }
@@ -726,7 +726,7 @@ void ResemblaResponse::set_allocated_text(::std::string* text) {
   // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.text)
 }
 
-// float score = 3;
+// float score = 2;
 void ResemblaResponse::clear_score() {
   score_ = 0;
 }

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='resembla.proto',
   package='resembla.server',
   syntax='proto3',
-  serialized_pb=_b('\n\x0eresembla.proto\x12\x0fresembla.server\" \n\x0fResemblaRequest\x12\r\n\x05query\x18\x01 \x01(\t\"/\n\x10ResemblaResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\r\n\x05score\x18\x03 \x01(\x02\x32\x62\n\x0fResemblaService\x12O\n\x04\x66ind\x12 .resembla.server.ResemblaRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x30\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0eresembla.proto\x12\x0fresembla.server\" \n\x0fResemblaRequest\x12\r\n\x05query\x18\x01 \x01(\t\"/\n\x10ResemblaResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x02\x32\x62\n\x0fResemblaService\x12O\n\x04\x66ind\x12 .resembla.server.ResemblaRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x30\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -73,7 +73,7 @@ _RESEMBLARESPONSE = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='score', full_name='resembla.server.ResemblaResponse.score', index=1,
-      number=3, type=2, cpp_type=6, label=1,
+      number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

@@ -8,7 +8,7 @@ message ResemblaRequest {
 
 message ResemblaResponse {
   string text = 1;
-  float score = 3;
+  float score = 2;
 }
 
 service ResemblaService {
