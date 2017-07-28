@@ -17,11 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <math.h>
-#include <unordered_map>
-#include <vector>
-
 #include "resembla_ensemble.hpp"
+
+#include <math.h>
+#include <algorithm>
+
 #include "resembla_util.hpp"
 
 namespace resembla {
@@ -42,7 +42,7 @@ std::vector<ResemblaEnsemble::output_type> ResemblaEnsemble::find(const string_t
     for(auto p: resemblas){
         for(auto r: p.first->find(query, threshold, max_response)){
             if(aggregated.find(r.text) == aggregated.end()){
-                aggregated[r.text] = 0.;
+                aggregated[r.text] = 0.0;
             }
             aggregated[r.text] += p.second * r.score * r.score;
         }
@@ -52,7 +52,7 @@ std::vector<ResemblaEnsemble::output_type> ResemblaEnsemble::find(const string_t
 }
 
 std::vector<ResemblaInterface::output_type> ResemblaEnsemble::eval(const string_type& query,
-        const std::vector<string_type>& targets, double threshold, size_t max_response)
+        const std::vector<string_type>& targets, double threshold, size_t max_response) const
 {
     // calculate similarity using all measures
     std::unordered_map<string_type, double> aggregated;
@@ -69,7 +69,7 @@ std::vector<ResemblaInterface::output_type> ResemblaEnsemble::eval(const string_
 }
 
 std::vector<ResemblaInterface::output_type> ResemblaEnsemble::eval(
-        const std::unordered_map<string_type, double>& aggregated, double threshold, size_t max_response)
+        const std::unordered_map<string_type, double>& aggregated, double threshold, size_t max_response) const
 {
     // sort combined result
     std::vector<output_type> response;

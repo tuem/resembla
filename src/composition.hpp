@@ -20,6 +20,7 @@ limitations under the License.
 #ifndef __COMPOSITION_HPP__
 #define __COMPOSITION_HPP__
 
+#include <string>
 #include <memory>
 
 namespace resembla {

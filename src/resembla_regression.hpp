@@ -27,8 +27,9 @@ limitations under the License.
 #include <fstream>
 
 #include "resembla_interface.hpp"
-#include "regression/extractor/feature_extractor.hpp"
 #include "reranker.hpp"
+#include "regression/feature.hpp"
+#include "regression/extractor/feature_extractor.hpp"
 
 namespace resembla {
 
@@ -80,11 +81,18 @@ public:
         return eval(query, candidate_features, threshold, max_response);
     }
 
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, double threshold = 0.0, size_t max_response = 0)
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, double threshold = 0.0, size_t max_response = 0) const
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& t: targets){
-            candidate_features[t] = preprocess_corpus ? corpus_features[t] : (*preprocess)(t);
+            if(preprocess_corpus){
+                auto i = corpus_features.find(t);
+                if(i != std::end(corpus_features)){
+                    candidate_features[t] = i->second;
+                    continue;
+                }
+            }
+            candidate_features[t] = (*preprocess)(t);
         }
 
         for(const auto& p: resemblas){
@@ -98,7 +106,7 @@ public:
 
 protected:
     std::vector<output_type> eval(const string_type& query, const std::unordered_map<string_type, StringFeatureMap>& candidate_features,
-            double threshold, size_t max_response)
+            double threshold, size_t max_response) const
     {
         // prepare data for reranking
         std::vector<WorkData> candidates;

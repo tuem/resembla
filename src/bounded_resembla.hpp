@@ -109,20 +109,22 @@ public:
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
-            double threshold = 0.0, size_t max_response = 0)
+            double threshold = 0.0, size_t max_response = 0) const
     {
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> candidates;
         for(const auto& t: targets){
             if(preprocess_corpus){
-                candidates.push_back(preprocessed_corpus[t]);
+                const auto i = preprocessed_corpus.find(t);
+                if(i != std::end(preprocessed_corpus)){
+                    candidates.push_back(i->second);
+                    continue;
+                }
             }
-            else{
-                auto tabpos = t.find(L'\t');
-                candidates.push_back(std::make_pair(
-                    tabpos != string_type::npos ? t.substr(0, tabpos) : t,
-                    (*preprocess)(t, true)));
-            }
+            auto tabpos = t.find(L'\t');
+            candidates.push_back(std::make_pair(
+                tabpos != string_type::npos ? t.substr(0, tabpos) : t,
+                (*preprocess)(t, true)));
         }
 
         // execute reranking

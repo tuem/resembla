@@ -20,6 +20,7 @@ limitations under the License.
 #ifndef __RESEMBLA_ENSEMBLE_HPP__
 #define __RESEMBLA_ENSEMBLE_HPP__
 
+#include <string>
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -37,7 +38,7 @@ public:
 
     std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0);
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
-            double threshold = 0.0, size_t max_response = 0);
+            double threshold = 0.0, size_t max_response = 0) const;
 
 protected:
     // name to be used in response
@@ -48,7 +49,8 @@ protected:
     // pairs of Resembla and its weight
     std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> resemblas;
 
-    std::vector<output_type> eval(const std::unordered_map<string_type, double>& aggregated, double threshold, size_t max_response);
+    std::vector<output_type> eval(const std::unordered_map<string_type, double>& aggregated,
+            double threshold, size_t max_response) const;
 };
 
 }
