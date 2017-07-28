@@ -287,44 +287,18 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
 std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
 {
     int simstring_measure = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
-
-    double default_simstring_threshold = pm["simstring_threshold"];
-    double ed_simstring_threshold = pm.get<double>("ed_simstring_threshold") != -1 ?
-        pm.get<double>("ed_simstring_threshold") : default_simstring_threshold;
-    double wwed_simstring_threshold = pm.get<double>("wwed_simstring_threshold") != -1 ?
-        pm.get<double>("wwed_simstring_threshold") : default_simstring_threshold;
-    double wped_simstring_threshold = pm.get<double>("wped_simstring_threshold") != -1 ?
-        pm.get<double>("wped_simstring_threshold") : default_simstring_threshold;
-    double wred_simstring_threshold = pm.get<double>("wred_simstring_threshold") != -1 ?
-        pm.get<double>("wred_simstring_threshold") : default_simstring_threshold;
-    double km_simstring_threshold = pm.get<double>("km_simstring_threshold") != -1 ?
-        pm.get<double>("km_simstring_threshold") : default_simstring_threshold;
-
-    int default_max_reranking_num = pm["resembla_max_reranking_num"];
-    int ed_max_reranking_num = pm.get<int>("ed_max_reranking_num") != -1 ?
-        pm.get<int>("ed_max_reranking_num") : default_max_reranking_num;
-    int wwed_max_reranking_num = pm.get<int>("wwed_max_reranking_num") != -1 ?
-        pm.get<int>("wwed_max_reranking_num") : default_max_reranking_num;
-    int wped_max_reranking_num = pm.get<int>("wped_max_reranking_num") != -1 ?
-        pm.get<int>("wped_max_reranking_num") : default_max_reranking_num;
-    int wred_max_reranking_num = pm.get<int>("wred_max_reranking_num") != -1 ?
-        pm.get<int>("wred_max_reranking_num") : default_max_reranking_num;
-    int km_max_reranking_num = pm.get<int>("km_max_reranking_num") != -1 ?
-        pm.get<int>("km_max_reranking_num") : default_max_reranking_num;
-
     std::string resembla_measure_all = pm["resembla_measure"];
+
     std::shared_ptr<ResemblaEnsemble> resembla_ensemble = std::make_shared<ResemblaEnsemble>(resembla_measure_all);
-    std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> resembla_regression;
+    std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> resembla_regression = nullptr;
+    std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
     std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
-    std::shared_ptr<ResemblaInterface> keyword_resembla;
-    bool use_svr = false;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
         if(resembla_measure == svr){
             resembla_regression = construct_resembla_regression(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
                     pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
                     pm.get<std::string>("svr_model_path"), pm.get<int>("svr_features_col"));
             resembla = resembla_regression;
-            use_svr = true;
             continue;
         }
 
@@ -338,7 +312,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
-                        db_path, inverse_path, simstring_measure, ed_simstring_threshold, ed_max_reranking_num,
+                        db_path, inverse_path, simstring_measure,
+                        pm.get<double>("ed_simstring_threshold") != -1 ?
+                            pm.get<double>("ed_simstring_threshold") : pm.get<double>("simstring_threshold"),
+                        pm.get<int>("ed_max_reranking_num") != -1 ?
+                            pm.get<int>("ed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<AsIsSequenceBuilder<string_type>>(),
                         std::make_shared<EditDistance<>>(STR(edit_distance)), true, 0));
                 break;
@@ -347,7 +325,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
-                        db_path, inverse_path, simstring_measure, wwed_simstring_threshold, wwed_max_reranking_num,
+                        db_path, inverse_path, simstring_measure,
+                        pm.get<double>("wwed_simstring_threshold") != -1 ?
+                            pm.get<double>("wwed_simstring_threshold") : pm.get<double>("simstring_threshold"),
+                        pm.get<int>("wwed_max_reranking_num") != -1 ?
+                            pm.get<int>("wwed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>>(
                                 WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
                                 FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
@@ -360,7 +342,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
-                        db_path, inverse_path, simstring_measure, wped_simstring_threshold, wped_max_reranking_num,
+                        db_path, inverse_path, simstring_measure,
+                        pm.get<double>("wped_simstring_threshold") != -1 ?
+                            pm.get<double>("wped_simstring_threshold") : pm.get<double>("simstring_threshold"),
+                        pm.get<int>("wped_max_reranking_num") != -1 ?
+                            pm.get<int>("wped_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<PronunciationSequenceBuilder>(pm.get<std::string>("wped_mecab_options"),
                                 pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
                         std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance)), true, 0));
@@ -370,7 +356,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(construct_bounded_resembla(
-                        db_path, inverse_path, simstring_measure, wred_simstring_threshold, wred_max_reranking_num,
+                        db_path, inverse_path, simstring_measure,
+                        pm.get<double>("wred_simstring_threshold") != -1 ?
+                            pm.get<double>("wred_simstring_threshold") : pm.get<double>("simstring_threshold"),
+                        pm.get<int>("wred_max_reranking_num") != -1 ?
+                            pm.get<int>("wred_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>>(
                                 RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
                                         pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
@@ -386,10 +376,14 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 keyword_resembla = construct_bounded_resembla(
-                        db_path, inverse_path, simstring_measure, km_simstring_threshold, km_max_reranking_num,
+                        db_path, inverse_path, simstring_measure,
+                        pm.get<double>("km_simstring_threshold") != -1 ?
+                            pm.get<double>("km_simstring_threshold") : pm.get<double>("simstring_threshold"),
+                        pm.get<int>("km_max_reranking_num") != -1 ?
+                            pm.get<int>("km_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<KeywordMatchPreprocessor<string_type>>(),
-                        std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true, 3);
-                if(use_svr){
+                        std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true, /*TODO*/3);
+                if(resembla_regression != nullptr){
                     resembla_regression->append(STR(keyword_match), keyword_resembla, false);
                 }
                 else{
@@ -399,6 +393,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
             default:
                 break;
         }
+    }
+    if(resembla == nullptr){
+        throw std::runtime_error("no valid measure specified: " + resembla_measure_all);
     }
 
     return resembla;
