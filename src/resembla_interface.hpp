@@ -20,7 +20,6 @@ limitations under the License.
 #ifndef __RESEMBLA_INTERFACE_HPP__
 #define __RESEMBLA_INTERFACE_HPP__
 
-#include <string>
 #include <vector>
 
 #include "resembla_response.hpp"
