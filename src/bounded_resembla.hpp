@@ -95,33 +95,17 @@ public:
         if(simstring_result.empty()){
             return {};
         }
+        return eval(query, simstring_result, threshold, max_response);
 
-        // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
-        std::vector<WorkData> candidates;
+        std::vector<string_type> candidate_texts;
         for(const auto& i: simstring_result){
-            for(const string_type& t: inverse[i]){
-                if(preprocess_corpus){
-                    candidates.push_back(preprocessed_corpus[t]);
-                }
-                else{
-                    auto tabpos = t.find(L'\t');
-                    candidates.push_back(std::make_pair(
-                        tabpos != string_type::npos ? t.substr(0, tabpos) : t,
-                        (*preprocess)(t, true)));
-                }
-            }
-            if(candidates.size() == max_reranking_num){
+            const auto& j = inverse[i];
+            std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
+            if(candidate_texts.size() == max_reranking_num){
                 break;
             }
         }
-
-        // execute reranking
-        WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
-        std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, threshold, max_response)){
-            response.push_back({r.first, score_func->name, r.second});
-        }
-        return response;
+        return eval(query, candidate_texts, threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
