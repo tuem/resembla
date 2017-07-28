@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
             if(input == "exit" || input == "quit" || input == "bye"){
                 break;
             }
-            auto result = resembla->find(cast_string<string_type>(input), max_response, threshold);
+            auto result = resembla->find(cast_string<string_type>(input), threshold, max_response);
             if(result.empty()){
                 std::cout << "No text found." << std::endl;
             }

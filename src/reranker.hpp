@@ -41,6 +41,7 @@ public:
         const Iterator begin,
         const Iterator end,
         const ScoreFunction& score_func,
+        double threshold,
         size_t max_output
     ) const
     {
@@ -50,10 +51,14 @@ public:
         for(auto i = begin; i != end; ++i){
             std::cerr << "DEBUG: " << cast_string<std::string>(i->first) << std::endl;
         }
+        std::cerr << "DEBUG: " << "start reranking: threshold==" << threshold << ", max_output=" << max_output << std::endl;
 #endif
         std::vector<output_type> result;
         for(auto i = begin; i != end; ++i){
-            result.push_back(std::make_pair(i->first, score_func(target.second, i->second)));
+            auto score = score_func(target.second, i->second);
+            if(score >= threshold){
+                result.push_back(std::make_pair(i->first, score));
+            }
         }
         std::sort(std::begin(result), std::end(result), Sorter());
         if(max_output != 0 && result.size() > max_output){

@@ -31,8 +31,8 @@ class ResemblaInterface
 public:
     using output_type = ResemblaResponse;
 
-    virtual std::vector<output_type> find(const string_type& input, size_t max_response, double threshold) = 0;
-    virtual std::vector<output_type> eval(const string_type& input, const std::vector<string_type>& candidates, size_t max_response = 0) = 0;
+    virtual std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0) = 0;
+    virtual std::vector<output_type> eval(const string_type& input, const std::vector<string_type>& candidates, double threshold = 0.0, size_t max_response = 0) = 0;
 };
 
 }
