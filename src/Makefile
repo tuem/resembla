@@ -31,7 +31,8 @@ INCLUDE_HEADERS_AGGREGATOR = regression/aggregator/*.hpp
 INCLUDE_HEADERS_PREDICTOR = regression/predictor/*.hpp
 
 
-all: $(LIB_FILE)
+lib: $(LIB_FILE)
+all: lib executable
 SUBDIR_OPTIONS =
 
 CXX := g++
@@ -44,7 +45,7 @@ endif
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: SUBDIR_OPTIONS += debug
-debug: all
+debug: lib
 
 SUBDIRS = measure regression executable
 
@@ -91,7 +92,7 @@ clean:
 	$(RM) $(OBJS) $(DEPS) $(LIB_FILE)
 
 
-.PHONY: clean all $(SUBDIRS)
+.PHONY: clean lib all debug $(SUBDIRS)
 
 
 .cpp.o:
