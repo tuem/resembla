@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #include "resembla_interface.hpp"
 
@@ -35,7 +36,8 @@ public:
     void append(const std::shared_ptr<ResemblaInterface> resembla, const double weight = 1.0);
 
     std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0);
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, double threshold = 0.0, size_t max_response = 0);
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
+            double threshold = 0.0, size_t max_response = 0);
 
 protected:
     // name to be used in response
@@ -45,6 +47,8 @@ protected:
 
     // pairs of Resembla and its weight
     std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> resemblas;
+
+    std::vector<output_type> eval(const std::unordered_map<string_type, double>& aggregated, double threshold, size_t max_response);
 };
 
 }
