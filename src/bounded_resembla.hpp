@@ -118,8 +118,8 @@ public:
         // execute reranking
         WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
-            if(r.second < threshold || response.size() == max_response){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, max_response)){
+            if(r.second < threshold){
                 break;
             }
             response.push_back({r.first, score_func->name, r.second});
@@ -127,7 +127,7 @@ public:
         return response;
     }
 
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets)
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, size_t max_response = 0)
     {
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> candidates;
@@ -146,7 +146,7 @@ public:
         // execute reranking
         WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, max_response)){
             response.push_back({r.first, score_func->name, r.second});
         }
         return response;

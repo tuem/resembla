@@ -86,8 +86,8 @@ public:
 
         // rerank by its own metric
         std::vector<ResemblaInterface::output_type> results;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
-            if(r.second < threshold || results.size() >= max_response){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, max_response)){
+            if(r.second < threshold){
                 break;
             }
             results.push_back({r.first, score_func->name, r.second});
@@ -95,7 +95,7 @@ public:
         return results;
     }
 
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets)
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, size_t max_response = 0)
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& t: targets){
@@ -117,7 +117,7 @@ public:
 
         // rerank by its own metric
         std::vector<ResemblaInterface::output_type> results;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func)){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, max_response)){
             results.push_back({r.first, score_func->name, r.second});
         }
         return results;

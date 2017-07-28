@@ -30,17 +30,18 @@ template<typename Original>
 class Reranker
 {
 public:
-    using result_type = std::pair<Original, double>;
+    using output_type = std::pair<Original, double>;
 
     template<
         typename Iterator,
         typename ScoreFunction
     >
-    std::vector<result_type> rerank(
+    std::vector<output_type> rerank(
         const typename std::iterator_traits<Iterator>::value_type& target,
         const Iterator begin,
         const Iterator end,
-        ScoreFunction score_func
+        const ScoreFunction& score_func,
+        size_t max_output
     ) const
     {
 #ifdef DEBUG
@@ -50,11 +51,14 @@ public:
             std::cerr << "DEBUG: " << cast_string<std::string>(i->first) << std::endl;
         }
 #endif
-        std::vector<result_type> result;
+        std::vector<output_type> result;
         for(auto i = begin; i != end; ++i){
             result.push_back(std::make_pair(i->first, score_func(target.second, i->second)));
         }
         std::sort(std::begin(result), std::end(result), Sorter());
+        if(max_output != 0 && result.size() > max_output){
+            result.erase(std::begin(result) + max_output, std::end(result));
+        }
 #ifdef DEBUG
         std::cerr << "DEBUG: " << "===========after reranking=============" << std::endl;
         for(auto i = std::begin(result); i != std::end(result); ++i){
@@ -67,7 +71,7 @@ public:
 protected:
     struct Sorter
     {
-        bool operator()(const result_type& a, const result_type& b) const
+        bool operator()(const output_type& a, const output_type& b) const
         {
             return a.second > b.second;
         }
