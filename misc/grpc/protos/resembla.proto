@@ -8,7 +8,6 @@ message ResemblaRequest {
 
 message ResemblaResponse {
   string text = 1;
-  string measure = 2;
   float score = 3;
 }
 

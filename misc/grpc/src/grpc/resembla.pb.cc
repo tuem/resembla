@@ -44,7 +44,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, text_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, measure_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, score_),
 };
 
@@ -104,15 +103,14 @@ void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] = {
       "\n\016resembla.proto\022\017resembla.server\" \n\017Res"
-      "emblaRequest\022\r\n\005query\030\001 \001(\t\"@\n\020ResemblaR"
-      "esponse\022\014\n\004text\030\001 \001(\t\022\017\n\007measure\030\002 \001(\t\022\r"
-      "\n\005score\030\003 \001(\0022b\n\017ResemblaService\022O\n\004find"
-      "\022 .resembla.server.ResemblaRequest\032!.res"
-      "embla.server.ResemblaResponse\"\0000\001b\006proto"
-      "3"
+      "emblaRequest\022\r\n\005query\030\001 \001(\t\"/\n\020ResemblaR"
+      "esponse\022\014\n\004text\030\001 \001(\t\022\r\n\005score\030\003 \001(\0022b\n\017"
+      "ResemblaService\022O\n\004find\022 .resembla.serve"
+      "r.ResemblaRequest\032!.resembla.server.Rese"
+      "mblaResponse\"\0000\001b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 241);
+      descriptor, 224);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "resembla.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -417,7 +415,6 @@ void ResemblaRequest::set_allocated_query(::std::string* query) {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int ResemblaResponse::kTextFieldNumber;
-const int ResemblaResponse::kMeasureFieldNumber;
 const int ResemblaResponse::kScoreFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -438,17 +435,12 @@ ResemblaResponse::ResemblaResponse(const ResemblaResponse& from)
   if (from.text().size() > 0) {
     text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
   }
-  measure_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.measure().size() > 0) {
-    measure_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.measure_);
-  }
   score_ = from.score_;
   // @@protoc_insertion_point(copy_constructor:resembla.server.ResemblaResponse)
 }
 
 void ResemblaResponse::SharedCtor() {
   text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  measure_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   score_ = 0;
   _cached_size_ = 0;
 }
@@ -460,7 +452,6 @@ ResemblaResponse::~ResemblaResponse() {
 
 void ResemblaResponse::SharedDtor() {
   text_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  measure_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void ResemblaResponse::SetCachedSize(int size) const {
@@ -489,7 +480,6 @@ ResemblaResponse* ResemblaResponse::New(::google::protobuf::Arena* arena) const 
 void ResemblaResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:resembla.server.ResemblaResponse)
   text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  measure_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   score_ = 0;
 }
 
@@ -512,21 +502,6 @@ bool ResemblaResponse::MergePartialFromCodedStream(
             this->text().data(), this->text().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
             "resembla.server.ResemblaResponse.text"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // string measure = 2;
-      case 2: {
-        if (tag == 18u) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_measure()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->measure().data(), this->measure().length(),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "resembla.server.ResemblaResponse.measure"));
         } else {
           goto handle_unusual;
         }
@@ -580,16 +555,6 @@ void ResemblaResponse::SerializeWithCachedSizes(
       1, this->text(), output);
   }
 
-  // string measure = 2;
-  if (this->measure().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->measure().data(), this->measure().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "resembla.server.ResemblaResponse.measure");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->measure(), output);
-  }
-
   // float score = 3;
   if (this->score() != 0) {
     ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->score(), output);
@@ -613,17 +578,6 @@ void ResemblaResponse::SerializeWithCachedSizes(
         1, this->text(), target);
   }
 
-  // string measure = 2;
-  if (this->measure().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->measure().data(), this->measure().length(),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "resembla.server.ResemblaResponse.measure");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->measure(), target);
-  }
-
   // float score = 3;
   if (this->score() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->score(), target);
@@ -642,13 +596,6 @@ size_t ResemblaResponse::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->text());
-  }
-
-  // string measure = 2;
-  if (this->measure().size() > 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->measure());
   }
 
   // float score = 3;
@@ -686,10 +633,6 @@ void ResemblaResponse::MergeFrom(const ResemblaResponse& from) {
 
     text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
   }
-  if (from.measure().size() > 0) {
-
-    measure_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.measure_);
-  }
   if (from.score() != 0) {
     set_score(from.score());
   }
@@ -719,7 +662,6 @@ void ResemblaResponse::Swap(ResemblaResponse* other) {
 }
 void ResemblaResponse::InternalSwap(ResemblaResponse* other) {
   text_.Swap(&other->text_);
-  measure_.Swap(&other->measure_);
   std::swap(score_, other->score_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -782,58 +724,6 @@ void ResemblaResponse::set_allocated_text(::std::string* text) {
   }
   text_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), text);
   // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.text)
-}
-
-// string measure = 2;
-void ResemblaResponse::clear_measure() {
-  measure_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-const ::std::string& ResemblaResponse::measure() const {
-  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.measure)
-  return measure_.GetNoArena();
-}
-void ResemblaResponse::set_measure(const ::std::string& value) {
-  
-  measure_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.measure)
-}
-#if LANG_CXX11
-void ResemblaResponse::set_measure(::std::string&& value) {
-  
-  measure_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:resembla.server.ResemblaResponse.measure)
-}
-#endif
-void ResemblaResponse::set_measure(const char* value) {
-  
-  measure_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaResponse.measure)
-}
-void ResemblaResponse::set_measure(const char* value, size_t size) {
-  
-  measure_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaResponse.measure)
-}
-::std::string* ResemblaResponse::mutable_measure() {
-  
-  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaResponse.measure)
-  return measure_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-::std::string* ResemblaResponse::release_measure() {
-  // @@protoc_insertion_point(field_release:resembla.server.ResemblaResponse.measure)
-  
-  return measure_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-void ResemblaResponse::set_allocated_measure(::std::string* measure) {
-  if (measure != NULL) {
-    
-  } else {
-    
-  }
-  measure_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), measure);
-  // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.measure)
 }
 
 // float score = 3;
