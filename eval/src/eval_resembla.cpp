@@ -18,6 +18,7 @@ limitations under the License.
 */
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -25,21 +26,22 @@ limitations under the License.
 #include <chrono>
 #include <time.h>
 
+#include "simstring/simstring.h"
 #include "paramset.hpp"
-#include "resembla_util.hpp"
+#include <resembla/resembla_util.hpp>
 
-#include "measure/asis_sequence_builder.hpp"
-#include "measure/word_sequence_builder.hpp"
-#include "measure/pronunciation_sequence_builder.hpp"
-#include "measure/romaji_sequence_builder.hpp"
+#include <resembla/measure/asis_sequence_builder.hpp>
+#include <resembla/measure/word_sequence_builder.hpp>
+#include <resembla/measure/pronunciation_sequence_builder.hpp>
+#include <resembla/measure/romaji_sequence_builder.hpp>
 
 using namespace resembla;
 
 // list of {true_text, list of {input_text, freq}}
 using TestData = std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, int>>>>;
 
-const std::wstring DELIMITER = L"\t";
-const std::wstring WORD_FREQ_SEPARATOR = L"/";
+const string_type DELIMITER = L"\t";
+const string_type WORD_FREQ_SEPARATOR = L"/";
 
 // generates SimString index and test data
 template<typename SequenceBuilder>
@@ -69,7 +71,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
             size_t end = line.find(DELIMITER, start);
             if(first){
                 std::wstring original(line, start, end == std::wstring::npos ? line.size() : end - start);
-                auto s = builder.buildIndexingText(original);
+                auto s = builder.index(original);
                 if(inverse.count(s) == 0){
                     dbw.insert(s);
                     inverse[s] = {original};
@@ -165,6 +167,15 @@ int main(int argc, char* argv[])
         {"wred_case_mismatch_cost", 1L, {"weighted_romaji_edit_distance", "case_mismatch_cost"}, "wred-case-mismatch-cost", 0, "cost to replace case mismatches for weighted romaji edit distance"},
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_ensemble_weight", 0.5, {"weighted_romaji_edit_distance", "ensemble_weight"}, "wred-ensemble-weight", 0, "weight coefficient for weighted romaji edit distance in ensemble mode"},
+        {"km_simstring_ngram_unit", -1, {"keyword_match", "simstring_ngram_unit"}, "km-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
+        {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
+        {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
+        {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
+        {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
+        {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
+        {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
+        {"svr_features_col", 2, {"svr", "features_col"}, "svr-features-col", 0, "column number of features for support vector regression"},
         {"corpus_path", "", {"common", "corpus_path"}},
         {"conf_path", "", "config", 'c', "config file path"}
     };
@@ -276,6 +287,10 @@ int main(int argc, char* argv[])
         // load test data and create index for each measure
         TestData test_data;
         for(const auto& resembla_measure: resembla_measures){
+            if(resembla_measure == svr){
+                continue;
+            }
+
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
             switch(resembla_measure){
@@ -309,6 +324,15 @@ int main(int argc, char* argv[])
                     }
                     break;
                 }
+                case keyword_match: {
+                    if(pm.get<double>("km_ensemble_weight") > 0){
+                        AsIsSequenceBuilder<std::wstring> builder;
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit, builder);
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
         }
         if(test_data.empty()){
@@ -317,14 +341,14 @@ int main(int argc, char* argv[])
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "index"));
 
         // initialize Resembla with created indexes
-        auto resembla = construct_resembla_ensemble(corpus_path, pm);
+        auto resembla = construct_resembla(corpus_path, pm);
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "load"));
 
         // execute evaluation
-        std::vector<std::vector<ResemblaInterface::response_type>> answers;
+        std::vector<std::vector<ResemblaInterface::output_type>> answers;
         for(const auto& d: test_data){
             for(const auto& i: d.second){
-                answers.push_back(resembla.getSimilarTexts(i.first, resembla_max_response, resembla_threshold));
+                answers.push_back(resembla->find(i.first, resembla_threshold, resembla_max_response));
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "answer"));
@@ -350,7 +374,7 @@ int main(int argc, char* argv[])
                 std::wstring best = !response.empty() ? response[0].text : L"NONE";
                 double score_best = !response.empty() ? response[0].score : -1;
                 auto p = std::find_if(response.begin(), response.end(),
-                        [original](ResemblaInterface::response_type& r) -> bool {return original == r.text;});
+                        [original](ResemblaInterface::output_type& r) -> bool {return original == r.text;});
                 int rank_correct = p != response.end() ? p - response.begin() + 1 : -1;
                 double score_correct = rank_correct != -1 ? response[rank_correct - 1].score : -1;
 

@@ -39,5 +39,11 @@
         "case_mismatch_cost": 0.3,
         "similar_letter_cost": 0.75,
         "ensemble_weight": 0.34
+    },
+    "svr": {
+        "features_path": "../misc/regression/features.kw.tsv",
+        "patterns_home": "../misc/regression/patterns",
+        "model_path": "../misc/regression/model.kw",
+        "features_col": 2
     }
 }

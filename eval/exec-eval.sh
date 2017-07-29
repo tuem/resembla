@@ -33,7 +33,7 @@ DATETIME=`date "+%Y%m%d-%H%M%S"`
 COMPRESS_CMD=gzip
 MD5_CMD=md5cmd
 GIT_ID_CMD='git show -s --format=%H'
-EVALUATION_BIN=$BASEDIR/eval_resembla
+EVALUATION_BIN=$BASEDIR/src/eval_resembla
 PYDIR=$BASEDIR/py
 
 
