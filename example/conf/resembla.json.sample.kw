@@ -1,16 +1,16 @@
 {
     "common": {
-        "corpus_path": "../../misc/sample/sample.tsv",
+        "corpus_path": "../../example/corpus/apple.tsv",
         "varbose": true
     },
     "simstring": {
         "ngram_unit": 2,
-        "text_preprocess": "asis",
+        "text_preprocess": "asis,keyword",
         "measure": "cosine",
         "threshold": 0.001
     },
     "resembla": {
-        "measure": "edit_distance",
+        "measure": "svr,edit_distance,keyword_match",
         "max_reranking_num": 1000,
         "max_response": 20,
         "threshold": 0.5
@@ -27,7 +27,7 @@
         "ensemble_weight": 0.25
     },
     "weighted_pronunciation_edit_distance": {
-        "mecab_options": "-Odump -d ../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin",
+        "mecab_options": "-Odump -d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin",
         "mecab_feature_pos": 9,
         "mecab_pronunciation_of_marks": "記号",
         "base_weight": 1.0,
@@ -35,7 +35,7 @@
         "ensemble_weight": 0.25
     },
     "weighted_romaji_edit_distance": {
-        "mecab_options": "-d ../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
+        "mecab_options": "-d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
         "mecab_feature_pos": 9,
         "mecab_pronunciation_of_marks": "記号",
         "base_weight": 1.0,
@@ -49,9 +49,9 @@
         "ensemble_weight": 0.25
     },
     "svr": {
-        "features_path": "../../misc/regression/features.tsv",
-        "patterns_home": "../../misc/regression/patterns",
-        "model_path": "../../misc/regression/model",
+        "features_path": "../../example/regression/features.kw.tsv",
+        "patterns_home": "../../example/regression/patterns",
+        "model_path": "../../example/regression/model.kw",
         "features_col": 2
     }
 }

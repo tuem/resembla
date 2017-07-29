@@ -18,15 +18,12 @@
 BIN_DEST = /usr/local/bin
 BINS = resembla_index resembla_cli
 
-CONF_DEST = /usr/local/etc
-CONF_FILE = ../../conf/resembla.json.sample
-
 
 all: $(BINS)
 
 
 CXX := g++
-CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json -isystem../../include/cmdline -isystem../../include/paramset `mecab-config --cflags` -I..
+CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json -isystem../../include/cmdline -isystem../../include/paramset `mecab-config --cflags`
 CXXLIBS := -lresembla -lsvm `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 
 debug: CXXFLAGS += -DDEBUG -g
@@ -50,7 +47,6 @@ resembla_cli: $(RESEMBLA_CLI_OBJS)
 
 install:
 	install -p $(BINS) $(BIN_DEST)
-	install -p $(CONF_FILE) $(CONF_DEST)/resembla.json
 
 
 uninstall:

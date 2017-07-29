@@ -18,20 +18,21 @@ limitations under the License.
 */
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <set>
 #include <stdexcept>
 
-#include "simstring/simstring.h"
-
-#include "measure/word_sequence_builder.hpp"
-#include "measure/pronunciation_sequence_builder.hpp"
-#include "measure/romaji_sequence_builder.hpp"
-#include "measure/keyword_match_preprocessor.hpp"
-
 #include "paramset.hpp"
-#include "resembla_util.hpp"
+#include <resembla/resembla_util.hpp>
+
+#include <resembla/simstring/simstring.h>
+
+#include <resembla/measure/word_sequence_builder.hpp>
+#include <resembla/measure/pronunciation_sequence_builder.hpp>
+#include <resembla/measure/romaji_sequence_builder.hpp>
+#include <resembla/measure/keyword_match_preprocessor.hpp>
 
 using namespace resembla;
 
