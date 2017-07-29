@@ -95,7 +95,6 @@ public:
         if(simstring_result.empty()){
             return {};
         }
-        return eval(query, simstring_result, threshold, max_response);
 
         std::vector<string_type> candidate_texts;
         for(const auto& i: simstring_result){
