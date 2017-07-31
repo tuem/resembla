@@ -39,7 +39,7 @@ sudo yum install mecab mecab-ipadic mecab-devel
 
 - install LIBSVM
 ```sh
-sudo yum install epel-release # if you have not installed
+sudo yum install epel-release
 sudo yum install libsvm-devel
 ```
 
@@ -74,7 +74,7 @@ cd /var/tmp/resembla/misc/mecab_dic/mecab-unidic-neologd/
 
 - run sample program
 ```sh
-resembla_index /var/tmp/resembla/misc/sample/sample.tsv
-resembla_cli /var/tmp/resembla/misc/sample/sample.tsv
+resembla_index /var/tmp/resembla/example/corpus/sample.tsv
+resembla_cli /var/tmp/resembla/example/corpus/sample.tsv
 # input some text like '東京都'
 ```
