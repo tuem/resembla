@@ -64,6 +64,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(
     std::cerr << "extract features" << std::endl;
 #endif
     output_type features(given_features);
+    // TODO: remove this code. FeatureExtractor should accept multiple base similarities
     features[base_similarity_key] = Feature::toText(data.score);
     for(const auto& i: functions){
         auto k = features.find(i.first);
