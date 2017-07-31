@@ -35,7 +35,6 @@ def run(port, queries):
     for response in responses:
       print ('  response.text=%s' % response.text)
       print ('  response.score=%s' % response.score)
-      print ('  response.replies:')
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:

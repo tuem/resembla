@@ -28,7 +28,6 @@ limitations under the License.
 #include "resembla.grpc.pb.h"
 
 using namespace resembla;
-//using namespace resembla::grpc;
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -51,7 +50,7 @@ public:
 
     Status find(ServerContext*, const server::ResemblaRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
     {
-        for(const auto& r: resembla->find(cast_string<string_type>(request->query()), max_response, threshold)){
+        for(const auto& r: resembla->find(cast_string<string_type>(request->query()), threshold, max_response)){
             server::ResemblaResponse response;
             response.set_text(cast_string<std::string>(r.text));
             response.set_score(static_cast<float>(r.score));
