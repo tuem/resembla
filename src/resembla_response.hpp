@@ -21,7 +21,6 @@ limitations under the License.
 #define __RESEMBLA_RESPONSE_HPP__
 
 #include <string>
-#include <vector>
 
 #include "string_util.hpp"
 
