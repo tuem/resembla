@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
         double threshold = pm["resembla_threshold"];
         auto measures = split_to_resembla_measures(pm["resembla_measure"]);
 
-		if(pm.get<bool>("varbose")){
+        if(pm.get<bool>("varbose")){
             double default_simstring_threshold = pm["simstring_threshold"];
             double ed_simstring_threshold = pm.get<double>("ed_simstring_threshold") != -1 ?
                 pm.get<double>("ed_simstring_threshold") : default_simstring_threshold;

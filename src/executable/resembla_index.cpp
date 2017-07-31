@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
             pm.get<int>("wred_simstring_ngram_unit") : default_simstring_ngram_unit;
         auto simstring_text_preprocesses = split_to_text_preprocesses(pm.get<std::string>("simstring_text_preprocess"));
 
-		if(pm.get<bool>("varbose")){
+        if(pm.get<bool>("varbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
             std::cerr << "    corpus_path=" << corpus_path << std::endl;

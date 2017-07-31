@@ -24,20 +24,20 @@ limitations under the License.
 namespace resembla {
 
 const std::unordered_set<string_type> RomajiMatchCost::SIMILAR_LETTER_PAIRS = {
-	L"bv",
-	L"ck",
-	L"cq",
-	L"kq",
-	L"cs",
-	L"fh",
-	L"lr",
-	L"jz",
-	L"xz",
-	L"-a",
-	L"-i",
-	L"-u",
-	L"-e",
-	L"-o",
+    L"bv",
+    L"ck",
+    L"cq",
+    L"kq",
+    L"cs",
+    L"fh",
+    L"lr",
+    L"jz",
+    L"xz",
+    L"-a",
+    L"-i",
+    L"-u",
+    L"-e",
+    L"-o",
 };
 
 RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_letter_cost): 
