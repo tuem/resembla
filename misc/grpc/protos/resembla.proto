@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package resembla.server;
+
+message ResemblaRequest {
+  string query = 1;
+}
+
+message ResemblaResponse {
+  string text = 1;
+  float score = 2;
+}
+
+service ResemblaService {
+  rpc find (ResemblaRequest) returns (stream ResemblaResponse) {}
+}
