@@ -372,7 +372,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                         true, 0));
                 break;
             case keyword_match:
-                if((weight = pm["ed_ensemble_weight"]) == 0){
+                if((weight = pm["km_ensemble_weight"]) == 0){
                     continue;
                 }
                 keyword_resembla = construct_bounded_resembla(
