@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
             if(input == "exit" || input == "quit" || input == "bye"){
                 break;
             }
-            if(pm.get<int>("id_col") != 0){
+            if(resembla_with_id != nullptr){
                 auto result = resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
