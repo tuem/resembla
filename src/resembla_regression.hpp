@@ -39,12 +39,12 @@ class ResemblaRegression: public ResemblaInterface
 public:
     ResemblaRegression(size_t max_candidate,
             std::shared_ptr<FeatureExtractor> feature_extractor, std::shared_ptr<ScoreFunction> score_func,
-            std::string corpus_path = "", size_t feature_col = 2):
+            std::string corpus_path = "", size_t text_col = 1, size_t features_col = 2):
         max_candidate(max_candidate), preprocess(feature_extractor), score_func(score_func),
         reranker(), preprocess_corpus(!corpus_path.empty())
     {
         if(preprocess_corpus){
-            loadCorpusFeatures(corpus_path, feature_col);
+            loadCorpusFeatures(corpus_path, text_col, features_col);
         }
     }
 
@@ -73,7 +73,8 @@ public:
             if(p.first == primary_resembla_name){
                 continue;
             }
-            for(auto r: p.second->eval(query, candidate_texts, threshold / 2.0, max_candidate * 2)){
+            for(auto r: p.second->eval(query, candidate_texts, 0.0, 0)){
+                candidate_features[r.text][p.first] = Feature::toText(r.score);
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
@@ -96,7 +97,7 @@ public:
         }
 
         for(const auto& p: resemblas){
-            for(const auto& r: p.second->eval(query, targets, threshold / 2.0, max_response * 2)){
+            for(const auto& r: p.second->eval(query, targets, 0.0, 0)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
@@ -105,7 +106,44 @@ public:
     }
 
 protected:
-    std::vector<output_type> eval(const string_type& query, const std::unordered_map<string_type, StringFeatureMap>& candidate_features,
+    using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
+
+    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
+    std::string primary_resembla_name;
+    const size_t max_candidate;
+
+    const std::shared_ptr<FeatureExtractor> preprocess;
+    const std::shared_ptr<ScoreFunction> score_func;
+    const Reranker<string_type> reranker;
+
+    const bool preprocess_corpus;
+    std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
+
+    void loadCorpusFeatures(const std::string& corpus_path, size_t text_col, size_t features_col)
+    {
+        std::ifstream ifs(corpus_path);
+        if(ifs.fail()){
+            throw std::runtime_error("input file is not available: " + corpus_path);
+        }
+
+        while(ifs.good()){
+            std::string line;
+            std::getline(ifs, line);
+            if(ifs.eof() || line.length() == 0){
+                break;
+            }
+            auto columns = split(line, '\t');
+            if(text_col - 1 < columns.size()){
+                std::string raw_features =
+                    features_col - 1 < columns.size() ? columns[features_col - 1] : "";
+                corpus_features[cast_string<string_type>(columns[text_col - 1])] =
+                    (*preprocess)(columns[text_col - 1], raw_features);
+            }
+        }
+    }
+
+    std::vector<output_type> eval(const string_type& query,
+            const std::unordered_map<string_type, StringFeatureMap>& candidate_features,
             double threshold, size_t max_response) const
     {
         // prepare data for reranking
@@ -121,38 +159,6 @@ protected:
             results.push_back({r.first, score_func->name, r.second});
         }
         return results;
-    }
-
-    using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
-
-    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
-    std::string primary_resembla_name;
-    const size_t max_candidate;
-
-    const std::shared_ptr<FeatureExtractor> preprocess;
-    const std::shared_ptr<ScoreFunction> score_func;
-    const Reranker<string_type> reranker;
-
-    const bool preprocess_corpus;
-    std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
-
-    void loadCorpusFeatures(const std::string& corpus_path, size_t features_col)
-    {
-        std::ifstream ifs(corpus_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + corpus_path);
-        }
-        while(ifs.good()){
-            std::string line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
-            auto columns = split(line, '\t');
-            if(features_col - 1 < columns.size()){
-                corpus_features[cast_string<string_type>(columns[0])] = (*preprocess)(columns[0], columns[features_col - 1]);
-            }
-        }
     }
 };
 
