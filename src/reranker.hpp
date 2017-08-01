@@ -58,7 +58,6 @@ public:
         std::vector<output_type> result;
         for(auto i = begin; i != end; ++i){
             auto score = score_func(target.second, i->second);
-            std::cerr << "DEBUG: " << "  text==" << cast_string<std::string>(i->first)<< ", score=" << score << std::endl;
             if(threshold == 0.0 || score >= threshold){
                 result.push_back(std::make_pair(i->first, score));
             }
