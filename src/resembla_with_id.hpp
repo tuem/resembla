@@ -31,10 +31,11 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename id_type>
 class ResemblaWithId
 {
 public:
+    using id_type = int;
+
     struct output_type: public ResemblaInterface::output_type
     {
         id_type id;
@@ -45,57 +46,17 @@ public:
     };
 
     ResemblaWithId(const std::shared_ptr<ResemblaInterface> resembla,
-            std::string corpus_path, size_t id_col = 1, size_t text_col = 2):
-        resembla(resembla)
-    {
-        loadCorpus(corpus_path, id_col, text_col);
-    }
+            std::string corpus_path, size_t id_col = 1, size_t text_col = 2);
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0)
-    {
-        std::vector<output_type> results;
-        for(auto raw_result: resembla->find(query, threshold, max_response)){
-            results.push_back({raw_result, ids.at(raw_result.text)});
-        }
-        return results;
-    }
-
+    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0);
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
-            double threshold = 0.0, size_t max_response = 0) const
-    {
-        std::vector<output_type> results;
-        for(auto raw_result: resembla->find(query, targets, threshold, max_response)){
-            results.push_back({raw_result, ids.at(raw_result.text)});
-        }
-        return results;
-    }
+            double threshold = 0.0, size_t max_response = 0) const;
 
 protected:
     std::shared_ptr<ResemblaInterface> resembla;
     std::unordered_map<string_type, id_type> ids;
 
-    id_type read_id(const std::string& id_str);
-
-    void loadCorpus(const std::string& corpus_path, size_t id_col, size_t text_col)
-    {
-        auto c = std::max(id_col, text_col);
-        std::ifstream ifs(corpus_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + corpus_path);
-        }
-        while(ifs.good()){
-            std::string line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
-            auto columns = split(line, '\t');
-            if(c - 1 < columns.size()){
-                std::cerr << "text=" << columns[text_col - 1] << ", id=" << columns[id_col - 1] << std::endl;
-                ids[cast_string<string_type>(columns[text_col - 1])] = read_id(columns[id_col - 1]);
-            }
-        }
-    }
+    void loadCorpus(const std::string& corpus_path, size_t id_col, size_t text_col);
 };
 
 }
