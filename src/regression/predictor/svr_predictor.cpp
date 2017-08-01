@@ -41,11 +41,7 @@ SVRPredictor::output_type SVRPredictor::operator()(const input_type& x) const
     auto nodes = toNodes(x);
     double s = svm_predict(model, &nodes[0]);
 #ifdef DEBUG
-    std::cerr << "svr inputs:" << std::endl;
-    for(const auto& n: nodes){
-        std::cerr << "  index=" << n.index << ", value=" << n.value << std::endl;
-    }
-    std::cerr << "svr output=" << s << std::endl;
+    std::cerr << "svm output=" << s << std::endl;
 #endif
     return std::max(std::min(s, 1.0), 0.0);
 }
@@ -54,14 +50,27 @@ std::vector<svm_node> SVRPredictor::toNodes(const input_type& x) const
 {
     std::vector<svm_node> nodes(feature_definitions.size() + 1);
     size_t i = 0;
-    for(; i < feature_definitions.size(); ++i){
-        auto j = x.find(feature_definitions[i]);
-        if(j != std::end(x)){
-            nodes[i].index = i;
-            nodes[i].value = j->second;
+    for(size_t j = 0; j < feature_definitions.size(); ++j){
+        auto k = x.find(feature_definitions[j]);
+        if(k != std::end(x)){
+            nodes[i].index = j;
+            nodes[i].value = k->second;
+            ++i;
         }
     }
     nodes[i].index = -1; // end of features
+#ifdef DEBUG
+    std::cerr << "svm inputs:" << std::endl;
+    for(size_t j = 0; j < feature_definitions.size(); ++j){
+        auto k = x.find(feature_definitions[j]);
+        if(k != std::end(x)){
+            std::cerr << "  feature: key=" << feature_definitions[j] << ", index=" << j << ", value=" << k->second << std::endl;
+        }
+        else{
+            std::cerr << "  feature: key=" << feature_definitions[j] << ", index=" << j << ", value not found" << std::endl;
+        }
+    }
+#endif
     return nodes;
 }
 
