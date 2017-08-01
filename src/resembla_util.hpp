@@ -26,8 +26,14 @@ limitations under the License.
 #include "paramset.hpp"
 
 #include "resembla_util.hpp"
+
 #include "bounded_resembla.hpp"
 #include "resembla_ensemble.hpp"
+
+#include "regression/aggregator/feature_aggregator.hpp"
+#include "regression/predictor/svr_predictor.hpp"
+#include "composition.hpp"
+#include "resembla_regression.hpp"
 
 namespace resembla {
 
@@ -108,10 +114,10 @@ std::shared_ptr<ResemblaInterface> construct_bounded_resembla(const std::string&
             preprocess, score_func, preprocess_corpus, feature_col);
 }
 
-std::shared_ptr<ResemblaInterface> construct_resembla_regression(
-        const std::shared_ptr<ResemblaInterface> resembla, int max_candidate,
+std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
+        int max_candidate, std::string corpus_path, int text_col, int features_col,
         std::string features_path, std::string patterns_home, std::string model_path,
-        std::string corpus_path, int features_col);
+        const std::shared_ptr<ResemblaInterface> resembla);
 
 // utility function to construct Resembla instance
 std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm);

@@ -47,15 +47,8 @@ limitations under the License.
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
 
-#include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/aggregator/flag_feature_aggregator.hpp"
 #include "regression/aggregator/real_feature_aggregator.hpp"
-
-#include "regression/predictor/svr_predictor.hpp"
-
-#include "composition.hpp"
-
-#include "resembla_regression.hpp"
 
 namespace resembla {
 
@@ -229,8 +222,9 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
     return result;
 }
 std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
-        const std::shared_ptr<ResemblaInterface> resembla, std::string corpus_path, int max_candidate,
-        std::string features_path, std::string patterns_home, std::string model_path, int features_col)
+        int max_candidate, std::string corpus_path, int text_col, int features_col,
+        std::string features_path, std::string patterns_home, std::string model_path,
+        const std::shared_ptr<ResemblaInterface> resembla)
 {
     auto features = load_features(features_path);
     if(features.empty()){
@@ -279,7 +273,7 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
 
     auto resembla_regression = std::make_shared<
             ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>>(
-                max_candidate, extractor, predictor, corpus_path, features_col);
+                max_candidate, extractor, predictor, corpus_path, text_col, features_col);
     resembla_regression->append("base_similarity", resembla, true);
     return resembla_regression;
 }
@@ -295,9 +289,10 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
         if(resembla_measure == svr){
-            resembla_regression = construct_resembla_regression(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
+            resembla_regression = construct_resembla_regression(pm.get<int>("svr_max_candidate"),
+                    corpus_path, pm.get<int>("text_col"), pm.get<int>("features_col"),
                     pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
-                    pm.get<std::string>("svr_model_path"), pm.get<int>("features_col"));
+                    pm.get<std::string>("svr_model_path"), resembla);
             resembla = resembla_regression;
             continue;
         }
