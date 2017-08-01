@@ -297,7 +297,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
         if(resembla_measure == svr){
             resembla_regression = construct_resembla_regression(resembla, corpus_path, pm.get<int>("svr_max_candidate"),
                     pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
-                    pm.get<std::string>("svr_model_path"), pm.get<int>("svr_features_col"));
+                    pm.get<std::string>("svr_model_path"), pm.get<int>("features_col"));
             resembla = resembla_regression;
             continue;
         }
