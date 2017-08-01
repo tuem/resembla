@@ -22,7 +22,6 @@ limitations under the License.
 
 #include "paramset.hpp"
 #include <resembla/resembla_util.hpp>
-#include <resembla/resembla_with_id.hpp>
 
 using namespace resembla;
 
@@ -80,12 +79,10 @@ int main(int argc, char* argv[])
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
+        {"svr_features_col", 2, {"svr", "features_col"}, "svr-features-col", 0, "column number of features for support vector regression"},
         {"corpus_path", "", {"common", "corpus_path"}},
-        {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
-        {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
-        {"features_col", 2, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
         {"varbose", false, {"common", "varbose"}, "varbose", 'v', "show more information"},
-        {"conf_path", "", "config", 'c', "config file path"},
+        {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
 
@@ -121,9 +118,6 @@ int main(int argc, char* argv[])
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
             std::cerr << "    corpus_path=" << corpus_path << std::endl;
-            std::cerr << "    id_col=" << pm.get<int>("id_col") << std::endl;
-            std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
-            std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;
             std::cerr << "    measure=" << pm.get<std::string>("simstring_measure_str") << std::endl;
             std::cerr << "    threshold=" << default_simstring_threshold << std::endl;
@@ -184,43 +178,25 @@ int main(int argc, char* argv[])
                     std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                     std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
                     std::cerr << "    model_path=" << pm.get<std::string>("svr_model_path") << std::endl;
+                    std::cerr << "    features_col=" << pm.get<int>("svr_features_col") << std::endl;
                 }
             }
         }
 
         auto resembla = construct_resembla(corpus_path, pm);
-        std::shared_ptr<ResemblaWithId<std::string>> resembla_with_id;
-        if(pm.get<int>("id_col") != 0){
-            size_t id_col = pm.get<int>("id_col");
-            size_t text_col = pm.get<int>("text_col");
-            resembla_with_id = std::make_shared<ResemblaWithId<std::string>>(resembla, corpus_path, id_col, text_col);
-        }
         while(true){
             std::string input;
             std::cin >> input;
             if(input == "exit" || input == "quit" || input == "bye"){
                 break;
             }
-            if(pm.get<int>("id_col") != 0){
-                auto result = resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
-                if(result.empty()){
-                    std::cout << "No text found." << std::endl;
-                }
-                else{
-                    for(const auto& r: result){
-                        std::cout << r.id << ", " << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
-                    }
-                }
+            auto result = resembla->find(cast_string<string_type>(input), threshold, max_response);
+            if(result.empty()){
+                std::cout << "No text found." << std::endl;
             }
             else{
-                auto result = resembla->find(cast_string<string_type>(input), threshold, max_response);
-                if(result.empty()){
-                    std::cout << "No text found." << std::endl;
-                }
-                else{
-                    for(const auto& r: result){
-                        std::cout << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
-                    }
+                for(const auto& r: result){
+                    std::cout << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
                 }
             }
         }

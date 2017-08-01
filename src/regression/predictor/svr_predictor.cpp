@@ -41,11 +41,11 @@ SVRPredictor::output_type SVRPredictor::operator()(const input_type& x) const
     auto nodes = toNodes(x);
     double s = svm_predict(model, &nodes[0]);
 #ifdef DEBUG
-    std::cerr << "svr input:" << std::endl;
+    std::cerr << "svr inputs:" << std::endl;
     for(const auto& n: nodes){
         std::cerr << "  index=" << n.index << ", value=" << n.value << std::endl;
     }
-    std::cerr << "svr result=" << s << std::endl;
+    std::cerr << "svr output=" << s << std::endl;
 #endif
     return std::max(std::min(s, 1.0), 0.0);
 }

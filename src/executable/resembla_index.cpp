@@ -38,7 +38,7 @@ using namespace resembla;
 
 template<typename Preprocessor>
 void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
-        int n, Preprocessor preprocess, size_t extra_col = 0)
+        int n, Preprocessor preprocess, size_t text_col, size_t features_col = 0)
 {
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
@@ -55,11 +55,15 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         }
 
         auto columns = split(line, L'\t');
-        auto original = columns[0];
+        if(text_col > columns.size()){
+            continue;
+        }
+
+        auto original = columns[text_col - 1];
         auto s = preprocess.index(original);
 
-        if(extra_col > 0 && extra_col - 1 < columns.size()){
-            original += L"\t" + columns[extra_col - 1];
+        if(features_col > 0 && features_col - 1 < columns.size()){
+            original += L"\t" + columns[features_col - 1];
         }
 
         if(inserted.count(s) == 0){
@@ -99,7 +103,8 @@ int main(int argc, char* argv[])
         {"wred_mecab_feature_pos", 7, {"weighted_romaji_edit_distance", "mecab_feature_pos"}, "wred-mecab-feature-pos", 0, "Position of pronunciation in feature for weighted romaji edit distance"},
         {"wred_mecab_pronunciation_of_marks", "", {"weighted_romaji_edit_distance", "mecab_pronunciation_of_marks"}, "wred-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"corpus_path", "", {"common", "corpus_path"}},
-        {"feature_col", 0, {"common", "feature_col"}, "feature-col", 0, "index of feature column in corpus rows"},
+        {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
+        {"features_col", 0, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
         {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
@@ -122,6 +127,8 @@ int main(int argc, char* argv[])
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
             std::cerr << "    corpus_path=" << corpus_path << std::endl;
+            std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
+            std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;
             std::cerr << "    ngram_unit=" << default_simstring_ngram_unit << std::endl;
             for(auto simstring_text_preprocess: simstring_text_preprocesses){
@@ -153,21 +160,24 @@ int main(int argc, char* argv[])
 
             if(simstring_text_preprocess == asis){
                 WordSequenceBuilder builder(pm.get<std::string>("wwed_mecab_options"));
-                create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder, 0);
+                create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
+                        pm.get<int>("text_col"), pm.get<int>("features_col"));
             }
             else if(simstring_text_preprocess == pronunciation){
                 PronunciationSequenceBuilder builder(pm.get<std::string>("wped_mecab_options"),
                         pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
-                create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit, builder, 0);
+                create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit,
+                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
             }
             else if(simstring_text_preprocess == romaji){
                 RomajiSequenceBuilder builder(pm.get<std::string>("wred_mecab_options"),
                         pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
-                create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit, builder, 0);
+                create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
+                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
             }
             else if(simstring_text_preprocess == keyword){
                 create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
-                        KeywordMatchPreprocessor<string_type>(), pm.get<int>("feature_col"));
+                        KeywordMatchPreprocessor<string_type>(), pm.get<int>("text_col"), pm.get<int>("features_col"));
             }
 
             std::cerr << "database saved to " << db_path << std::endl;

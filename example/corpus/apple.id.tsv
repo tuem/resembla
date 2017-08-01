@@ -1,0 +1,11 @@
+100	りんごおいしい	is_negative=0&is_question=0
+100	りんごおいしいねえ	is_negative=0&is_question=0
+100	りんごおいしいな	is_negative=0&is_question=0
+101	りんごおいしくない	is_negative=1&is_question=0
+102	りんごおいしい?	is_negative=0&is_question=1
+102	りんごおいしいかな?	is_negative=0&is_question=1
+103	りんごが好きです	is_negative=0&is_question=0&keyword=好き
+104	りんごは好きですか?	is_negative=0&is_question=1&keyword=好き
+105	りんご好きじゃない	is_negative=1&is_question=0&keyword=好き
+105	りんごが嫌いです	is_negative=0&is_question=0&keyword=嫌い
+101	りんごまずい	is_negative=0&is_question=0&keyword=まずい
