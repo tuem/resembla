@@ -73,7 +73,6 @@ void ResemblaWithId::loadCorpus(const std::string& corpus_path, size_t id_col, s
                     id = std::stoi(columns[id_col - 1]);
                     max_id = std::max(id, max_id);
                 }
-                std::cerr << "load id: text=" << columns[text_col - 1] << ", id=" << id << std::endl;
                 ids[text] = id;
             }
         }
