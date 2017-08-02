@@ -25,6 +25,10 @@ PrejudicedPredictor::PrejudicedPredictor(std::string name, std::string key):
     name(name), key(key)
 {}
 
+PrejudicedPredictor::PrejudicedPredictor(std::string key):
+    name(key), key(key)
+{}
+
 PrejudicedPredictor::output_type PrejudicedPredictor::operator()(const input_type& x) const
 {
     return x.at(key);

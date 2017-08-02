@@ -35,6 +35,7 @@ public:
     const std::string name;
 
     PrejudicedPredictor(std::string name, std::string key);
+    PrejudicedPredictor(std::string key);
 
     output_type operator()(const input_type& x) const;
 
