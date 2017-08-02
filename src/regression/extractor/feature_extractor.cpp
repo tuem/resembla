@@ -48,10 +48,22 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
     for(const auto& f: split(raw_features, FEATURE_DELIMITER)){
         auto kv = split(f, KEYVALUE_DELIMITER);
         if(kv.size() == 2){
+            auto i = functions.find(kv[0]);
+            if(i != std::end(functions)){
+                features[kv[0]] = kv[1];
 #ifdef DEBUG
-            std::cerr << "load feature: key=" << kv[0] << ", value=" << kv[1] << std::endl;
+                std::cerr << "load feature: key=" << kv[0] << ", value=" << kv[1] << std::endl;
 #endif
-            features[kv[0]] = kv[1];
+            }
+        }
+    }
+    for(const auto& i: functions){
+        auto k = features.find(i.first);
+        if(k == std::end(features)){
+            features[i.first] = (*i.second)(cast_string<string_type>(raw_text));
+#ifdef DEBUG
+            std::cerr << "extract feature: key=" << i.first << ", value=" << (*i.second)(cast_string<string_type>(raw_text)) << std::endl;
+#endif
         }
     }
     return features;
@@ -60,24 +72,21 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
 FeatureExtractor::output_type FeatureExtractor::operator()(
         const resembla::ResemblaResponse& data, const output_type& given_features) const
 {
-#ifdef DEBUG
-    std::cerr << "extract features" << std::endl;
-#endif
     output_type features(given_features);
     // TODO: remove this code. FeatureExtractor should accept multiple base similarities
     features[base_similarity_key] = Feature::toText(data.score);
     for(const auto& i: functions){
         auto k = features.find(i.first);
-        if(k == std::end(features)){
 #ifdef DEBUG
-            std::cerr << "extract feature: " << i.first << std::endl;
-#endif
-            features[i.first] = (*i.second)(data.text);
+        if(k == std::end(features)){
+            std::cerr << "extract feature: key=" << i.first << ", value=" << (*i.second)(data.text) << std::endl;
         }
         else{
-#ifdef DEBUG
-            std::cerr << "skip already computed feature: " << i.first << std::endl;
+            std::cerr << "skip already computed feature: key=" << i.first << ", value=" << k->second << std::endl;
+        }
 #endif
+        if(k == std::end(features)){
+            features[i.first] = (*i.second)(data.text);
         }
     }
     return features;
@@ -85,9 +94,6 @@ FeatureExtractor::output_type FeatureExtractor::operator()(
 
 FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& text) const
 {
-#ifdef DEBUG
-    std::cerr << "extract features from text" << std::endl;
-#endif
     output_type features;
     for(const auto& i: functions){
 #ifdef DEBUG

@@ -48,6 +48,13 @@ FeatureAggregator::output_type FeatureAggregator::operator()(const input_type& a
         }
     }
 #ifdef DEBUG
+    std::cerr << "given feature sets" << std::endl;
+    for(const auto& i: functions){
+        auto j = a.find(i.first);
+        auto k = b.find(i.first);
+        std::cerr << "  key=" << i.first << ", a=" << (j != std::end(a) ? j->second : "(none)") <<
+            ", b=" << (k != std::end(b) ? k->second : "(none)") << std::endl;
+    }
     std::cerr << "aggregated features" << std::endl;
     for(auto f: features){
         std::cerr << "  key=" << f.first << ", value=" << f.second << std::endl;
