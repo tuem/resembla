@@ -21,6 +21,8 @@ limitations under the License.
 
 namespace resembla {
 
+const std::string PrejudicedPredictor::DEFAULT_KEY = "base_similarity";
+
 PrejudicedPredictor::PrejudicedPredictor(std::string name, std::string key):
     name(name), key(key)
 {}

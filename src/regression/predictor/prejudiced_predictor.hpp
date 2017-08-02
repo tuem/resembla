@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __SVR_PREDICTOR_HPP__
-#define __SVR_PREDICTOR_HPP__
+#ifndef __PREJUDICED_PREDICTOR_PREDICTOR_HPP__
+#define __PREJUDICED_PREDICTOR_PREDICTOR_HPP__
 
 #include <string>
 
@@ -32,10 +32,12 @@ public:
     using input_type = FeatureMap;
     using output_type = Feature::real_type;
 
+    static const std::string DEFAULT_KEY;
+
     const std::string name;
 
+    PrejudicedPredictor(std::string key = DEFAULT_KEY);
     PrejudicedPredictor(std::string name, std::string key);
-    PrejudicedPredictor(std::string key);
 
     output_type operator()(const input_type& x) const;
 
