@@ -46,9 +46,12 @@ limitations under the License.
 
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
+#include "regression/extractor/date_period_feature_extractor.hpp"
+#include "regression/extractor/time_period_feature_extractor.hpp"
 
 #include "regression/aggregator/flag_feature_aggregator.hpp"
 #include "regression/aggregator/real_feature_aggregator.hpp"
+#include "regression/aggregator/interval_feature_aggregator.hpp"
 
 namespace resembla {
 
@@ -247,6 +250,12 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
         if(feature_extractor_type == "re"){
             extractor->append(name, std::make_shared<RegexFeatureExtractor>(patterns_home + "/" + name + ".tsv"));
         }
+        else if(feature_extractor_type == "date_period"){
+            extractor->append(name, std::make_shared<DatePeriodFeatureExtractor>());
+        }
+        else if(feature_extractor_type == "time_period"){
+            extractor->append(name, std::make_shared<TimePeriodFeatureExtractor>());
+        }
         else if(feature_extractor_type != "-"){
             throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
         }
@@ -257,6 +266,9 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
         }
         else if(feature_aggregator_type == "real"){
             aggregator->append(name, std::make_shared<RealFeatureAggregator>());
+        }
+        else if(feature_aggregator_type == "interval"){
+            aggregator->append(name, std::make_shared<IntervalFeatureAggregator>());
         }
         else if(feature_aggregator_type == "-"){
             aggregator->append(name, nullptr);
