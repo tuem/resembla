@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
         {"corpus_path", "", {"common", "corpus_path"}},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 0, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
-        {"varbose", false, {"common", "varbose"}, 'v', "show more information"},
+        {"verbose", false, {"common", "verbose"}, 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
             pm.get<int>("wred_simstring_ngram_unit") : default_simstring_ngram_unit;
         auto simstring_text_preprocesses = split_to_text_preprocesses(pm.get<std::string>("simstring_text_preprocess"));
 
-        if(pm.get<bool>("varbose")){
+        if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
             std::cerr << "    corpus_path=" << corpus_path << std::endl;

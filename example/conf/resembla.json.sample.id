@@ -4,7 +4,7 @@
         "id_col": 1,
         "text_col": 2,
         "features_col": 3,
-        "varbose": true
+        "verbose": true
     },
     "simstring": {
         "ngram_unit": 2,

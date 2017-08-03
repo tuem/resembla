@@ -1,7 +1,7 @@
 {
     "common": {
         "corpus_path": "../../example/corpus/sample.tsv",
-        "varbose": true
+        "verbose": true
     },
     "simstring": {
         "ngram_unit": 2,
