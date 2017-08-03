@@ -419,10 +419,10 @@ std::vector<std::vector<std::string>> load_features(const std::string file_path)
     while(ifs.good()){
         std::string line;
         std::getline(ifs, line);
-        if(ifs.eof() || line.empty()){
+        if(ifs.eof()){
             break;
         }
-        else if(line.compare(0, 1, "#")){
+        else if(line.compare(0, 1, "#") == 0 || line.empty()){
             continue;
         }
 
