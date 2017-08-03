@@ -419,9 +419,13 @@ std::vector<std::vector<std::string>> load_features(const std::string file_path)
     while(ifs.good()){
         std::string line;
         std::getline(ifs, line);
-        if(ifs.eof() || line.length() == 0){
+        if(ifs.eof() || line.empty()){
             break;
         }
+        else if(line.compare(0, 1, "#")){
+            continue;
+        }
+
         auto values = split(line, '\t');
         if(values.size() == 3){
             features.push_back(values);
