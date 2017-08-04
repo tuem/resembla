@@ -9,7 +9,7 @@
     "resembla": {
         "max_reranking_num": 10000,
         "max_response": 10000,
-        "measure": "svr,weighted_word_edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance",
+        "measure": "svr,weighted_word_edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance,keyword_match",
         "threshold": 0.001
     },
     "weighted_word_edit_distance": {
