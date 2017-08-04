@@ -43,7 +43,7 @@ SVRPredictor::output_type SVRPredictor::operator()(const input_type& x) const
 #ifdef DEBUG
     std::cerr << "svm output=" << s << std::endl;
 #endif
-    return std::max(std::min(s, 1.0), 0.0);
+    return s;
 }
 
 std::vector<svm_node> SVRPredictor::toNodes(const input_type& x) const

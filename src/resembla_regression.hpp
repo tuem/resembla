@@ -156,7 +156,7 @@ protected:
         // rerank by its own metric
         std::vector<ResemblaInterface::output_type> results;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, threshold, max_response)){
-            results.push_back({r.first, score_func->name, r.second});
+            results.push_back({r.first, score_func->name, std::max(std::min(r.second, 1.0), 0.0)});
         }
         return results;
     }
