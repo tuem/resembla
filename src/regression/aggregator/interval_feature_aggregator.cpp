@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "interval_feature_aggregator.hpp"
 
-#include <resembla/string_util.hpp>
+#include "resembla/string_util.hpp"
 
 namespace resembla {
 
