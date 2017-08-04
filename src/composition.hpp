@@ -35,7 +35,7 @@ public:
     const std::string name;
 
     Composition(const std::shared_ptr<F> f, const std::shared_ptr<G> g, std::string name = ""):
-        name(name), f(f), g(g)
+        name(!name.empty() ? name : g->name), f(f), g(g)
     {}
 
     output_type operator()(const input_type& a, const input_type& b) const
