@@ -22,11 +22,10 @@ sudo yum install devtoolset-4
 scl enable devtoolset-4 bash
 ```
 
-- prepare to build Resembla
+- setup environment
 ```sh
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-sudo /sbin/ldconfig
 ```
 
 - install MeCab
