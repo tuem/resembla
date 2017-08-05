@@ -30,7 +30,7 @@
         "ensemble_weight": 0.25
     },
     "weighted_pronunciation_edit_distance": {
-        "mecab_options": "-Odump -d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin",
+        "mecab_options": "-d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
         "mecab_feature_pos": 9,
         "mecab_pronunciation_of_marks": "記号",
         "base_weight": 1.0,
