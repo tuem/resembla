@@ -54,6 +54,7 @@ public:
         if(ifs.fail()){
             throw std::runtime_error("input file is not available: " + inverse_path);
         }
+        auto delimiter = cast_string<string_type>(std::string("\t"));
         while(ifs.good()){
             string_type line;
             std::getline(ifs, line);
@@ -70,7 +71,7 @@ public:
 
             // due to the limited interface of preprocessors, concatenate extra data to the original text
             if(extra_col > 0 && extra_col - 1 < columns.size() && !columns[extra_col - 1].empty()){
-                original += cast_string<string_type>(std::string("\t")) + columns[extra_col - 1]; // TODO
+                original += delimiter + columns[extra_col - 1];
             }
 
             if(inverse.count(indexed) == 0){
