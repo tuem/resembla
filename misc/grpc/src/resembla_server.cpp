@@ -134,9 +134,11 @@ int main(int argc, char** argv) {
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
-        {"svr_features_col", 2, {"svr", "features_col"}, "svr-features-col", 0, "column number of features for support vector regression"},
         {"grpc_port", 50051, {"grpc", "port"}, "grpc-port", 'p', "gRPC port"},
         {"corpus_path", "", {"common", "corpus_path"}},
+        {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
+        {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
+        {"features_col", 2, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
         {"varbose", false, {"common", "varbose"}, "varbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
