@@ -55,6 +55,6 @@
         "features_col": 2
     },
     "grpc": {
-        "port": 50051
+        "server_address": "0.0.0.0:50051"
     }
 }

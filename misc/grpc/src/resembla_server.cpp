@@ -60,9 +60,8 @@ public:
     }
 };
 
-void RunServer(int port, std::shared_ptr<ResemblaInterface> resembla, size_t max_response, double threshold)
+void RunServer(const std::string& server_address, std::shared_ptr<ResemblaInterface> resembla, size_t max_response, double threshold)
 {
-    std::string server_address("localhost:" + std::to_string(port));
     ResemblaServiceImpl service(resembla, max_response, threshold);
 
     ServerBuilder builder;
@@ -134,7 +133,7 @@ int main(int argc, char** argv) {
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
-        {"grpc_port", 50051, {"grpc", "port"}, "grpc-port", 'p', "gRPC port"},
+        {"grpc_server_address", "localhost:50051", {"grpc", "server_address"}, "grpc-server-address", 0, "gRPC server address"},
         {"corpus_path", "", {"common", "corpus_path"}},
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
@@ -211,10 +210,10 @@ int main(int argc, char** argv) {
             std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
             std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
             std::cerr << "  gRPC:" << std::endl;
-            std::cerr << "    port=" << pm.get<int>("grpc_port") << std::endl;
-    }
+            std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
+        }
         auto resembla = construct_resembla(corpus_path, pm);
-        RunServer(pm.get<int>("grpc_port"), resembla,
+        RunServer(pm.get<std::string>("grpc_server_address"), resembla,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }
     catch(const std::exception& e){
