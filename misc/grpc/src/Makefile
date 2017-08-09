@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-BIN = resembla_server
+BIN = resembla_server resembla_async_server
 
 all: $(BIN)
 
@@ -38,6 +38,9 @@ _grpc:
 	$(MAKE) -C grpc
 
 resembla_server: resembla_server.o _grpc
+	$(CXX) $(CXXLIBS) -o $@ resembla_server.o $(RESEMBLA_GRPC_OBJS)
+
+resembla_async_server: resembla_async_server.o _grpc
 	$(CXX) $(CXXLIBS) -o $@ resembla_server.o $(RESEMBLA_GRPC_OBJS)
 
 
