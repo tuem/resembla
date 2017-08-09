@@ -41,7 +41,7 @@ resembla_server: resembla_server.o _grpc
 	$(CXX) $(CXXLIBS) -o $@ resembla_server.o $(RESEMBLA_GRPC_OBJS)
 
 resembla_async_server: resembla_async_server.o _grpc
-	$(CXX) $(CXXLIBS) -o $@ resembla_server.o $(RESEMBLA_GRPC_OBJS)
+	$(CXX) $(CXXLIBS) -o $@ resembla_async_server.o $(RESEMBLA_GRPC_OBJS)
 
 
 clean: $(SUBDIRS)

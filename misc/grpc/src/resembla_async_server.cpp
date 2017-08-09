@@ -82,22 +82,15 @@ private:
                 new CallData(service_, cq_, resembla, threshold, max_response);
 
                 // The actual processing.
-                void* tag;
-                bool ok;
-                for(const auto& r: resembla->find(cast_string<string_type>(request_.query()), threshold, max_response)){
-                    server::ResemblaResponse response;
-                    response.set_text(cast_string<std::string>(r.text));
-                    response.set_score(static_cast<float>(r.score));
-                    writer_.Write(response, this);
-                    cq_->Next(&tag, &ok);
-                }
-
-                status_ = FINISH;
-                writer_.Finish(Status::OK, this);
+                response_buffer_ = resembla->find(cast_string<string_type>(request_.query()), threshold, max_response);
+                i = 0;
+                status_ = RESPONSE;
+                write();
+            }
+            else if(status_ == RESPONSE){
+                write();
             }
             else{
-                GPR_ASSERT(status_ == FINISH);
-                // Once in the FINISH state, deallocate ourselves (CallData).
                 delete this;
             }
         }
@@ -112,21 +105,39 @@ private:
 
         ServerAsyncWriter<server::ResemblaResponse> writer_;
 
-        enum CallStatus { CREATE, PROCESS, FINISH };
+        enum CallStatus { CREATE, PROCESS, RESPONSE, FINISH };
         CallStatus status_;  // The current serving state.
 
         std::shared_ptr<ResemblaInterface> resembla;
         double threshold;
         size_t max_response;
+
+        std::vector<ResemblaInterface::output_type> response_buffer_;
+        size_t i;
+
+        void write()
+        {
+            if(i < response_buffer_.size()){
+                const auto& r = response_buffer_.at(i++);
+                server::ResemblaResponse _r;
+                _r.set_text(cast_string<std::string>(r.text));
+                _r.set_score(static_cast<float>(r.score));
+                writer_.Write(_r, this);
+            }
+            else{
+                writer_.Finish(Status::OK, this);
+                status_ = FINISH;
+            }
+        }
     };
 
-    void HandleRpcs() {
+    void HandleRpcs()
+    {
         new CallData(&service_, cq_.get(), resembla, threshold, max_response);
         void* tag;  // uniquely identifies a request.
         bool ok;
         while (true) {
-            GPR_ASSERT(cq_->Next(&tag, &ok));
-            GPR_ASSERT(ok);
+            cq_->Next(&tag, &ok);
             static_cast<CallData*>(tag)->Proceed();
         }
     }
@@ -140,7 +151,8 @@ private:
     size_t max_response;
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     init_locale();
 
     paramset::definitions defs = {
