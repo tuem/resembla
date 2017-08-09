@@ -23,6 +23,7 @@ limitations under the License.
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 #include <mecab.h>
 
@@ -37,6 +38,7 @@ public:
     using output_type = string_type;
 
     PronunciationSequenceBuilder(const std::string mecab_options = "", const size_t mecab_feature_pos = 7, const std::string mecab_pronunciation_of_marks = "");
+    PronunciationSequenceBuilder(const PronunciationSequenceBuilder& obj);
 
     output_type operator()(const string_type& text, bool is_original = false) const;
     string_type index(const string_type& text) const;
@@ -50,6 +52,8 @@ protected:
 
     bool isKanaWord(const string_type& w) const;
     string_type estimatePronunciation(const string_type& w) const;
+
+    mutable std::mutex mutex_tagger;
 };
 
 }

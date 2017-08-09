@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include <libsvm/svm.h>
 
@@ -42,6 +43,7 @@ public:
 
     SVRPredictor(const std::vector<Feature::key_type>& feature_definitions,
             const std::string model_file_path, const std::string name = DEFAULT_NAME);
+    SVRPredictor(const SVRPredictor& obj);
     virtual ~SVRPredictor();
 
     output_type operator()(const input_type& x) const;
@@ -49,6 +51,8 @@ public:
 protected:
     const std::vector<Feature::key_type> feature_definitions;
     svm_model *model;
+
+    mutable std::mutex mutex_model;
 
     std::vector<svm_node> toNodes(const input_type& x) const;
 };

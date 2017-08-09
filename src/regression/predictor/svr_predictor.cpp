@@ -31,6 +31,10 @@ SVRPredictor::SVRPredictor(const std::vector<Feature::key_type>& feature_definit
     name(name), feature_definitions(feature_definitions), model(svm_load_model(model_file_path.c_str()))
 {}
 
+SVRPredictor::SVRPredictor(const SVRPredictor& obj):
+    name(obj.name), feature_definitions(obj.feature_definitions), model(obj.model), mutex_model()
+{}
+
 SVRPredictor::~SVRPredictor()
 {
     svm_free_and_destroy_model(&model);
@@ -39,7 +43,9 @@ SVRPredictor::~SVRPredictor()
 SVRPredictor::output_type SVRPredictor::operator()(const input_type& x) const
 {
     auto nodes = toNodes(x);
+    std::unique_lock<std::mutex> l(mutex_model);
     double s = svm_predict(model, &nodes[0]);
+    l.unlock();
 #ifdef DEBUG
     std::cerr << "svm output=" << s << std::endl;
 #endif

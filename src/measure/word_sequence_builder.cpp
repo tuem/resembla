@@ -26,10 +26,13 @@ const int WordSequenceBuilder::FEATURE_SIZE = 9;
 
 WordSequenceBuilder::WordSequenceBuilder(const std::string mecab_options): tagger(MeCab::createTagger(mecab_options.c_str())) {}
 
+WordSequenceBuilder::WordSequenceBuilder(const WordSequenceBuilder& obj): tagger(obj.tagger), mutex_tagger() {}
+
 WordSequenceBuilder::output_type WordSequenceBuilder::operator()(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);
     output_type s;
+    std::unique_lock<std::mutex> l(mutex_tagger);
     for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
         // skip BOS/EOS nodes
         if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
@@ -57,6 +60,7 @@ WordSequenceBuilder::output_type WordSequenceBuilder::operator()(const string_ty
 
         s.push_back({surface, feature});
     }
+    l.unlock();
     return s;
 }
 

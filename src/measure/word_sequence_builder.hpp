@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <memory>
 #include <string>
+#include <mutex>
 
 #include <mecab.h>
 
@@ -36,6 +37,7 @@ public:
     using output_type = std::vector<token_type>;
 
     WordSequenceBuilder(const std::string mecab_options = "");
+    WordSequenceBuilder(const WordSequenceBuilder& obj);
 
     // parses to a sequence of words
     output_type operator()(const string_type& text, bool is_original = false) const;
@@ -46,6 +48,8 @@ public:
 protected:
     static const int FEATURE_SIZE;
     std::shared_ptr<MeCab::Tagger> tagger;
+
+    mutable std::mutex mutex_tagger;
 };
 
 }

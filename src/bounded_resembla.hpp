@@ -26,6 +26,7 @@ limitations under the License.
 #include <unordered_map>
 #include <memory>
 #include <stdexcept>
+#include <mutex>
 
 #include "simstring/simstring.h"
 
@@ -90,12 +91,14 @@ public:
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0)
     {
         // search from N-gram index
+        std::unique_lock<std::mutex> l(mutex_simstring);
         string_type search_query = preprocess->index(query);
         std::vector<string_type> simstring_result;
         db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
         if(simstring_result.empty()){
             return {};
         }
+        l.unlock();
 
         std::vector<string_type> candidate_texts;
         for(const auto& i: simstring_result){
@@ -152,6 +155,8 @@ protected:
 
     const bool preprocess_corpus;
     std::unordered_map<string_type, WorkData> preprocessed_corpus;
+
+    mutable std::mutex mutex_simstring;
 };
 
 }

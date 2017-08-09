@@ -241,10 +241,16 @@ PronunciationSequenceBuilder::PronunciationSequenceBuilder(
     tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
     mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
 
+PronunciationSequenceBuilder::PronunciationSequenceBuilder(const PronunciationSequenceBuilder& obj):
+    tagger(obj.tagger), mecab_feature_pos(obj.mecab_feature_pos),
+    mecab_pronunciation_of_marks(obj.mecab_pronunciation_of_marks), mutex_tagger()
+{}
+
 PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);
     output_type s;
+    std::unique_lock<std::mutex> l(mutex_tagger);
     for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
         // skip BOS/EOS nodes
         if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
@@ -295,6 +301,7 @@ PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator
             s.push_back(c);
         }
     }
+    l.unlock();
     return s;
 }
 
