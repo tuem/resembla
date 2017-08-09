@@ -43,9 +43,11 @@ SVRPredictor::~SVRPredictor()
 SVRPredictor::output_type SVRPredictor::operator()(const input_type& x) const
 {
     auto nodes = toNodes(x);
-    std::unique_lock<std::mutex> l(mutex_model);
-    double s = svm_predict(model, &nodes[0]);
-    l.unlock();
+    double s;
+    {
+        std::lock_guard<std::mutex> lock(mutex_model);
+        s = svm_predict(model, &nodes[0]);
+    }
 #ifdef DEBUG
     std::cerr << "svm output=" << s << std::endl;
 #endif

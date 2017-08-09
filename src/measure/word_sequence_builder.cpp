@@ -32,35 +32,36 @@ WordSequenceBuilder::output_type WordSequenceBuilder::operator()(const string_ty
 {
     std::string text_string = cast_string<std::string>(text);
     output_type s;
-    std::unique_lock<std::mutex> l(mutex_tagger);
-    for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
-        // skip BOS/EOS nodes
-        if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
-            continue;
-        }
-
-        // extract surface and features
-        string_type surface = cast_string<string_type>(std::string(node->surface, node->surface + node->length));
-        std::vector<string_type> feature;
-        const char *start = node->feature;
-        for(const char* end = start; *end != '\0'; ++end){
-            if(*end == ','){
-                if(start < end){
-                    feature.push_back(cast_string<string_type>(std::string(start, end)));
-                }
-                start = end + 1;
+    {
+        std::lock_guard<std::mutex> lock(mutex_tagger);
+        for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
+            // skip BOS/EOS nodes
+            if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
+                continue;
             }
-        }
-        if(*start != '\0'){
-            feature.push_back(cast_string<string_type>(std::string(start)));
-        }
-        while(feature.size() < FEATURE_SIZE){
-            feature.push_back(string_type());
-        }
 
-        s.push_back({surface, feature});
+            // extract surface and features
+            string_type surface = cast_string<string_type>(std::string(node->surface, node->surface + node->length));
+            std::vector<string_type> feature;
+            const char *start = node->feature;
+            for(const char* end = start; *end != '\0'; ++end){
+                if(*end == ','){
+                    if(start < end){
+                        feature.push_back(cast_string<string_type>(std::string(start, end)));
+                    }
+                    start = end + 1;
+                }
+            }
+            if(*start != '\0'){
+                feature.push_back(cast_string<string_type>(std::string(start)));
+            }
+            while(feature.size() < FEATURE_SIZE){
+                feature.push_back(string_type());
+            }
+
+            s.push_back({surface, feature});
+        }
     }
-    l.unlock();
     return s;
 }
 

@@ -91,14 +91,15 @@ public:
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
     {
         // search from N-gram index
-        std::unique_lock<std::mutex> l(mutex_simstring);
-        string_type search_query = preprocess->index(query);
         std::vector<string_type> simstring_result;
-        db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
-        if(simstring_result.empty()){
-            return {};
+        {
+            std::lock_guard<std::mutex> lock(mutex_simstring);
+            string_type search_query = preprocess->index(query);
+            db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
+            if(simstring_result.empty()){
+                return {};
+            }
         }
-        l.unlock();
 
         std::vector<string_type> candidate_texts;
         for(const auto& i: simstring_result){
