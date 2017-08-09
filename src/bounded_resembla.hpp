@@ -88,7 +88,7 @@ public:
         }
     }
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0)
+    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
     {
         // search from N-gram index
         std::unique_lock<std::mutex> l(mutex_simstring);
@@ -102,7 +102,7 @@ public:
 
         std::vector<string_type> candidate_texts;
         for(const auto& i: simstring_result){
-            const auto& j = inverse[i];
+            const auto& j = inverse.at(i);
             std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
             if(candidate_texts.size() == max_reranking_num){
                 break;
@@ -142,7 +142,7 @@ public:
 protected:
     using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
 
-    simstring::reader db;
+    mutable simstring::reader db;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
     const int simstring_measure;

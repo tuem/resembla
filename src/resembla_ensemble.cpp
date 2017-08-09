@@ -35,7 +35,7 @@ void ResemblaEnsemble::append(const std::shared_ptr<ResemblaInterface> resembla,
 }
 
 std::vector<ResemblaEnsemble::output_type> ResemblaEnsemble::find(const string_type& query,
-        double threshold, size_t max_response)
+        double threshold, size_t max_response) const
 {
     // find similar texts using all measures
     std::unordered_map<string_type, double> aggregated;

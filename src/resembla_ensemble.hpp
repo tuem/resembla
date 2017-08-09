@@ -36,7 +36,7 @@ public:
 
     void append(const std::shared_ptr<ResemblaInterface> resembla, const double weight = 1.0);
 
-    std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0);
+    std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0) const;
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
             double threshold = 0.0, size_t max_response = 0) const;
 

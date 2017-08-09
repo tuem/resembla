@@ -56,15 +56,15 @@ public:
         }
     }
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0)
+    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
     {
         std::vector<string_type> candidate_texts;
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
 
         // primary resembla
-        for(const auto& r: resemblas[primary_resembla_name]->find(query, threshold / 2.0, max_candidate * 2)){
+        for(const auto& r: resemblas.at(primary_resembla_name)->find(query, threshold / 2.0, max_candidate * 2)){
             candidate_texts.push_back(r.text);
-            candidate_features[r.text] = preprocess_corpus ? corpus_features[r.text] : (*preprocess)(r.text);
+            candidate_features[r.text] = preprocess_corpus ? corpus_features.at(r.text) : (*preprocess)(r.text);
             candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
         }
 
