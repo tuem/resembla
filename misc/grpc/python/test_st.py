@@ -48,7 +48,7 @@ def run(server_address, thread_id, count, queries):
     t_average = 0
     for r in results:
         t_average = t_average + float(r[2])
-    t_average = t_average / len(results) / len(queries)
+    t_average = t_average / len(results)
     results.append((thread_id, 'total', str(t_end - t_start)))
     results.append((thread_id, 'average', str(t_average)))
     for r in results:
