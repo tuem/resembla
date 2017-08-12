@@ -43,6 +43,37 @@ const std::unordered_set<string_type> RomajiMatchCost::SIMILAR_LETTER_PAIRS = {
 RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_letter_cost): 
     case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost) {}
 
+RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost)
+{
+    std::basic_ifstream<string_type::value_type> ifs(letter_similarity_file_path);
+    if(ifs.fail()){
+        throw std::runtime_error("input file is not available: " + inverse_path);
+    }
+    auto delimiter = cast_string<string_type>(std::string("\t"));
+    while(ifs.good()){
+        string_type line;
+        std::getline(ifs, line);
+        if(ifs.eof() || line.length() == 0){
+            break;
+        }
+
+        auto columns = split(line, L'\t');
+        if(columns.size() < 2){
+            throw std::runtime_error("invalid line in " + inverse_path + ": " + cast_string<std::string>(line));
+        }
+        auto letters= columns[0];
+        auto cost = std::stod(columns[1]);
+
+        std::sort(std::begin(letters), std::end(letters));
+        for(size_t i = 0; i < letters.size(); ++i){
+            std::string p(1, letters[i]);
+            for(size_t j = i + 1; i < letters.size(); ++i){
+                letter_similarities[p + letters[j]] = cost;
+            }
+        }
+    }
+}
+
 RomajiMatchCost::value_type RomajiMatchCost::toLower(value_type a) const
 {
     if(L'A' <= a && a <= L'Z'){
