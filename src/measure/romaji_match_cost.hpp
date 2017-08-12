@@ -31,12 +31,14 @@ struct RomajiMatchCost
 {
     using value_type = string_type::value_type;
 
-    static const std::unordered_set<string_type> SIMILAR_LETTER_PAIRS;
+    static const std::unordered_set<string_type> DEFAULT_SIMILAR_LETTER_PAIRS;
 
+    std::unordered_map<string_type, double> letter_similarities;
     const double case_mismatch_cost;
     const double similar_letter_cost;
 
     RomajiMatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
+    RomajiMatchCost(double case_mismatch_cost = 1L, const std::string& letter_similarity_file_path);
 
     value_type toLower(value_type a) const;
 
