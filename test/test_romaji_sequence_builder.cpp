@@ -35,9 +35,9 @@ const std::string ROMAJI_SEQUENCE_PARSER_MECAB_ROMAJI_OF_MARKS = "記号";
 void test_romaji_sequence_builder_build_indexing_text(const std::string& input, const std::string& correct)
 {
     init_locale();
-    RomajiSequenceBuilder builder(ROMAJI_SEQUENCE_PARSER_MECAB_OPTIONS, ROMAJI_SEQUENCE_PARSER_MECAB_FUTURE_POS, ROMAJI_SEQUENCE_PARSER_MECAB_ROMAJI_OF_MARKS, true);
+    RomajiSequenceBuilder preprocess(ROMAJI_SEQUENCE_PARSER_MECAB_OPTIONS, ROMAJI_SEQUENCE_PARSER_MECAB_FUTURE_POS, ROMAJI_SEQUENCE_PARSER_MECAB_ROMAJI_OF_MARKS, true);
     std::wstring winput = cast_string<std::wstring>(input);
-    std::string answer = cast_string<std::string>(builder.buildIndexingText(winput));
+    std::string answer = cast_string<std::string>(preprocess.index(winput));
 #ifdef DEBUG
     std::cerr << "input text: " << input <<  std::endl;
     std::cerr << "parsed text: " << answer <<  std::endl;

@@ -35,11 +35,11 @@ TEST_CASE( "parse a word", "[language]" ) {
     std::wcerr.imbue(std::locale());
 
     std::string mecab_options = "";
-    WordSequenceBuilder builder(mecab_options);
+    WordSequenceBuilder preprocess(mecab_options);
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
     std::wstring text = L"テスト";
-    auto words = builder.build(text);
+    auto words = preprocess(text);
     CHECK(words.size() == 1);
 
     auto& m = words[0];
@@ -60,11 +60,11 @@ TEST_CASE( "parse words", "[language]" ) {
     std::wcerr.imbue(std::locale());
 
     std::string mecab_options = "";
-    WordSequenceBuilder builder(mecab_options);
+    WordSequenceBuilder preprocess(mecab_options);
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
     std::wstring text = L"私は考える";
-    auto words = builder.build(text);
+    auto words = preprocess(text);
     CHECK(words.size() == 3);
 
     auto& m = words[0];

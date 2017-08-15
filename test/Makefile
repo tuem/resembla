@@ -23,7 +23,7 @@ test_debug: all
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 `pkg-config --cflags icu-uc` `mecab-config --cflags` -I../src -isystem../include -isystem../include/Catch -isystem../include/json -isystem../include/cmdline -isystem../include/paramset
-CXXLIBS := `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
+CXXLIBS := -lsvm `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 
 
 SRCS = $(wildcard test_*.cpp)
@@ -41,8 +41,10 @@ RESEMBLA_MEASURE_SRCS = $(wildcard $(SRC_DIR)/measure/*.cpp)
 RESEMBLA_MEASURE_OBJS = $(patsubst %.cpp,%.o,$(RESEMBLA_MEASURE_SRCS))
 RESEMBLA_MEASURE_OBJ_FILENAMES = $(patsubst $(SRC_DIR)/measure/%,%,$(RESEMBLA_MEASURE_OBJS))
 
+RESEMBLA_REGRESSION_SRCS = $(wildcard $(SRC_DIR)/regression/*.cpp) $(wildcard $(SRC_DIR)/regression/extractor/*.cpp) $(wildcard $(SRC_DIR)/regression/aggregator/*.cpp) $(wildcard $(SRC_DIR)/regression/predictor/*.cpp)
+RESEMBLA_REGRESSION_OBJS = $(patsubst %.cpp,%.o,$(SUBDIR_SRCS))
 
-ALL_SRCS = $(SRCS) $(RESEMBLA_COMMON_SRCS) $(RESEMBLA_MEASURE_SRCS)
+ALL_SRCS = $(SRCS) $(RESEMBLA_COMMON_SRCS) $(RESEMBLA_MEASURE_SRCS) $(RESEMBLA_REGRESSION_SRCS)
 ALL_OBJS = $(patsubst %.cpp,%.o,$(ALL_SRCS))
 ALL_DEPS = $(patsubst %.cpp,%.d,$(ALL_SRCS))
 
@@ -53,7 +55,10 @@ resembla_common:
 resembla_measure:
 	$(MAKE) -C ../src/measure $(RESEMBLA_MEASURE_OBJ_FILENAMES)
 
-test_all: resembla_common resembla_measure $(OBJS)
+resembla_regression:
+	$(MAKE) -C ../src/regression
+
+test_all: resembla_common resembla_measure resembla_regression $(OBJS)
 	$(CXX) $(CXXLIBS) -o test_all $(ALL_OBJS)
 	./test_all
 
