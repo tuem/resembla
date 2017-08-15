@@ -42,15 +42,15 @@ const std::unordered_set<string_type> RomajiMatchCost::DEFAULT_SIMILAR_LETTER_PA
 };
 
 RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_letter_cost): 
-    case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost)
+    case_mismatch_cost(case_mismatch_cost)
 {
     for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
         letter_similarities[p] = similar_letter_cost;
     }
 }
 
-RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost, double similar_letter_cost):
-    case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost)
+RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost):
+    case_mismatch_cost(case_mismatch_cost)
 {
     std::basic_ifstream<string_type::value_type> ifs(letter_similarity_file_path);
     if(ifs.fail()){

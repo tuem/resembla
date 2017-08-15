@@ -36,10 +36,9 @@ struct RomajiMatchCost
 
     std::unordered_map<string_type, double> letter_similarities;
     const double case_mismatch_cost;
-    const double similar_letter_cost;
 
     RomajiMatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
-    RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
+    RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L);
 
     value_type toLower(value_type a) const;
 
