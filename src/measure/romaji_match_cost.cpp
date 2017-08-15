@@ -42,7 +42,12 @@ const std::unordered_set<string_type> RomajiMatchCost::DEFAULT_SIMILAR_LETTER_PA
 };
 
 RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_letter_cost): 
-    case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost) {}
+    case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost)
+{
+    for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
+        letter_similarities[p] = similar_letter_cost;
+    }
+}
 
 RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost, double similar_letter_cost):
     case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost)
@@ -104,13 +109,14 @@ double RomajiMatchCost::operator()(const value_type a, const value_type b) const
             al = bl;
             bl = tmp;
         }
-        if(DEFAULT_SIMILAR_LETTER_PAIRS.count(string_type({al, bl})) > 0){
+        auto p = letter_similarities.find(string_type({al, bl}));
+        if(p != std::end(letter_similarities)){
             if((a == al && b == bl) || (a != al && b != bl)){
-                result = similar_letter_cost;
+                result = p->second;
             }
             else{
                 // special case that cases are different but letters are similar
-                result = std::min(result, case_mismatch_cost + similar_letter_cost);
+                result = std::min(result, case_mismatch_cost + p->second);
             }
         }
     }
