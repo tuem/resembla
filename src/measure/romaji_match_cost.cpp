@@ -17,13 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <fstream>
 #include <algorithm>
 
 #include "romaji_match_cost.hpp"
 
 namespace resembla {
 
-const std::unordered_set<string_type> RomajiMatchCost::SIMILAR_LETTER_PAIRS = {
+const std::unordered_set<string_type> RomajiMatchCost::DEFAULT_SIMILAR_LETTER_PAIRS = {
     L"bv",
     L"ck",
     L"cq",
@@ -43,11 +44,12 @@ const std::unordered_set<string_type> RomajiMatchCost::SIMILAR_LETTER_PAIRS = {
 RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_letter_cost): 
     case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost) {}
 
-RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost)
+RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost, double similar_letter_cost):
+    case_mismatch_cost(case_mismatch_cost), similar_letter_cost(similar_letter_cost)
 {
     std::basic_ifstream<string_type::value_type> ifs(letter_similarity_file_path);
     if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + inverse_path);
+        throw std::runtime_error("input file is not available: " + letter_similarity_file_path);
     }
     auto delimiter = cast_string<string_type>(std::string("\t"));
     while(ifs.good()){
@@ -59,14 +61,14 @@ RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path,
 
         auto columns = split(line, L'\t');
         if(columns.size() < 2){
-            throw std::runtime_error("invalid line in " + inverse_path + ": " + cast_string<std::string>(line));
+            throw std::runtime_error("invalid line in " + letter_similarity_file_path + ": " + cast_string<std::string>(line));
         }
         auto letters= columns[0];
         auto cost = std::stod(columns[1]);
 
         std::sort(std::begin(letters), std::end(letters));
         for(size_t i = 0; i < letters.size(); ++i){
-            std::string p(1, letters[i]);
+            string_type p(1, letters[i]);
             for(size_t j = i + 1; i < letters.size(); ++i){
                 letter_similarities[p + letters[j]] = cost;
             }
@@ -102,7 +104,7 @@ double RomajiMatchCost::operator()(const value_type a, const value_type b) const
             al = bl;
             bl = tmp;
         }
-        if(SIMILAR_LETTER_PAIRS.count(string_type({al, bl})) > 0){
+        if(DEFAULT_SIMILAR_LETTER_PAIRS.count(string_type({al, bl})) > 0){
             if((a == al && b == bl) || (a != al && b != bl)){
                 result = similar_letter_cost;
             }

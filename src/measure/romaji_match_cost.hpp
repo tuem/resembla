@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "../string_util.hpp"
 
@@ -38,7 +39,7 @@ struct RomajiMatchCost
     const double similar_letter_cost;
 
     RomajiMatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
-    RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L);
+    RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
 
     value_type toLower(value_type a) const;
 
