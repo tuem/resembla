@@ -374,8 +374,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                                 RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
-                        std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
-                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))),
+                        pm.get<std::string>("wred_mismatch_cost_path").empty() ?
+                                std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
+                                        RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))) :
+                                std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
+                                        RomajiMatchCost(pm.get<std::string>("wred_mismatch_cost_path"), pm.get<double>("wred_case_mismatch_cost"))),
                         true, 0));
                 break;
             case keyword_match:
