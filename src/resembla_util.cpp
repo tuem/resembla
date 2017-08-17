@@ -318,86 +318,95 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 if((weight = pm["ed_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla_ensemble->append(construct_bounded_resembla(
+                resembla_ensemble->append(
+                    construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("ed_simstring_threshold") != -1 ?
                             pm.get<double>("ed_simstring_threshold") : pm.get<double>("simstring_threshold"),
                         pm.get<int>("ed_max_reranking_num") != -1 ?
                             pm.get<int>("ed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<AsIsSequenceBuilder<string_type>>(),
-                        std::make_shared<EditDistance<>>(STR(edit_distance)), true, 0));
+                        std::make_shared<EditDistance<>>(STR(edit_distance)), true, 0),
+                    pm.get<double>("ed_ensemble_weight"));
                 break;
             case weighted_word_edit_distance:
                 if((weight = pm["wwed_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla_ensemble->append(construct_bounded_resembla(
+                resembla_ensemble->append(
+                    construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wwed_simstring_threshold") != -1 ?
                             pm.get<double>("wwed_simstring_threshold") : pm.get<double>("simstring_threshold"),
                         pm.get<int>("wwed_max_reranking_num") != -1 ?
                             pm.get<int>("wwed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>>(
-                                WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
-                                FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
-                                        pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
-                                        pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance)), true, 0));
+                            WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
+                            FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
+                                pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
+                                pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
+                        std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance)), true, 0),
+                    pm.get<double>("wwed_ensemble_weight"));
                 break;
             case weighted_pronunciation_edit_distance:
                 if((weight = pm["wped_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla_ensemble->append(construct_bounded_resembla(
+                resembla_ensemble->append(
+                    construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wped_simstring_threshold") != -1 ?
                             pm.get<double>("wped_simstring_threshold") : pm.get<double>("simstring_threshold"),
                         pm.get<int>("wped_max_reranking_num") != -1 ?
                             pm.get<int>("wped_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<PronunciationSequenceBuilder>(pm.get<std::string>("wped_mecab_options"),
-                                pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance)), true, 0));
+                            pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
+                        std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance)), true, 0),
+                    pm.get<double>("wped_ensemble_weight"));
                 break;
             case weighted_romaji_edit_distance:
                 if((weight = pm["wred_ensemble_weight"]) == 0){
                     continue;
                 }
-                resembla_ensemble->append(construct_bounded_resembla(
+                resembla_ensemble->append(
+                    construct_bounded_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wred_simstring_threshold") != -1 ?
                             pm.get<double>("wred_simstring_threshold") : pm.get<double>("simstring_threshold"),
                         pm.get<int>("wred_max_reranking_num") != -1 ?
                             pm.get<int>("wred_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>>(
-                                RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
-                                        pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
-                                RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
-                                        pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
-                                        pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
+                            RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
+                                pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
+                            RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
+                                pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
+                                pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
                         pm.get<std::string>("wred_mismatch_cost_path").empty() ?
-                                std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
-                                        RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))) :
-                                std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
-                                        RomajiMatchCost(pm.get<std::string>("wred_mismatch_cost_path"), pm.get<double>("wred_case_mismatch_cost"))),
-                        true, 0));
+                            std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
+                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))) :
+                            std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
+                                RomajiMatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
+                                pm.get<double>("wred_case_mismatch_cost"))),
+                        true, 0),
+                    pm.get<double>("wred_ensemble_weight"));
                 break;
             case keyword_match:
                 if((weight = pm["km_ensemble_weight"]) == 0){
                     continue;
                 }
                 keyword_resembla = construct_bounded_resembla(
-                        db_path, inverse_path, simstring_measure,
-                        pm.get<double>("km_simstring_threshold") != -1 ?
-                            pm.get<double>("km_simstring_threshold") : pm.get<double>("simstring_threshold"),
-                        pm.get<int>("km_max_reranking_num") != -1 ?
-                            pm.get<int>("km_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
-                        std::make_shared<KeywordMatchPreprocessor<string_type>>(),
-                        std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true, /*TODO*/3);
+                    db_path, inverse_path, simstring_measure,
+                    pm.get<double>("km_simstring_threshold") != -1 ?
+                        pm.get<double>("km_simstring_threshold") : pm.get<double>("simstring_threshold"),
+                    pm.get<int>("km_max_reranking_num") != -1 ?
+                        pm.get<int>("km_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
+                    std::make_shared<KeywordMatchPreprocessor<string_type>>(),
+                    std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true, /*TODO*/3);
                 if(resembla_regression != nullptr){
                     resembla_regression->append(STR(keyword_match), keyword_resembla, false);
                 }
                 else{
-                    resembla_ensemble->append(keyword_resembla);
+                    resembla_ensemble->append(keyword_resembla, pm.get<double>("km_ensemble_weight"));
                 }
                 break;
             default:
