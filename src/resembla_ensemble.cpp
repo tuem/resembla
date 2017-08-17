@@ -26,7 +26,8 @@ limitations under the License.
 
 namespace resembla {
 
-ResemblaEnsemble::ResemblaEnsemble(const std::string& measure_name): measure_name(measure_name), total_weight(0.0) {}
+ResemblaEnsemble::ResemblaEnsemble(const std::string& measure_name, const size_t max_reranking_num):
+    measure_name(measure_name), max_reranking_num(max_reranking_num), total_weight(0.0) {}
 
 void ResemblaEnsemble::append(const std::shared_ptr<ResemblaInterface> resembla, const double weight)
 {
@@ -37,14 +38,17 @@ void ResemblaEnsemble::append(const std::shared_ptr<ResemblaInterface> resembla,
 std::vector<ResemblaEnsemble::output_type> ResemblaEnsemble::find(const string_type& query,
         double threshold, size_t max_response) const
 {
+    double t = max_reranking_num > 0 ? 0.0 : threshold;
+    size_t n = max_reranking_num > 0 ? max_reranking_num : max_response;
+
     // find similar texts using all measures
     std::unordered_map<string_type, double> aggregated;
     for(auto p: resemblas){
-        for(auto r: p.first->find(query, threshold, max_response)){
-            if(aggregated.find(r.text) == aggregated.end()){
+        for(auto r: p.first->find(query, t, n)){
+            if(aggregated.find(r.text) == std::end(aggregated)){
                 aggregated[r.text] = 0.0;
             }
-            aggregated[r.text] += p.second * r.score * r.score;
+            aggregated.at(r.text) += p.second * r.score * r.score;
         }
     }
 
@@ -54,14 +58,17 @@ std::vector<ResemblaEnsemble::output_type> ResemblaEnsemble::find(const string_t
 std::vector<ResemblaInterface::output_type> ResemblaEnsemble::eval(const string_type& query,
         const std::vector<string_type>& targets, double threshold, size_t max_response) const
 {
+    double t = max_reranking_num > 0 ? 0.0 : threshold;
+    size_t n = max_reranking_num > 0 ? max_reranking_num : max_response;
+
     // calculate similarity using all measures
     std::unordered_map<string_type, double> aggregated;
     for(auto p: resemblas){
-        for(auto r: p.first->eval(query, targets, threshold, max_response)){
+        for(auto r: p.first->eval(query, targets, t, n)){
             if(aggregated.find(r.text) == std::end(aggregated)){
                 aggregated[r.text] = 0.0;
             }
-            aggregated[r.text] += p.second * r.score * r.score;
+            aggregated.at(r.text) += p.second * r.score * r.score;
         }
     }
 

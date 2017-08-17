@@ -32,7 +32,7 @@ namespace resembla {
 class ResemblaEnsemble: public ResemblaInterface
 {
 public:
-    ResemblaEnsemble(const std::string& measure_name);
+    ResemblaEnsemble(const std::string& measure_name, const size_t max_reranking_num = 0);
 
     void append(const std::shared_ptr<ResemblaInterface> resembla, const double weight = 1.0);
 
@@ -43,6 +43,8 @@ public:
 protected:
     // name to be used in response
     const std::string measure_name;
+
+    const size_t max_reranking_num;
 
     double total_weight;
 

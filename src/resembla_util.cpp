@@ -295,7 +295,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     int simstring_measure = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
     std::string resembla_measure_all = pm["resembla_measure"];
 
-    std::shared_ptr<ResemblaEnsemble> resembla_ensemble = std::make_shared<ResemblaEnsemble>(resembla_measure_all);
+    std::shared_ptr<ResemblaEnsemble> resembla_ensemble =
+        std::make_shared<ResemblaEnsemble>(resembla_measure_all, pm.get<double>("resembla_max_reranking_num"));
     std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> resembla_regression = nullptr;
     std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
     std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
