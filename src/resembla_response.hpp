@@ -32,6 +32,8 @@ struct ResemblaResponse
     std::string measure;
     double score;
 
+    ~ResemblaResponse();
+
     bool operator<(const ResemblaResponse& a) const;
 };
 
