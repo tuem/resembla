@@ -37,6 +37,7 @@ public:
 
     struct Function
     {
+        virtual ~Function(){}
         virtual Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const = 0;
     };
 

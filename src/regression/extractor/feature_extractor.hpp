@@ -41,6 +41,7 @@ public:
 
     struct Function
     {
+        virtual ~Function(){}
         virtual Feature::text_type operator()(const string_type& text) const = 0;
     };
 
