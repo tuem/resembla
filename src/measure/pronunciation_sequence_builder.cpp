@@ -246,6 +246,8 @@ PronunciationSequenceBuilder::PronunciationSequenceBuilder(const PronunciationSe
     mecab_pronunciation_of_marks(obj.mecab_pronunciation_of_marks), mutex_tagger()
 {}
 
+PronunciationSequenceBuilder::~PronunciationSequenceBuilder(){}
+
 PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(const string_type& text, bool) const
 {
     std::string text_string = cast_string<std::string>(text);

@@ -39,6 +39,7 @@ public:
 
     PronunciationSequenceBuilder(const std::string mecab_options = "", const size_t mecab_feature_pos = 7, const std::string mecab_pronunciation_of_marks = "");
     PronunciationSequenceBuilder(const PronunciationSequenceBuilder& obj);
+    virtual ~PronunciationSequenceBuilder();
 
     output_type operator()(const string_type& text, bool is_original = false) const;
     string_type index(const string_type& text) const;
