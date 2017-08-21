@@ -1,0 +1,38 @@
+{
+    "common": {
+        "corpus_path": "../../example/corpus/name.tsv",
+        "id_col": 1,
+        "text_col": 2,
+        "features_col": 0,
+        "verbose": true
+    },
+    "simstring": {
+        "ngram_unit": 2,
+        "text_preprocess": "asis,romaji",
+        "measure": "cosine",
+        "threshold": 0.01
+    },
+    "resembla": {
+        "measure": "edit_distance,weighted_romaji_edit_distance",
+        "max_reranking_num": 10000,
+        "max_response": 20,
+        "threshold": 0.5
+    },
+    "edit_distance": {
+        "ensemble_weight": 0.01
+    },
+    "weighted_romaji_edit_distance": {
+        "simstring_ngram_unit": 2,
+        "simstring_threshold": 0.1,
+        "base_weight": 1.0,
+        "delete_insert_ratio": 0.9,
+        "uppercase_coefficient": 1.0,
+        "lowercase_coefficient": 0.8,
+        "vowel_coefficient": 1.0,
+        "consonant_coefficient": 0.5,
+        "case_mismatch_cost": 0.3,
+        "similar_letter_cost": 0.1,
+        "mismatch_cost_path": "../../example/conf/romaji_mismatch_cost.tsv",
+        "ensemble_weight": 0.99
+    }
+}
