@@ -75,11 +75,12 @@ public:
                 original += delimiter + columns[extra_col - 1];
             }
 
-            if(inverse.count(indexed) == 0){
+            const auto& i = inverse.find(indexed);
+            if(i == std::end(inverse)){
                 inverse[indexed] = {original};
             }
             else{
-                inverse[indexed].push_back(original);
+                inverse.at(indexed).push_back(original);
             }
 
             if(preprocess_corpus){
@@ -103,6 +104,9 @@ public:
 
         std::vector<string_type> candidate_texts;
         for(const auto& i: simstring_result){
+            if(i.empty()){
+                continue;
+            }
             const auto& j = inverse.at(i);
             std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
             if(candidate_texts.size() == max_reranking_num){
