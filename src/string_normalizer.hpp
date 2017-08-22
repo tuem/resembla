@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __TEXT_NORMALIZER_HPP__
-#define __TEXT_NORMALIZER_HPP__
+#ifndef __STRING_NORMALIZER_HPP__
+#define __STRING_NORMALIZER_HPP__
 
 #include <string>
 #include <memory>
@@ -34,6 +34,7 @@ class StringNormalizer: public SymbolNormalizer
 public:
     StringNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
         const std::string& predefined_nrm_name, const std::string& transliteration_path);
+    virtual ~StringNormalizer();
 
     bool available() const;
     string_type operator()(const string_type& input) const;

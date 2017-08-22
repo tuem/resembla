@@ -50,6 +50,8 @@ StringNormalizer::StringNormalizer(const std::string& nrm_dir, const std::string
     transliterator.reset(Transliterator::createFromRules("resembla_transliteration", UnicodeString(rules.c_str()), UTRANS_FORWARD, parse_error, error_code));
 }
 
+StringNormalizer::~StringNormalizer(){}
+
 bool StringNormalizer::available() const
 {
     return SymbolNormalizer::available() && transliterator != nullptr;

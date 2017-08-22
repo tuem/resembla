@@ -38,6 +38,8 @@ SymbolNormalizer::SymbolNormalizer(const std::string& nrm_dir, const std::string
     }
 }
 
+SymbolNormalizer::~SymbolNormalizer(){}
+
 bool SymbolNormalizer::available() const
 {
     return normalizer_resembla != nullptr && normalizer_nfkc != nullptr;
