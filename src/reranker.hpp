@@ -43,8 +43,8 @@ public:
         const Iterator begin,
         const Iterator end,
         const ScoreFunction& score_func,
-        double threshold,
-        size_t max_output
+        double threshold = 0.0,
+        size_t max_output = 0
     ) const
     {
 #ifdef DEBUG
