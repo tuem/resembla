@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __BOUNDED_RESEMBLA_HPP__
-#define __BOUNDED_RESEMBLA_HPP__
+#ifndef __BASIC_RESEMBLA_HPP__
+#define __BASIC_RESEMBLA_HPP__
 
 #include <string>
 #include <fstream>
@@ -40,10 +40,10 @@ template<
     typename Preprocessor,
     typename ScoreFunction
 >
-class BoundedResembla: public ResemblaInterface
+class BasicResembla: public ResemblaInterface
 {
 public:
-    BoundedResembla(const std::string& db_path, const std::string& inverse_path,
+    BasicResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
             bool preprocess_corpus = true, size_t extra_col = 0):

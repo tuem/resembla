@@ -320,7 +320,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(
-                    construct_bounded_resembla(
+                    construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("ed_simstring_threshold") != -1 ?
                             pm.get<double>("ed_simstring_threshold") : pm.get<double>("simstring_threshold"),
@@ -335,7 +335,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(
-                    construct_bounded_resembla(
+                    construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wwed_simstring_threshold") != -1 ?
                             pm.get<double>("wwed_simstring_threshold") : pm.get<double>("simstring_threshold"),
@@ -354,7 +354,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(
-                    construct_bounded_resembla(
+                    construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wped_simstring_threshold") != -1 ?
                             pm.get<double>("wped_simstring_threshold") : pm.get<double>("simstring_threshold"),
@@ -370,7 +370,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     continue;
                 }
                 resembla_ensemble->append(
-                    construct_bounded_resembla(
+                    construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wred_simstring_threshold") != -1 ?
                             pm.get<double>("wred_simstring_threshold") : pm.get<double>("simstring_threshold"),
@@ -395,7 +395,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 if((weight = pm["km_ensemble_weight"]) == 0){
                     continue;
                 }
-                keyword_resembla = construct_bounded_resembla(
+                keyword_resembla = construct_basic_resembla(
                     db_path, inverse_path, simstring_measure,
                     pm.get<double>("km_simstring_threshold") != -1 ?
                         pm.get<double>("km_simstring_threshold") : pm.get<double>("simstring_threshold"),
