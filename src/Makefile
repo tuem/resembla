@@ -54,7 +54,7 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
-SUBDIR_SRCS = $(wildcard measure/*.cpp) $(wildcard regression/*.cpp) $(wildcard regression/extractor/*.cpp) $(wildcard regression/aggregator/*.cpp) $(wildcard regression/predictor/*.cpp)
+SUBDIR_SRCS = $(shell find measure -name "*.cpp")  $(shell find regression -name "*.cpp")
 SUBDIR_OBJS = $(patsubst %.cpp,%.o,$(SUBDIR_SRCS))
 
 
