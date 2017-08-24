@@ -28,6 +28,7 @@ PROTO_DIR=$BASE_DIR/protos
 CPP_DIR=$BASE_DIR/src/grpc
 HEADER_DIR=$BASE_DIR/include
 PYTHON_DIR=$BASE_DIR/python
+RUBY_DIR=$BASEDIR/ruby
 
 echo "${ECHO_PREFIX} Generate C++ gRPC server templete"
 protoc -I $PROTO_DIR $PROTO_DIR/$PROJECT_NAME.proto --grpc_out=$CPP_DIR --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
@@ -39,3 +40,7 @@ echo "${ECHO_PREFIX} Output C++ header to ${HEADER_DIR}"
 echo "${ECHO_PREFIX} Generate Python gRPC client templete"
 python -m grpc_tools.protoc -I$PROTO_DIR --python_out=$PYTHON_DIR --grpc_python_out=$PYTHON_DIR $PROTO_DIR/$PROJECT_NAME.proto
 echo "${ECHO_PREFIX} Output Python client to ${HEADER_DIR}"
+
+echo "${ECHO_PREFIX} Generate Ruby gRPC client templete"
+protoc -I $PROTO_DIR $PROTO_DIR/$PROJECT_NAME.proto --ruby_out=$RUBY_DIR --grpc_out=$RUBY_DIR --plugin=protoc-gen-grpc=`which grpc_ruby_plugin`
+echo "${ECHO_PREFIX} Output Ruby client to ${RUBY_DIR}"
