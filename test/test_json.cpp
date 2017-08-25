@@ -62,6 +62,23 @@ TEST_CASE( "serialize and deserialize output data of keyword match preprocessor"
     CHECK(o1.keywords == o0.keywords);
 }
 
+TEST_CASE( "serialize and deserialize output data of weighted word sequence builder", "[serialization]" ) {
+    init_locale();
+
+    WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::output_type o0 = {{{L"単語0", {L"素性00", L"素性01"}}, 0.3}, {{L"単語1", {L"素性10", L"素性11"}}, 0.7}};
+
+    json j0 = o0;
+    const std::string s = j0.dump();
+    CHECK(s == "[{\"token\":{\"feature\":[\"素性00\",\"素性01\"],\"surface\":\"単語0\"},\"weight\":0.3},{\"token\":{\"feature\":[\"素性10\",\"素性11\"],\"surface\":\"単語1\"},\"weight\":0.7}]");
+    std::cout << s << std::endl;
+/*
+    json j1 = json::parse(s);
+    KeywordMatchPreprocessor<string_type>::output_type o1 = j1;
+    CHECK(o1.text == o0.text);
+    CHECK(o1.keywords == o0.keywords);
+*/
+}
+
 TEST_CASE( "serialize and deserialize output data of weighted romaji sequence builder", "[serialization]" ) {
     init_locale();
 

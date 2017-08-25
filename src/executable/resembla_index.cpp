@@ -24,10 +24,11 @@ limitations under the License.
 #include <set>
 #include <stdexcept>
 
-#include "paramset.hpp"
+#include <paramset.hpp>
 #include <resembla/resembla_util.hpp>
 
 #include <resembla/simstring/simstring.h>
+#include <json.hpp>
 
 #include <resembla/measure/word_sequence_builder.hpp>
 #include <resembla/measure/pronunciation_sequence_builder.hpp>
@@ -79,7 +80,8 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            ofs << p.first << L'\t' << original << std::endl;
+            nlohmann::json preprocessed = preprocess(original);
+            ofs << p.first << L'\t' << original L'\t' << preprocessed << std::endl;
         }
     }
 }
