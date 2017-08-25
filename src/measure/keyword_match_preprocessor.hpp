@@ -26,6 +26,8 @@ limitations under the License.
 
 #include <json.hpp>
 
+#include "../string_util.hpp"
+
 namespace resembla {
 
 template<typename string_type>
@@ -78,22 +80,9 @@ protected:
 //    std::unordered_map<string_type, size_t> synonym_index;
 };
 
-void to_json(nlohmann::json& j, const typename KeywordMatchPreprocessor<string_type>::output_type& o) {
-    std::vector<std::string> keywords;
-    for(const auto& k: o.keywords){
-        keywords.push_back(cast_string<std::string>(k));
-    }
-    j = nlohmann::json{{"text", cast_string<std::string>(o.text)}, {"keywords", keywords}};
-}
-
-void from_json(const nlohmann::json& j, typename KeywordMatchPreprocessor<string_type>::output_type& o) {
-    o.text = cast_string<string_type>(j.at("text").get<std::string>());
-    std::vector<std::string> keywords = j.at("keywords").get<std::vector<std::string>>();
-    o.keywords.clear();
-    for(const auto& k: keywords){
-        o.keywords.push_back(cast_string<string_type>(k));
-    }
-}
+// TODO: implement as template functions
+void to_json(nlohmann::json& j, const typename KeywordMatchPreprocessor<string_type>::output_type& o);
+void from_json(const nlohmann::json& j, typename KeywordMatchPreprocessor<string_type>::output_type& o);
 
 }
 #endif
