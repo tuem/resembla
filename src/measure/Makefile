@@ -16,7 +16,7 @@
 # limitations under the License.
 
 CXX := g++
-CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include `mecab-config --cflags`
+CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json `mecab-config --cflags`
 
 SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
