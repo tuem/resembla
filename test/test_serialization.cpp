@@ -70,7 +70,6 @@ TEST_CASE( "serialize and deserialize output data of weighted word sequence buil
     json j0 = o0;
     const std::string s = j0.dump();
     CHECK(s == "[{\"token\":{\"feature\":[\"素性00\",\"素性01\"],\"surface\":\"単語0\"},\"weight\":0.3},{\"token\":{\"feature\":[\"素性10\",\"素性11\"],\"surface\":\"単語1\"},\"weight\":0.7}]");
-    std::cout << s << std::endl;
 
     json j1 = json::parse(s);
     WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::output_type o1 = j1;
