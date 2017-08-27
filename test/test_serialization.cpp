@@ -94,7 +94,7 @@ TEST_CASE( "serialize and deserialize output data of weighted romaji sequence bu
     WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>::output_type o1 = j1;
     REQUIRE(o1.size() == o0.size());
     for(size_t i = 0; i < o1.size(); ++i){
-        CHECK(o1[i].token == o1[i].token);
-        CHECK(o1[i].weight == o1[i].weight);
+        CHECK(o1[i].token == o0[i].token);
+        CHECK(o1[i].weight == o0[i].weight);
     }
 }
