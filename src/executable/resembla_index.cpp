@@ -90,9 +90,10 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            nlohmann::json j = preprocess(original);
+            nlohmann::json j = preprocess(original, true);
             auto preprocessed = cast_string<string_type>(j.dump());
-            ofs << p.first << L'\t' << original << L'\t' << preprocessed << std::endl;
+            auto columns = split(original, L'\t');
+            ofs << p.first << L'\t' << columns[0] << L'\t' << preprocessed << std::endl;
         }
     }
 }
@@ -131,6 +132,7 @@ int main(int argc, char* argv[])
         {"wred_case_mismatch_cost", 1L, {"weighted_romaji_edit_distance", "case_mismatch_cost"}, "wred-case-mismatch-cost", 0, "cost to replace case mismatches for weighted romaji edit distance"},
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_mismatch_cost_path", "", {"weighted_romaji_edit_distance", "mismatch_cost_path"}, "wred-mismatch-cost-path", 0, "costs to replace similar letters for weighted romaji edit distance"},
+        {"km_simstring_ngram_unit", -1, {"keyword_match", "simstring_ngram_unit"}, "km-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"corpus_path", "", {"common", "corpus_path"}},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 0, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
@@ -150,6 +152,8 @@ int main(int argc, char* argv[])
             pm.get<int>("wped_simstring_ngram_unit") : default_simstring_ngram_unit;
         int wred_simstring_ngram_unit = pm.get<int>("wred_simstring_ngram_unit") != -1 ?
             pm.get<int>("wred_simstring_ngram_unit") : default_simstring_ngram_unit;
+        int km_simstring_ngram_unit = pm.get<int>("km_simstring_ngram_unit") != -1 ?
+            pm.get<int>("km_simstring_ngram_unit") : default_simstring_ngram_unit;
         auto simstring_text_preprocesses = split_to_text_preprocesses(pm.get<std::string>("simstring_text_preprocess"));
 
         if(pm.get<bool>("verbose")){
@@ -180,6 +184,10 @@ int main(int argc, char* argv[])
                     std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
                     std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
                 }
+                else if(simstring_text_preprocess == keyword){
+                    std::cerr << "  text_preprocess=" << STR(keyword) << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << km_simstring_ngram_unit << std::endl;
+                }
             }
         }
 
@@ -188,7 +196,6 @@ int main(int argc, char* argv[])
             std::string inverse_path = inverse_path_from_simstring_text_preprocess(corpus_path, simstring_text_preprocess);
 
             if(simstring_text_preprocess == asis){
-                //WordSequenceBuilder builder(pm.get<std::string>("wwed_mecab_options"));
                 WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight> builder(
                     WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
                     FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
@@ -204,8 +211,6 @@ int main(int argc, char* argv[])
                         builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
             }
             else if(simstring_text_preprocess == romaji){
-                //RomajiSequenceBuilder builder(pm.get<std::string>("wred_mecab_options"),
-                //        pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
                 WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight> builder(
                     RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
                         pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
