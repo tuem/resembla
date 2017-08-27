@@ -71,12 +71,15 @@ TEST_CASE( "serialize and deserialize output data of weighted word sequence buil
     const std::string s = j0.dump();
     CHECK(s == "[{\"token\":{\"feature\":[\"素性00\",\"素性01\"],\"surface\":\"単語0\"},\"weight\":0.3},{\"token\":{\"feature\":[\"素性10\",\"素性11\"],\"surface\":\"単語1\"},\"weight\":0.7}]");
     std::cout << s << std::endl;
-/*
+
     json j1 = json::parse(s);
-    KeywordMatchPreprocessor<string_type>::output_type o1 = j1;
-    CHECK(o1.text == o0.text);
-    CHECK(o1.keywords == o0.keywords);
-*/
+    WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::output_type o1 = j1;
+    REQUIRE(o1.size() == o0.size());
+    for(size_t i = 0; i < o1.size(); ++i){
+        CHECK(o1[i].token.surface == o0[i].token.surface);
+        CHECK(o1[i].token.feature == o0[i].token.feature);
+        CHECK(o1[i].weight == o0[i].weight);
+    }
 }
 
 TEST_CASE( "serialize and deserialize output data of weighted romaji sequence builder", "[serialization]" ) {
