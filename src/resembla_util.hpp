@@ -47,6 +47,7 @@ extern const std::string SIMSTRING_INVERSE_FILE_COMMON_SUFFIX;
 enum text_preprocess: int
 {
     asis,
+    word,
     pronunciation,
     romaji,
     keyword

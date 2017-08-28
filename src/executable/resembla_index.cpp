@@ -30,6 +30,7 @@ limitations under the License.
 #include <resembla/simstring/simstring.h>
 #include <json.hpp>
 
+#include <resembla/measure/asis_sequence_builder.hpp>
 #include <resembla/measure/word_sequence_builder.hpp>
 #include <resembla/measure/pronunciation_sequence_builder.hpp>
 #include <resembla/measure/romaji_sequence_builder.hpp>
@@ -168,6 +169,11 @@ int main(int argc, char* argv[])
                 if(simstring_text_preprocess == asis){
                     std::cerr << "  text_preprocess=" << STR(asis) << std::endl;
                     std::cerr << "    simstring_ngram_unit=" << wwed_simstring_ngram_unit << std::endl;
+                    //std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
+                }
+                if(simstring_text_preprocess == word){
+                    std::cerr << "  text_preprocess=" << STR(asis) << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << wwed_simstring_ngram_unit << std::endl;
                     std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
                 }
                 else if(simstring_text_preprocess == pronunciation){
@@ -196,6 +202,11 @@ int main(int argc, char* argv[])
             std::string inverse_path = inverse_path_from_simstring_text_preprocess(corpus_path, simstring_text_preprocess);
 
             if(simstring_text_preprocess == asis){
+                AsIsSequenceBuilder<string_type> builder;
+                create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
+                        pm.get<int>("text_col"), pm.get<int>("features_col"));
+            }
+            else if(simstring_text_preprocess == word){
                 WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight> builder(
                     WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
                     FeatureMatchWeight(pm.get<double>("wwed_base_weight"),

@@ -92,6 +92,9 @@ std::string db_path_from_simstring_text_preprocess(const std::string& corpus_pat
     if(simstring_text_preprocess == asis){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(asis);
     }
+    else if(simstring_text_preprocess == word){
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(word);
+    }
     else if(simstring_text_preprocess == pronunciation){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(pronunciation);
     }
@@ -110,6 +113,9 @@ std::string inverse_path_from_simstring_text_preprocess(const std::string& corpu
 {
     if(simstring_text_preprocess == asis){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(asis);
+    }
+    else if(simstring_text_preprocess == word){
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(word);
     }
     else if(simstring_text_preprocess == pronunciation){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(pronunciation);
@@ -131,7 +137,7 @@ std::string db_path_from_resembla_measure(const std::string& corpus_path, const 
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(asis);
     }
     else if(resembla_measure == weighted_word_edit_distance){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(asis);
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(word);
     }
     else if(resembla_measure == weighted_pronunciation_edit_distance){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(pronunciation);
@@ -153,7 +159,7 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(asis);
     }
     else if(resembla_measure == weighted_word_edit_distance){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(asis);
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(word);
     }
     else if(resembla_measure == weighted_pronunciation_edit_distance){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(pronunciation);
@@ -175,6 +181,9 @@ std::vector<text_preprocess> split_to_text_preprocesses(std::string text, char d
     for(auto text_preprocess_str: split(text, delimiter)){
         if(text_preprocess_str == STR(asis)){
             result.push_back(asis);
+        }
+        else if(text_preprocess_str == STR(word)){
+            result.push_back(word);
         }
         else if(text_preprocess_str == STR(pronunciation)){
             result.push_back(pronunciation);
