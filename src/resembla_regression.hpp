@@ -26,6 +26,8 @@ limitations under the License.
 #include <unordered_map>
 #include <fstream>
 
+#include <json.hpp>
+
 #include "resembla_interface.hpp"
 #include "reranker.hpp"
 #include "regression/feature.hpp"
@@ -39,12 +41,14 @@ class ResemblaRegression: public ResemblaInterface
 public:
     ResemblaRegression(size_t max_candidate,
             std::shared_ptr<FeatureExtractor> feature_extractor, std::shared_ptr<ScoreFunction> score_func,
-            std::string corpus_path = "", size_t text_col = 1, size_t features_col = 2):
+            //std::string corpus_path = "", size_t text_col = 1, size_t features_col = 2):
+            std::string inverse_path = "", size_t text_col = 2, size_t features_col = 3):
         max_candidate(max_candidate), preprocess(feature_extractor), score_func(score_func),
-        reranker(), preprocess_corpus(!corpus_path.empty())
+        reranker(), preprocess_corpus(!inverse_path.empty())
     {
         if(preprocess_corpus){
-            loadCorpusFeatures(corpus_path, text_col, features_col);
+            loadCorpusFeatures(inverse_path, 2, 3);
+            //loadCorpusFeatures(inverse_path, text_col, features_col);
         }
     }
 
@@ -119,11 +123,11 @@ protected:
     const bool preprocess_corpus;
     std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
 
-    void loadCorpusFeatures(const std::string& corpus_path, size_t text_col, size_t features_col)
+    void loadCorpusFeatures(const std::string& inverse_path, size_t text_col, size_t features_col)
     {
-        std::ifstream ifs(corpus_path);
+        std::ifstream ifs(inverse_path);
         if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + corpus_path);
+            throw std::runtime_error("input file is not available: " + inverse_path);
         }
 
         while(ifs.good()){
@@ -134,10 +138,25 @@ protected:
             }
             auto columns = split(line, '\t');
             if(text_col - 1 < columns.size()){
-                std::string raw_features =
-                    features_col - 1 < columns.size() ? columns[features_col - 1] : "";
-                corpus_features[cast_string<string_type>(columns[text_col - 1])] =
-                    (*preprocess)(columns[text_col - 1], raw_features);
+                if(features_col - 1 < columns.size()){
+#ifdef DEBUG
+                    std::cerr << "load from JSON: " << columns[features_col - 1] << std::endl;
+#endif
+                    nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[features_col - 1]));
+                    typename FeatureExtractor::output_type preprocessed;
+                    for(nlohmann::json::iterator i = std::begin(j); i != std::end(j); ++i){
+                        std::cout << i.key() << " : " << i.value() << "\n";
+                        preprocessed[i.key()] = i.value();
+                    }
+                    corpus_features[cast_string<string_type>(columns[text_col - 1])] = preprocessed;
+                }
+                else{
+#ifdef DEBUG
+                    std::cerr << "preprocess: " << columns[features_col - 1] << std::endl;
+#endif
+                    corpus_features[cast_string<string_type>(columns[text_col - 1])] =
+                        (*preprocess)(columns[text_col - 1], "");
+                }
             }
         }
     }
