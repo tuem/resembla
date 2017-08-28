@@ -44,15 +44,6 @@ extern const std::string SIMSTRING_DB_FILE_SUFFIX;
 extern const std::string SIMSTRING_DB_FILE_COMMON_SUFFIX;
 extern const std::string SIMSTRING_INVERSE_FILE_COMMON_SUFFIX;
 
-enum text_preprocess: int
-{
-    asis,
-    word,
-    pronunciation,
-    romaji,
-    keyword
-};
-
 enum measure: int
 {
     edit_distance,
@@ -82,20 +73,11 @@ template<typename T> T read_value_with_rest(paramset::manager& pm, const std::st
 // read pm[key] and overwrite with pm.rest if exists
 std::string read_value_with_rest(paramset::manager& pm, const std::string key, const char* throw_if);
 
-// utility function for generating database file path for SimString from text preprocessing method
-std::string db_path_from_simstring_text_preprocess(const std::string& corpus_path, const text_preprocess simstring_text_preprocess);
-
-// utility function for generating file path of inverted index for original and parsed texts
-std::string inverse_path_from_simstring_text_preprocess(const std::string& corpus_path, const text_preprocess simstring_text_preprocess);
-
 // utility function for generating database file path for SimString from Resembla measure
 std::string db_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure);
 
 // utility function for generating file path of inverted index for original and parsed texts from Resembla measure
 std::string inverse_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure);
-
-// split text by delimiter and parse to text preprocessing methods for n-gram indexes
-std::vector<text_preprocess> split_to_text_preprocesses(std::string text, char delimiter = ',', bool ignore_unknown_measure = false);
 
 // split text by delimiter and parse to resembla measures
 std::vector<measure> split_to_resembla_measures(std::string text, char delimiter = ',', bool ignore_unknown_measure = false);

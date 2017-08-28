@@ -87,50 +87,6 @@ std::string read_value_with_rest(paramset::manager& pm, const std::string key, c
     return read_value_with_rest(pm, key, std::string(throw_if));
 }
 
-std::string db_path_from_simstring_text_preprocess(const std::string& corpus_path, const text_preprocess simstring_text_preprocess)
-{
-    if(simstring_text_preprocess == asis){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(asis);
-    }
-    else if(simstring_text_preprocess == word){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(word);
-    }
-    else if(simstring_text_preprocess == pronunciation){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(pronunciation);
-    }
-    else if(simstring_text_preprocess == romaji){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(romaji);
-    }
-    else if(simstring_text_preprocess == keyword){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword);
-    }
-    else{
-        throw std::invalid_argument("unknown preprocessing method: " + std::string(STR(simstring_text_preprocess)));
-    }
-}
-
-std::string inverse_path_from_simstring_text_preprocess(const std::string& corpus_path, const text_preprocess simstring_text_preprocess)
-{
-    if(simstring_text_preprocess == asis){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(asis);
-    }
-    else if(simstring_text_preprocess == word){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(word);
-    }
-    else if(simstring_text_preprocess == pronunciation){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(pronunciation);
-    }
-    else if(simstring_text_preprocess == romaji){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(romaji);
-    }
-    else if(simstring_text_preprocess == keyword){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword);
-    }
-    else{
-        throw std::invalid_argument("unknown preprocessing method: " + std::string(STR(simstring_text_preprocess)));
-    }
-}
-
 std::string db_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure)
 {
     if(resembla_measure == edit_distance){
@@ -147,6 +103,9 @@ std::string db_path_from_resembla_measure(const std::string& corpus_path, const 
     }
     else if(resembla_measure == keyword_match){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword);
+    }
+    else if(resembla_measure == svr){
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(svr);
     }
     else{
         throw std::invalid_argument("unknown Resembla measure: " + std::string(STR(resembla_measure)));
@@ -170,37 +129,12 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
     else if(resembla_measure == keyword_match){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword);
     }
+    else if(resembla_measure == svr){
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(svr);
+    }
     else{
         throw std::invalid_argument("unknown Resembla measure: " + std::string(STR(resembla_measure)));
     }
-}
-
-std::vector<text_preprocess> split_to_text_preprocesses(std::string text, char delimiter, bool ignore_unknown_measure)
-{
-    std::vector<text_preprocess> result;
-    for(auto text_preprocess_str: split(text, delimiter)){
-        if(text_preprocess_str == STR(asis)){
-            result.push_back(asis);
-        }
-        else if(text_preprocess_str == STR(word)){
-            result.push_back(word);
-        }
-        else if(text_preprocess_str == STR(pronunciation)){
-            result.push_back(pronunciation);
-        }
-        else if(text_preprocess_str == STR(romaji)){
-            result.push_back(romaji);
-        }
-        else if(text_preprocess_str == STR(keyword)){
-            result.push_back(keyword);
-        }
-        else{
-            if(!ignore_unknown_measure){
-                throw std::invalid_argument("unknown text_preprocess: " + text_preprocess_str);
-            }
-        }
-    }
-    return result;
 }
 
 std::vector<measure> split_to_resembla_measures(std::string text, char delimiter, bool ignore_unknown_measure)
@@ -227,12 +161,13 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
         }
         else{
             if(!ignore_unknown_measure){
-                throw std::invalid_argument("unknown resembla_measure: " + resembla_measure_str);
+                throw std::invalid_argument("unknown Resembla measure: " + resembla_measure_str);
             }
         }
     }
     return result;
 }
+
 std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
         int max_candidate, std::string corpus_path, int text_col, int features_col,
         std::string features_path, std::string patterns_home, std::string model_path,
