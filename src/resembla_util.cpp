@@ -90,19 +90,19 @@ std::string read_value_with_rest(paramset::manager& pm, const std::string key, c
 std::string db_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure)
 {
     if(resembla_measure == edit_distance){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(asis);
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(edit_distance);
     }
     else if(resembla_measure == weighted_word_edit_distance){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(word);
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(weighted_word_edit_distance);
     }
     else if(resembla_measure == weighted_pronunciation_edit_distance){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(pronunciation);
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(weighted_pronunciation_edit_distance);
     }
     else if(resembla_measure == weighted_romaji_edit_distance){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(romaji);
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(weighted_romaji_edit_distance);
     }
     else if(resembla_measure == keyword_match){
-        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword);
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword_match);
     }
     else if(resembla_measure == svr){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(svr);
@@ -115,19 +115,19 @@ std::string db_path_from_resembla_measure(const std::string& corpus_path, const 
 std::string inverse_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure)
 {
     if(resembla_measure == edit_distance){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(asis);
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(edit_distance);
     }
     else if(resembla_measure == weighted_word_edit_distance){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(word);
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(weighted_word_edit_distance);
     }
     else if(resembla_measure == weighted_pronunciation_edit_distance){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(pronunciation);
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(weighted_pronunciation_edit_distance);
     }
     else if(resembla_measure == weighted_romaji_edit_distance){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(romaji);
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(weighted_romaji_edit_distance);
     }
     else if(resembla_measure == keyword_match){
-        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword);
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword_match);
     }
     else if(resembla_measure == svr){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(svr);
