@@ -25,31 +25,30 @@ limitations under the License.
 #include <stdexcept>
 
 #include <paramset.hpp>
-#include <resembla/resembla_util.hpp>
 
-#include <resembla/simstring/simstring.h>
+#include <simstring/simstring.h>
 #include <json.hpp>
 
-#include <resembla/measure/asis_sequence_builder.hpp>
-#include <resembla/measure/word_sequence_builder.hpp>
-#include <resembla/measure/pronunciation_sequence_builder.hpp>
-#include <resembla/measure/romaji_sequence_builder.hpp>
-#include <resembla/measure/keyword_match_preprocessor.hpp>
+#include "resembla_util.hpp"
 
-#include <resembla/measure/weighted_sequence_builder.hpp>
+#include "measure/asis_sequence_builder.hpp"
+#include "measure/word_sequence_builder.hpp"
+#include "measure/pronunciation_sequence_builder.hpp"
+#include "measure/romaji_sequence_builder.hpp"
+#include "measure/weighted_sequence_builder.hpp"
+#include "measure/keyword_match_preprocessor.hpp"
 
-#include <resembla/measure/feature_match_weight.hpp>
-#include <resembla/measure/surface_match_cost.hpp>
+#include "measure/feature_match_weight.hpp"
+#include "measure/surface_match_cost.hpp"
+#include "measure/romaji_match_weight.hpp"
+#include "measure/romaji_match_cost.hpp"
 
-#include <resembla/measure/romaji_match_weight.hpp>
-#include <resembla/measure/romaji_match_cost.hpp>
+#include "regression/extractor/feature_extractor.hpp"
+#include "regression/extractor/regex_feature_extractor.hpp"
+#include "regression/extractor/date_period_feature_extractor.hpp"
+#include "regression/extractor/time_period_feature_extractor.hpp"
 
-#include <resembla/measure/weighted_sequence_serializer.hpp>
-
-#include <resembla/regression/extractor/feature_extractor.hpp>
-#include <resembla/regression/extractor/regex_feature_extractor.hpp>
-#include <resembla/regression/extractor/date_period_feature_extractor.hpp>
-#include <resembla/regression/extractor/time_period_feature_extractor.hpp>
+#include "measure/weighted_sequence_serializer.hpp"
 
 using namespace resembla;
 
