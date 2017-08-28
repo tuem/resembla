@@ -46,7 +46,7 @@ public:
     BasicResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
-            bool preprocess_corpus = true, size_t extra_col = 0):
+            bool preprocess_corpus = true, size_t preprocessed_data_col = 0):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
         reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
@@ -71,8 +71,8 @@ public:
             auto original = columns[1];
 
             // due to the limited interface of preprocessors, concatenate extra data to the original text
-            if(extra_col > 0 && extra_col - 1 < columns.size() && !columns[extra_col - 1].empty()){
-                original += delimiter + columns[extra_col - 1];
+            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() && !columns[preprocessed_data_col - 1].empty()){
+                original += delimiter + columns[preprocessed_data_col - 1];
             }
 
             const auto& i = inverse.find(indexed);
