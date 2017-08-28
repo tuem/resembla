@@ -104,4 +104,41 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& te
     return features;
 }
 
+FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& text, bool is_original) const
+{
+    output_type features;
+
+    auto raw_text = cast_string<std::string>(text);
+    if(is_original){
+        auto columns = split(raw_text, '\t');
+        if(columns.size() > 1){
+            raw_text = columns[0];
+            for(const auto& f: split(columns[1], FEATURE_DELIMITER)){
+                auto kv = split(f, KEYVALUE_DELIMITER);
+                if(kv.size() == 2){
+                    auto i = functions.find(kv[0]);
+                    if(i != std::end(functions)){
+                        features[kv[0]] = kv[1];
+                    }
+                }
+            }
+        }
+    }
+    for(const auto& i: functions){
+        auto k = features.find(i.first);
+        if(k == std::end(features)){
+            features[i.first] = (*i.second)(cast_string<string_type>(raw_text));
+#ifdef DEBUG
+            std::cerr << "extract feature: key=" << i.first << ", value=" << (*i.second)(cast_string<string_type>(raw_text)) << std::endl;
+#endif
+        }
+    }
+    return features;
+}
+
+string_type FeatureExtractor::index(const string_type& text) const
+{
+    return text;
+}
+
 }

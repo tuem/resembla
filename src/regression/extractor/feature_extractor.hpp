@@ -71,6 +71,9 @@ public:
     // extract features from unknown text
     output_type operator()(const string_type& text) const;
 
+    // extract features when indexing
+    output_type operator()(const string_type& text, bool is_original) const;
+    string_type index(const string_type& text) const;
 protected:
     const std::string base_similarity_key;
 
