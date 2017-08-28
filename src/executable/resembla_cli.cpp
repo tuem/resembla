@@ -21,8 +21,9 @@ limitations under the License.
 #include <string>
 
 #include "paramset.hpp"
-#include <resembla/resembla_util.hpp>
-#include <resembla/resembla_with_id.hpp>
+
+#include "resembla_util.hpp"
+#include "resembla_with_id.hpp"
 
 using namespace resembla;
 
