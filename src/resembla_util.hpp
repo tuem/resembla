@@ -98,7 +98,7 @@ std::shared_ptr<ResemblaInterface> construct_basic_resembla(const std::string& d
 }
 
 std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
-        int max_candidate, std::string corpus_path, int text_col, int features_col,
+        int max_candidate, std::string inverse_path, int text_col, int features_col,
         std::string features_path, std::string patterns_home, std::string model_path,
         const std::shared_ptr<ResemblaInterface> resembla);
 

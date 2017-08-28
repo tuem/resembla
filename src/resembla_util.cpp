@@ -169,7 +169,7 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
 }
 
 std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
-        int max_candidate, std::string corpus_path, int text_col, int features_col,
+        int max_candidate, std::string inverse_path, int text_col, int features_col,
         std::string features_path, std::string patterns_home, std::string model_path,
         const std::shared_ptr<ResemblaInterface> resembla)
 {
@@ -229,7 +229,7 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
 
     auto resembla_regression = std::make_shared<
             ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>>(
-                max_candidate, extractor, predictor, corpus_path, text_col, features_col);
+                max_candidate, extractor, predictor, inverse_path, text_col, features_col);
     resembla_regression->append("base_similarity", resembla, true);
     return resembla_regression;
 }
@@ -245,9 +245,10 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
     std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
+        std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
         if(resembla_measure == svr){
             resembla_regression = construct_resembla_regression(pm.get<int>("svr_max_candidate"),
-                    corpus_path, pm.get<int>("text_col"), pm.get<int>("features_col"),
+                    inverse_path, pm.get<int>("text_col"), pm.get<int>("features_col"),
                     pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
                     pm.get<std::string>("svr_model_path"), resembla);
             resembla = resembla_regression;
@@ -255,7 +256,6 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
         }
 
         std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
-        std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
 
         double weight = 0;
         switch(resembla_measure){
