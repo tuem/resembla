@@ -28,10 +28,13 @@ limitations under the License.
 #include <stdexcept>
 #include <mutex>
 
-#include "simstring/simstring.h"
+#include <simstring/simstring.h>
+#include <json.hpp>
 
 #include "resembla_interface.hpp"
 #include "reranker.hpp"
+
+#include "measure/weighted_sequence_serializer.hpp"
 
 namespace resembla {
 
@@ -70,11 +73,6 @@ public:
             const auto& indexed = columns[0];
             auto original = columns[1];
 
-            // due to the limited interface of preprocessors, concatenate extra data to the original text
-            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() && !columns[preprocessed_data_col - 1].empty()){
-                original += delimiter + columns[preprocessed_data_col - 1];
-            }
-
             const auto& i = inverse.find(indexed);
             if(i == std::end(inverse)){
                 inverse[indexed] = {original};
@@ -84,7 +82,14 @@ public:
             }
 
             if(preprocess_corpus){
-                preprocessed_corpus[columns[1]] = std::make_pair(columns[1], (*preprocess)(original, true));
+                if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() && !columns[preprocessed_data_col - 1].empty()){
+                    nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[preprocessed_data_col - 1]));
+                    typename Preprocessor::output_type preprocessed = j;
+                    preprocessed_corpus[columns[1]] = std::make_pair(columns[1], preprocessed);
+                }
+                else{
+                    preprocessed_corpus[columns[1]] = std::make_pair(columns[1], (*preprocess)(original, true));
+                }
             }
         }
     }
