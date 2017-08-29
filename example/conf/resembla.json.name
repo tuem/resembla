@@ -34,5 +34,10 @@
         "similar_letter_cost": 0.1,
         "mismatch_cost_path": "../../example/conf/romaji_mismatch_cost.tsv",
         "ensemble_weight": 0.99
+    },
+    "svr": {
+        "features_path": "../../example/regression/features.kw.tsv",
+        "patterns_home": "../../example/regression/patterns",
+        "model_path": "../../example/regression/model.kw"
     }
 }
