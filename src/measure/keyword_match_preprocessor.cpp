@@ -26,12 +26,12 @@ void to_json(nlohmann::json& j, const typename KeywordMatchPreprocessor<string_t
     for(const auto& k: o.keywords){
         keywords.push_back(cast_string<std::string>(k));
     }
-    j = nlohmann::json{{"text", cast_string<std::string>(o.text)}, {"keywords", keywords}};
+    j = nlohmann::json{{"t", cast_string<std::string>(o.text)}, {"k", keywords}};
 }
 
 void from_json(const nlohmann::json& j, typename KeywordMatchPreprocessor<string_type>::output_type& o) {
-    o.text = cast_string<string_type>(j.at("text").get<std::string>());
-    std::vector<std::string> keywords = j.at("keywords").get<std::vector<std::string>>();
+    o.text = cast_string<string_type>(j.at("t").get<std::string>());
+    std::vector<std::string> keywords = j.at("k").get<std::vector<std::string>>();
     o.keywords.clear();
     for(const auto& k: keywords){
         o.keywords.push_back(cast_string<string_type>(k));
