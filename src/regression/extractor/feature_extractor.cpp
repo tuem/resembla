@@ -118,6 +118,9 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& te
                 if(kv.size() == 2){
                     auto i = functions.find(kv[0]);
                     if(i != std::end(functions)){
+#ifdef DEBUG
+                        std::cerr << "load feature: key=" << kv[0] << ", value=" << kv[1] << std::endl;
+#endif
                         features[kv[0]] = kv[1];
                     }
                 }
