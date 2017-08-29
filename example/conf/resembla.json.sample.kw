@@ -1,6 +1,8 @@
 {
     "common": {
         "corpus_path": "../../example/corpus/apple.tsv",
+        "text_col": 1,
+        "features_col": 2,
         "verbose": true
     },
     "simstring": {
@@ -51,7 +53,6 @@
     "svr": {
         "features_path": "../../example/regression/features.kw.tsv",
         "patterns_home": "../../example/regression/patterns",
-        "model_path": "../../example/regression/model.kw",
-        "features_col": 2
+        "model_path": "../../example/regression/model.kw"
     }
 }
