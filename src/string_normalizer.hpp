@@ -33,7 +33,8 @@ class StringNormalizer: public SymbolNormalizer
 {
 public:
     StringNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
-        const std::string& predefined_nrm_name, const std::string& transliteration_path);
+        const std::string& predefined_nrm_name, const std::string& transliteration_path,
+        bool to_lower = false);
     virtual ~StringNormalizer();
 
     bool available() const;
@@ -41,6 +42,7 @@ public:
 
 protected:
     std::shared_ptr<icu::Transliterator> transliterator;
+    bool to_lower;
 };
 
 }
