@@ -20,6 +20,8 @@ limitations under the License.
 #ifndef __ASIS_SEQUENCE_BUILDER_HPP__
 #define __ASIS_SEQUENCE_BUILDER_HPP__
 
+#include "../string_util.hpp"
+
 namespace resembla {
 
 template<typename string_type>
@@ -29,9 +31,9 @@ public:
     using token_type = typename string_type::value_type;
     using output_type = string_type;
 
-    output_type operator()(const string_type& text, bool) const
+    output_type operator()(const string_type& text, bool is_original) const
     {
-        return text;
+        return is_original ? split(text, L'\t')[0] : text;
     }
 
     string_type index(const string_type& text) const

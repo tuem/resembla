@@ -248,9 +248,9 @@ PronunciationSequenceBuilder::PronunciationSequenceBuilder(const PronunciationSe
 
 PronunciationSequenceBuilder::~PronunciationSequenceBuilder(){}
 
-PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(const string_type& text, bool) const
+PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(const string_type& text, bool is_original) const
 {
-    std::string text_string = cast_string<std::string>(text);
+    std::string text_string = cast_string<std::string>(is_original ? split(text, L'\t')[0] : text);
     output_type s;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
