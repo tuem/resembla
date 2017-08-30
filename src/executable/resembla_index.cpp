@@ -100,10 +100,13 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            auto normalized = normalize != nullptr ? (*normalize)(original) : original;
+            auto columns = split(original, L'\t');
+            auto normalized = normalize != nullptr ? (*normalize)(columns[0]) : original;
+            if(columns.size() > 0){
+                normalized += L"\t" + columns[1];
+            }
             nlohmann::json j = preprocess(normalized, true);
             auto preprocessed = cast_string<string_type>(j.dump());
-            auto columns = split(original, L'\t');
             ofs << p.first << L'\t' << columns[0] << L'\t' << preprocessed << std::endl;
         }
     }
