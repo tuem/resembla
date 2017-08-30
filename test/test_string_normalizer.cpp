@@ -28,12 +28,13 @@ limitations under the License.
 
 using namespace resembla;
 
-void test_string_normalizer_noramlize(const std::wstring& input, const std::wstring& correct)
+void test_string_normalizer_noramlize(const std::wstring& input,
+        const std::wstring& correct, bool to_lower = false)
 {
     init_locale();
 
     StringNormalizer normalize_text("../misc/icu/normalization", "resembla", "nfkc",
-            "../misc/icu/transliteration/resembla_collapse.txt");
+            "../misc/icu/transliteration/resembla_collapse.txt", to_lower);
     REQUIRE(normalize_text.available());
 
     auto answer = normalize_text(input);
@@ -81,4 +82,5 @@ TEST_CASE( "truncate marks in prefix and suffix", "[language]" ) {
     test_string_normalizer_noramlize(L" a b ", L"a b");
     test_string_normalizer_noramlize(L"  ab  cd  ", L"ab cd");
     test_string_normalizer_noramlize(L"  a b  c  d   e   f  ", L"a b c d e f");
+    test_string_normalizer_noramlize(L"  a B  c  Ｄ   e   F  ", L"a b c d e f", true);
 }
