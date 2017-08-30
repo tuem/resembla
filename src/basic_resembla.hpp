@@ -49,7 +49,7 @@ public:
     BasicResembla(const std::string& db_path, const std::string& inverse_path,
             const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
-            bool preprocess_corpus = true, size_t preprocessed_data_col = 0):
+            bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
         reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
