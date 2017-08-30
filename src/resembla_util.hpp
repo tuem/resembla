@@ -90,11 +90,11 @@ template<
 std::shared_ptr<ResemblaInterface> construct_basic_resembla(const std::string& db_path, const std::string& inverse_path,
         int simstring_measure, double simstring_threshold, int max_reranking_num,
         std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
-        bool preprocess_corpus = true, size_t feature_col = 2)
+        bool preprocess_corpus = true)
 {
     return std::make_shared<BasicResembla<Preprocessor, ScoreFunction>>(
             db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
-            preprocess, score_func, preprocess_corpus, feature_col);
+            preprocess, score_func, preprocess_corpus);
 }
 
 std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(

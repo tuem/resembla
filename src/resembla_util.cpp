@@ -271,7 +271,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                         pm.get<int>("ed_max_reranking_num") != -1 ?
                             pm.get<int>("ed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<AsIsSequenceBuilder<string_type>>(),
-                        std::make_shared<EditDistance<>>(STR(edit_distance)), true, 0),
+                        std::make_shared<EditDistance<>>(STR(edit_distance)), true),
                     pm.get<double>("ed_ensemble_weight"));
                 break;
             case weighted_word_edit_distance:
@@ -290,7 +290,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                             FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance)), true, 0),
+                        std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance)), true),
                     pm.get<double>("wwed_ensemble_weight"));
                 break;
             case weighted_pronunciation_edit_distance:
@@ -306,7 +306,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                             pm.get<int>("wped_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<PronunciationSequenceBuilder>(pm.get<std::string>("wped_mecab_options"),
                             pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance)), true, 0),
+                        std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance)), true),
                     pm.get<double>("wped_ensemble_weight"));
                 break;
             case weighted_romaji_edit_distance:
@@ -332,7 +332,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                             std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
                                 RomajiMatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
                                 pm.get<double>("wred_case_mismatch_cost"))),
-                        true, 0),
+                        true),
                     pm.get<double>("wred_ensemble_weight"));
                 break;
             case keyword_match:
@@ -346,7 +346,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     pm.get<int>("km_max_reranking_num") != -1 ?
                         pm.get<int>("km_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
-                    std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true, /*TODO*/3);
+                    std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true);
                 if(resembla_regression != nullptr){
                     resembla_regression->append(STR(keyword_match), keyword_resembla, false);
                 }
