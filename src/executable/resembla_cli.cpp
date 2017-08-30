@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
         {"icu_normalization_name", "", {"icu", "normalization", "name"}, "icu-normalization-name", 0, "file name of ICU normalizer configuration file"},
         {"icu_predefined_normalizer", "", {"icu", "normalization", "predefined_normalizer"}, "icu-predefined-normalizer", 0, "name of predefined ICU normalizer"},
         {"icu_transliteration_path", "", {"icu", "transliteration", "path"}, "icu-transliteration-path", 0, "path for configuration file of transliterator"},
+        {"icu_to_lower", "", {"icu", "to_lower"}, "icu-to-lower", 0, "convert input texts to lowercase"},
         {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"},
     };
@@ -142,6 +143,7 @@ int main(int argc, char* argv[])
                 std::cerr << "    normalization_name=" << pm.get<std::string>("icu_normalization_name") << std::endl;
                 std::cerr << "    predefined_normalizer=" << pm.get<std::string>("icu_predefined_normalizer") << std::endl;
                 std::cerr << "    transliteration_path=" << pm.get<std::string>("icu_transliteration_path") << std::endl;
+                std::cerr << "    to_lower=" << (pm.get<bool>("icu_to_lower") ? "true" : "false")<< std::endl;
             }
             std::cerr << "  Resembla:" << std::endl;
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
@@ -211,7 +213,7 @@ int main(int argc, char* argv[])
                 pm.get<std::string>("icu_normalization_name"),
                 pm.get<std::string>("icu_predefined_normalizer"),
                 pm.get<std::string>("icu_transliteration_path"),
-                true);
+                pm.get<bool>("icu_to_lower"));
         }
         auto resembla = construct_resembla(corpus_path, pm);
         std::shared_ptr<ResemblaWithId> resembla_with_id;
