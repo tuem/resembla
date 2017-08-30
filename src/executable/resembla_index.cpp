@@ -30,6 +30,8 @@ limitations under the License.
 #include <simstring/simstring.h>
 #include <json.hpp>
 
+#include "string_normalizer.hpp"
+
 #include "resembla_util.hpp"
 
 #include "measure/asis_sequence_builder.hpp"
@@ -50,8 +52,6 @@ limitations under the License.
 #include "regression/extractor/time_period_feature_extractor.hpp"
 
 #include "measure/weighted_sequence_serializer.hpp"
-
-#include "string_normalizer.hpp"
 
 using namespace resembla;
 
@@ -150,12 +150,12 @@ int main(int argc, char* argv[])
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 0, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
-        {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"normalize_text", false, {"icu", "enabled"}, "normalize-text", 0, "enable text normalization"},
         {"icu_normalization_dir", "", {"icu", "normalization", "dir"}, "icu-normalization-dir", 0, "directory for ICU normalizer configuration file"},
         {"icu_normalization_name", "", {"icu", "normalization", "name"}, "icu-normalization-name", 0, "file name of ICU normalizer configuration file"},
         {"icu_predefined_normalizer", "", {"icu", "normalization", "predefined_normalizer"}, "icu-predefined-normalizer", 0, "name of predefined ICU normalizer"},
         {"icu_transliteration_path", "", {"icu", "transliteration", "path"}, "icu-transliteration-path", 0, "path for configuration file of transliterator"},
+        {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);

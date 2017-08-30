@@ -22,6 +22,8 @@ limitations under the License.
 
 #include "paramset.hpp"
 
+#include "string_normalizer.hpp"
+
 #include "resembla_util.hpp"
 #include "resembla_with_id.hpp"
 
@@ -86,6 +88,11 @@ int main(int argc, char* argv[])
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 2, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
+        {"normalize_text", false, {"icu", "enabled"}, "normalize-text", 0, "enable text normalization"},
+        {"icu_normalization_dir", "", {"icu", "normalization", "dir"}, "icu-normalization-dir", 0, "directory for ICU normalizer configuration file"},
+        {"icu_normalization_name", "", {"icu", "normalization", "name"}, "icu-normalization-name", 0, "file name of ICU normalizer configuration file"},
+        {"icu_predefined_normalizer", "", {"icu", "normalization", "predefined_normalizer"}, "icu-predefined-normalizer", 0, "name of predefined ICU normalizer"},
+        {"icu_transliteration_path", "", {"icu", "transliteration", "path"}, "icu-transliteration-path", 0, "path for configuration file of transliterator"},
         {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"},
     };
@@ -129,6 +136,13 @@ int main(int argc, char* argv[])
             std::cerr << "  SimString:" << std::endl;
             std::cerr << "    measure=" << pm.get<std::string>("simstring_measure_str") << std::endl;
             std::cerr << "    threshold=" << default_simstring_threshold << std::endl;
+            if(pm.get<bool>("normalize_text")){
+                std::cerr << "  ICU:" << std::endl;
+                std::cerr << "    normalization_dir=" << pm.get<std::string>("icu_normalization_dir") << std::endl;
+                std::cerr << "    normalization_name=" << pm.get<std::string>("icu_normalization_name") << std::endl;
+                std::cerr << "    predefined_normalizer=" << pm.get<std::string>("icu_predefined_normalizer") << std::endl;
+                std::cerr << "    transliteration_path=" << pm.get<std::string>("icu_transliteration_path") << std::endl;
+            }
             std::cerr << "  Resembla:" << std::endl;
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
@@ -190,6 +204,14 @@ int main(int argc, char* argv[])
             }
         }
 
+        std::shared_ptr<StringNormalizer> normalize;
+        if(pm.get<bool>("normalize_text")){
+            normalize = std::make_shared<StringNormalizer>(
+                pm.get<std::string>("icu_normalization_dir"),
+                pm.get<std::string>("icu_normalization_name"),
+                pm.get<std::string>("icu_predefined_normalizer"),
+                pm.get<std::string>("icu_transliteration_path"));
+        }
         auto resembla = construct_resembla(corpus_path, pm);
         std::shared_ptr<ResemblaWithId> resembla_with_id;
         if(pm.get<int>("id_col") != 0){
@@ -203,8 +225,16 @@ int main(int argc, char* argv[])
             if(input == "exit" || input == "quit" || input == "bye"){
                 break;
             }
+
+            auto _input = cast_string<string_type>(input);
+            if(pm.get<bool>("normalize_text")){
+                _input = (*normalize)(_input);
+                std::cout << "normalized: " << cast_string<std::string>(_input) << std::endl;
+            }
+
             if(resembla_with_id != nullptr){
-                auto result = resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
+                auto result = resembla_with_id->find(_input, threshold, max_response);
+                //auto result = resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
                 }
@@ -215,7 +245,8 @@ int main(int argc, char* argv[])
                 }
             }
             else{
-                auto result = resembla->find(cast_string<string_type>(input), threshold, max_response);
+                auto result = resembla->find(_input, threshold, max_response);
+                //auto result = resembla->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
                 }
