@@ -27,9 +27,10 @@ limitations under the License.
 namespace resembla {
 
 StringNormalizer::StringNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
-        const std::string& predefined_nrm_name, const std::string& transliteration_path):
+        const std::string& predefined_nrm_name, const std::string& transliteration_path,
+        bool to_lower):
     SymbolNormalizer(nrm_dir, nrm_name, predefined_nrm_name),
-    transliterator(nullptr)
+    transliterator(nullptr), to_lower(to_lower)
 {
     std::string rules;
     std::ifstream ifs(transliteration_path);
@@ -70,7 +71,7 @@ string_type StringNormalizer::operator()(const string_type& input) const
     }
     transliterator->transliterate(work);
 
-    return cast_string<string_type>(work);
+    return cast_string<string_type>(to_lower ? work.toLower() : work);
 }
 
 }
