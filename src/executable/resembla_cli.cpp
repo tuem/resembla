@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
         }
         while(true){
             std::string raw_input;
-            std::cin >> raw_input;
+            std::getline(std::cin, raw_input);
             if(raw_input == "exit" || raw_input == "quit" || raw_input == "bye"){
                 break;
             }
