@@ -210,7 +210,8 @@ int main(int argc, char* argv[])
                 pm.get<std::string>("icu_normalization_dir"),
                 pm.get<std::string>("icu_normalization_name"),
                 pm.get<std::string>("icu_predefined_normalizer"),
-                pm.get<std::string>("icu_transliteration_path"));
+                pm.get<std::string>("icu_transliteration_path"),
+                true);
         }
         auto resembla = construct_resembla(corpus_path, pm);
         std::shared_ptr<ResemblaWithId> resembla_with_id;
