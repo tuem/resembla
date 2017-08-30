@@ -50,11 +50,14 @@ limitations under the License.
 
 #include "measure/weighted_sequence_serializer.hpp"
 
+#include "string_normalizer.hpp"
+
 using namespace resembla;
 
 template<typename Preprocessor>
 void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
-        int n, Preprocessor preprocess, size_t text_col, size_t features_col = 0)
+        int n, Preprocessor preprocess, size_t text_col, size_t features_col,
+        std::shared_ptr<StringNormalizer> normalize)
 {
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
@@ -76,18 +79,19 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         }
 
         auto original = columns[text_col - 1];
-        auto s = preprocess.index(original);
+        auto normalized = normalize != nullptr ? (*normalize)(original) : original;
+        auto indexed = preprocess.index(normalized);
 
         if(features_col > 0 && features_col - 1 < columns.size()){
             original += L"\t" + columns[features_col - 1];
         }
 
-        if(inserted.count(s) == 0){
-            dbw.insert(s);
-            inserted[s] = {original};
+        if(inserted.count(indexed) == 0){
+            dbw.insert(indexed);
+            inserted[indexed] = {original};
         }
         else{
-            inserted[s].insert(original);
+            inserted[indexed].insert(original);
         }
     }
     dbw.close();
@@ -95,7 +99,8 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            nlohmann::json j = preprocess(original, true);
+            auto normalized = normalize != nullptr ? (*normalize)(original) : original;
+            nlohmann::json j = preprocess(normalized, true);
             auto preprocessed = cast_string<string_type>(j.dump());
             auto columns = split(original, L'\t');
             ofs << p.first << L'\t' << columns[0] << L'\t' << preprocessed << std::endl;
@@ -208,6 +213,9 @@ int main(int argc, char* argv[])
             }
         }
 
+        //TODO
+        auto normalize = std::make_shared<StringNormalizer>("../../misc/icu/normalization", "resembla", "nfkc",
+                "../../misc/icu/transliteration/resembla_collapse.txt");
         for(auto resembla_measure: resembla_measures){
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
@@ -215,7 +223,7 @@ int main(int argc, char* argv[])
             if(resembla_measure == edit_distance){
                 AsIsSequenceBuilder<string_type> builder;
                 create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
-                        pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
                 WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight> builder(
@@ -224,13 +232,13 @@ int main(int argc, char* argv[])
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
-                        pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
                 PronunciationSequenceBuilder builder(pm.get<std::string>("wped_mecab_options"),
                         pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
                 create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit,
-                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
                 WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight> builder(
@@ -240,11 +248,12 @@ int main(int argc, char* argv[])
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
-                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
                 create_index(corpus_path, db_path, inverse_path, km_simstring_ngram_unit,
-                        KeywordMatchPreprocessor<string_type>(), pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        KeywordMatchPreprocessor<string_type>(),
+                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == svr){
                 auto features = load_features(pm.get<std::string>("svr_features_path"));
@@ -275,7 +284,7 @@ int main(int argc, char* argv[])
                     }
                 }
                 create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
-                        extractor, pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
             std::cerr << "database saved to " << db_path << std::endl;
