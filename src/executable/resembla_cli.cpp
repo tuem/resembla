@@ -220,21 +220,19 @@ int main(int argc, char* argv[])
             resembla_with_id = std::make_shared<ResemblaWithId>(resembla, corpus_path, id_col, text_col);
         }
         while(true){
-            std::string input;
-            std::cin >> input;
-            if(input == "exit" || input == "quit" || input == "bye"){
+            std::string raw_input;
+            std::cin >> raw_input;
+            if(raw_input == "exit" || raw_input == "quit" || raw_input == "bye"){
                 break;
             }
 
-            auto _input = cast_string<string_type>(input);
+            auto input = cast_string<string_type>(raw_input);
             if(pm.get<bool>("normalize_text")){
-                _input = (*normalize)(_input);
-                std::cout << "normalized: " << cast_string<std::string>(_input) << std::endl;
+                input = (*normalize)(input);
             }
 
             if(resembla_with_id != nullptr){
-                auto result = resembla_with_id->find(_input, threshold, max_response);
-                //auto result = resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
+                auto result = resembla_with_id->find(input, threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
                 }
@@ -245,8 +243,7 @@ int main(int argc, char* argv[])
                 }
             }
             else{
-                auto result = resembla->find(_input, threshold, max_response);
-                //auto result = resembla->find(cast_string<string_type>(input), threshold, max_response);
+                auto result = resembla->find(input, threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
                 }
