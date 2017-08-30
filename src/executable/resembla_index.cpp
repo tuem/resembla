@@ -235,7 +235,8 @@ int main(int argc, char* argv[])
                 pm.get<std::string>("icu_normalization_dir"),
                 pm.get<std::string>("icu_normalization_name"),
                 pm.get<std::string>("icu_predefined_normalizer"),
-                pm.get<std::string>("icu_transliteration_path"));
+                pm.get<std::string>("icu_transliteration_path"),
+                true);
         }
         for(auto resembla_measure: resembla_measures){
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
