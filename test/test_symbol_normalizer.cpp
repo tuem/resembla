@@ -28,10 +28,10 @@ limitations under the License.
 
 using namespace resembla;
 
-void test_symbol_normalizer_noramlize_symbol(const std::wstring& input, const std::wstring& correct)
+void test_symbol_normalizer_noramlize_symbol(const std::wstring& input, const std::wstring& correct, bool to_lower = false)
 {
     init_locale();
-    SymbolNormalizer normalize("../misc/icu/normalization/", "resembla", "nfkc");
+    SymbolNormalizer normalize("../misc/icu/normalization/", "resembla", "nfkc", to_lower);
     REQUIRE(normalize.available());
 
     auto answer = normalize(input);
@@ -108,4 +108,6 @@ TEST_CASE( "normalize symbols", "[language]" ) {
 
     test_symbol_normalizer_noramlize_symbol(L"こんにちは。テストです", L"こんにちは。テストです");
     test_symbol_normalizer_noramlize_symbol(L"Hello, this　is a　test.", L"Hello, this is a test.");
+
+    test_symbol_normalizer_noramlize_symbol(L"Apple, APPLE, apple and ＡＰＰＬＥ", L"apple, apple, apple and apple", true);
 }
