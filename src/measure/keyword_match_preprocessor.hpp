@@ -51,7 +51,7 @@ public:
         if(!is_original){
             return {raw_text, {}};
         }
-        auto columns = split(raw_text, L'\t');//TODO
+        auto columns = split(raw_text, L'\t');
         if(columns.size() > 1){
             for(auto f: split(columns[1], L'&')){
                 auto kv = split(f, L'=');

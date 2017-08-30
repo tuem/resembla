@@ -44,7 +44,7 @@ public:
     output_type operator()(const string_type& text, bool is_original = false) const
     {
         output_type ws;
-        auto s = tokenize(text, is_original);
+        auto s = tokenize(is_original ? split(text, L'\t')[0] : text, is_original);
         for(size_t i = 0; i < s.size(); ++i){
             ws.push_back({s[i], weight_func(s[i], is_original, s.size(), i)});
         }
