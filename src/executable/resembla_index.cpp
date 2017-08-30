@@ -22,6 +22,7 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 #include <set>
+#include <memory>
 #include <stdexcept>
 
 #include <paramset.hpp>
@@ -149,7 +150,11 @@ int main(int argc, char* argv[])
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 0, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
-        {"verbose", false, {"common", "verbose"}, 'v', "show more information"},
+        {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
+        {"icu_normalization_dir", "", {"icu", "normalization", "dir"}, "icu-normalization-dir", 0, "directory for ICU normalizer configuration file"},
+        {"icu_normalization_name", "", {"icu", "normalization", "name"}, "icu-normalization-name", 0, "file name of ICU normalizer configuration file"},
+        {"icu_predefined_normalizer", "", {"icu", "normalization", "predefined_normalizer"}, "icu-predefined-normalizer", 0, "name of predefined ICU normalizer"},
+        {"icu_transliteration_path", "", {"icu", "transliteration", "path"}, "icu-transliteration-path", 0, "path for configuration file of transliterator"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
@@ -177,6 +182,11 @@ int main(int argc, char* argv[])
             std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;
             std::cerr << "    ngram_unit=" << default_simstring_ngram_unit << std::endl;
+            std::cerr << "  ICU:" << std::endl;
+            std::cerr << "    normalization_dir=" << pm.get<std::string>("icu_normalization_dir") << std::endl;
+            std::cerr << "    normalization_name=" << pm.get<std::string>("icu_normalization_name") << std::endl;
+            std::cerr << "    predefined_normalizer=" << pm.get<std::string>("icu_predefined_normalizer") << std::endl;
+            std::cerr << "    transliteration_path=" << pm.get<std::string>("icu_transliteration_path") << std::endl;
             for(auto resembla_measure: resembla_measures){
                 if(resembla_measure == edit_distance){
                     std::cerr << "  measure=" << STR(edit_distance) << std::endl;
@@ -213,9 +223,11 @@ int main(int argc, char* argv[])
             }
         }
 
-        //TODO
-        auto normalize = std::make_shared<StringNormalizer>("../../misc/icu/normalization", "resembla", "nfkc",
-                "../../misc/icu/transliteration/resembla_collapse.txt");
+        std::shared_ptr<StringNormalizer> normalize = std::make_shared<StringNormalizer>(
+                pm.get<std::string>("icu_normalization_dir"),
+                pm.get<std::string>("icu_normalization_name"),
+                pm.get<std::string>("icu_predefined_normalizer"),
+                pm.get<std::string>("icu_transliteration_path"));
         for(auto resembla_measure: resembla_measures){
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
