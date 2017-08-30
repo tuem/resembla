@@ -27,7 +27,7 @@ limitations under the License.
 namespace resembla {
 
 SymbolNormalizer::SymbolNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
-        const std::string& predefined_nrm_name)
+        const std::string& predefined_nrm_name, bool to_lower): to_lower(to_lower)
 {
     UErrorCode error_code = U_ZERO_ERROR;
     normalizer_resembla = !nrm_dir.empty() ?
@@ -57,7 +57,7 @@ string_type SymbolNormalizer::operator()(const string_type& input) const
         throw std::runtime_error("failed to normalize input");
     }
 
-    return cast_string<string_type>(work);
+    return cast_string<string_type>(to_lower ? work.toLower() : work);
 }
 
 }
