@@ -21,10 +21,10 @@ limitations under the License.
 #include <memory>
 #include <string>
 
-#include "paramset.hpp"
-#include <resembla/resembla_util.hpp>
-
 #include <grpc++/grpc++.h>
+#include <paramset.hpp>
+
+#include "resembla_util.hpp"
 #include "resembla.grpc.pb.h"
 
 using namespace resembla;
