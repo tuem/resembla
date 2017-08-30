@@ -54,7 +54,7 @@ TEST_CASE( "serialize and deserialize output data of keyword match preprocessor"
 
     json j0 = o0;
     const std::string s = j0.dump();
-    CHECK(s == "{\"keywords\":[\"キーワード0\",\"キーワード1\"],\"text\":\"テキスト!\"}");
+    CHECK(s == "{\"k\":[\"キーワード0\",\"キーワード1\"],\"t\":\"テキスト!\"}");
 
     json j1 = json::parse(s);
     KeywordMatchPreprocessor<string_type>::output_type o1 = j1;
@@ -69,7 +69,7 @@ TEST_CASE( "serialize and deserialize output data of weighted word sequence buil
 
     json j0 = o0;
     const std::string s = j0.dump();
-    CHECK(s == "[{\"token\":{\"feature\":[\"素性00\",\"素性01\"],\"surface\":\"単語0\"},\"weight\":0.3},{\"token\":{\"feature\":[\"素性10\",\"素性11\"],\"surface\":\"単語1\"},\"weight\":0.7}]");
+    CHECK(s == "[{\"t\":{\"f\":[\"素性00\",\"素性01\"],\"s\":\"単語0\"},\"w\":0.3},{\"t\":{\"f\":[\"素性10\",\"素性11\"],\"s\":\"単語1\"},\"w\":0.7}]");
 
     json j1 = json::parse(s);
     WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::output_type o1 = j1;
@@ -88,7 +88,7 @@ TEST_CASE( "serialize and deserialize output data of weighted romaji sequence bu
 
     json j0 = o0;
     const std::string s = j0.dump();
-    CHECK(s == "[{\"token\":\"T\",\"weight\":0.3},{\"token\":\"e\",\"weight\":0.7}]");
+    CHECK(s == "[{\"t\":\"T\",\"w\":0.3},{\"t\":\"e\",\"w\":0.7}]");
 
     json j1 = json::parse(s);
     WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>::output_type o1 = j1;

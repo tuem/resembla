@@ -29,7 +29,7 @@ class SymbolNormalizer
 {
 public:
     SymbolNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
-        const std::string& predefined_nrm_name);
+        const std::string& predefined_nrm_name, bool to_lower = false);
     virtual ~SymbolNormalizer();
 
     bool available() const;
@@ -38,6 +38,7 @@ public:
 protected:
     const Normalizer2* normalizer_resembla;
     const Normalizer2* normalizer_nfkc;
+    bool to_lower;
 };
 
 }
