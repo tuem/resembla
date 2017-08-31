@@ -1,5 +1,8 @@
 {
     "common": {
+        "id_col": 0,
+        "text_col": 1,
+        "features_col": 2
     },
     "simstring": {
         "ngram_unit": 2,
@@ -9,7 +12,7 @@
     "resembla": {
         "max_reranking_num": 10000,
         "max_response": 10000,
-        "measure": "svr,weighted_word_edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance,keyword_match",
+        "measure": "svr,weighted_word_edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance",
         "threshold": 0.001
     },
     "weighted_word_edit_distance": {
@@ -52,7 +55,6 @@
     "svr": {
         "features_path": "../example/regression/features.tsv",
         "patterns_home": "../example/regression/patterns",
-        "model_path": "../example/regression/model",
-        "features_col": 2
+        "model_path": "../example/regression/model"
     }
 }

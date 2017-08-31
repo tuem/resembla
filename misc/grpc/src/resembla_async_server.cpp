@@ -22,11 +22,11 @@ limitations under the License.
 #include <string>
 #include <thread>
 
-#include "paramset.hpp"
-#include <resembla/resembla_util.hpp>
-
 #include <grpc++/grpc++.h>
 #include <grpc/support/log.h>
+#include <paramset.hpp>
+
+#include "resembla_util.hpp"
 #include "resembla.grpc.pb.h"
 
 using grpc::Server;

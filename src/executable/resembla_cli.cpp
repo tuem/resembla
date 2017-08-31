@@ -234,8 +234,21 @@ int main(int argc, char* argv[])
                 input = (*normalize)(input);
             }
 
+            bool ondemand = false;
+            auto tmp = split(input, '/');
+            std::vector<string_type> candidates;
+            if(tmp.size() > 1){
+                ondemand = true;
+                input = tmp[0];
+                for(const auto& c: split(tmp[1], ',')){
+                    candidates.push_back(cast_string<string_type>(c));
+                }
+            }
+
             if(resembla_with_id != nullptr){
-                auto result = resembla_with_id->find(input, threshold, max_response);
+                std::vector<ResemblaWithId::output_type> result = ondemand ?
+                    resembla_with_id->eval(cast_string<string_type>(input), candidates, threshold, max_response) :
+                    resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
                 }
@@ -246,7 +259,9 @@ int main(int argc, char* argv[])
                 }
             }
             else{
-                auto result = resembla->find(input, threshold, max_response);
+                std::vector<ResemblaInterface::output_type> result = ondemand ?
+                    resembla->eval(cast_string<string_type>(input), candidates, threshold, max_response) :
+                    resembla->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
                     std::cout << "No text found." << std::endl;
                 }
