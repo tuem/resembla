@@ -32,7 +32,31 @@ public:
         const std::string& predefined_nrm_name, bool to_lower = false);
     virtual ~SymbolNormalizer();
 
-    string_type operator()(const string_type& input) const;
+    template<typename string_type>
+    string_type operator()(const string_type& input) const
+    {
+        if(normalizer_resembla == nullptr && normalizer_nfkc == nullptr && !to_lower){
+            return input;
+        }
+
+        UErrorCode error_code = U_ZERO_ERROR;
+        auto work = cast_string<UnicodeString>(input);
+        if(normalizer_resembla != nullptr){
+            work = normalizer_resembla->normalize(work, error_code);
+            if(U_FAILURE(error_code)) {
+                throw std::runtime_error("failed to normalize input");
+            }
+        }
+        if(normalizer_nfkc != nullptr){
+            work = normalizer_nfkc->normalize(work, error_code);
+            if(U_FAILURE(error_code)) {
+                throw std::runtime_error("failed to normalize input");
+            }
+        }
+
+        return cast_string<string_type>(to_lower ? work.toLower() : work);
+    }
+
 
 protected:
     const Normalizer2* normalizer_resembla;

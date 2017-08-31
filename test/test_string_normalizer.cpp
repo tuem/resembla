@@ -22,8 +22,6 @@ limitations under the License.
 
 #include "Catch/catch.hpp"
 
-//#include "resembla_common.hpp"
-
 #include "string_normalizer.hpp"
 
 using namespace resembla;
@@ -46,11 +44,13 @@ void test_string_normalizer_noramlize(const std::wstring& input,
 }
 
 TEST_CASE( "empty string normalizer", "[language]" ) {
-    init_locale();
+    std::string input = "ＨｅLLo、＠＄％!！？！!";
+
     StringNormalizer normalize_nothing("", "", "", "", false);
-    CHECK(normalize_nothing(L"ＨｅLLo、＠＄％!！？！!") == L"ＨｅLLo、＠＄％!！？！!");
+    CHECK(normalize_nothing(input) == "ＨｅLLo、＠＄％!！？！!");
+
     StringNormalizer normalize_case("", "", "", "", true);
-    CHECK(normalize_case(L"ＨｅLLo、＠＄％!！？！!") == L"ｈｅllo、＠＄％!！？！!");
+    CHECK(normalize_case(input) == "ｈｅllo、＠＄％!！？！!");
 }
 
 TEST_CASE( "truncate marks in prefix and suffix", "[language]" ) {
