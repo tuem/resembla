@@ -58,6 +58,14 @@ void test_symbol_normalizer_noramlize_symbol(const std::wstring& input, const st
     CHECK(answer == correct);
 }
 
+TEST_CASE( "empty symbol normalizer", "[language]" ) {
+    init_locale();
+    SymbolNormalizer normalize_nothing("", "resembla", "", false);
+    CHECK(normalize_nothing(L"ＨｅLLo、＠＄％!！？！!") == L"ＨｅLLo、＠＄％!！？！!");
+    SymbolNormalizer normalize_case("", "resembla", "", true);
+    CHECK(normalize_case(L"ＨｅLLo、＠＄％!！？！!") == L"ｈｅllo、＠＄％!！？！!");
+}
+
 TEST_CASE( "normalize symbols", "[language]" ) {
     test_symbol_normalizer_noramlize_symbol(L"", L"");
 

@@ -47,8 +47,8 @@ SymbolNormalizer::~SymbolNormalizer(){}
 
 string_type SymbolNormalizer::operator()(const string_type& input) const
 {
-    if(normalizer_resembla == nullptr && normalizer_nfkc == nullptr){
-        return nullptr;
+    if(normalizer_resembla == nullptr && normalizer_nfkc == nullptr && !to_lower){
+        return input;
     }
 
     UErrorCode error_code = U_ZERO_ERROR;
