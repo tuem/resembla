@@ -45,6 +45,14 @@ void test_string_normalizer_noramlize(const std::wstring& input,
     CHECK(cast_string<std::string>(answer) == cast_string<std::string>(correct));
 }
 
+TEST_CASE( "empty string normalizer", "[language]" ) {
+    init_locale();
+    StringNormalizer normalize_nothing("", "", "", "", false);
+    CHECK(normalize_nothing(L"ＨｅLLo、＠＄％!！？！!") == L"ＨｅLLo、＠＄％!！？！!");
+    StringNormalizer normalize_case("", "", "", "", true);
+    CHECK(normalize_case(L"ＨｅLLo、＠＄％!！？！!") == L"ｈｅllo、＠＄％!！？！!");
+}
+
 TEST_CASE( "truncate marks in prefix and suffix", "[language]" ) {
     test_string_normalizer_noramlize(L"", L"");
 
