@@ -26,15 +26,29 @@ limitations under the License.
 #include <chrono>
 #include <time.h>
 
-#include "simstring/simstring.h"
-#include "paramset.hpp"
-#include <resembla/resembla_util.hpp>
+#include <simstring/simstring.h>
+#include <paramset.hpp>
 
-#include <resembla/measure/asis_sequence_builder.hpp>
-#include <resembla/measure/word_sequence_builder.hpp>
-#include <resembla/measure/pronunciation_sequence_builder.hpp>
-#include <resembla/measure/romaji_sequence_builder.hpp>
-#include <resembla/measure/keyword_match_preprocessor.hpp>
+#include "resembla_util.hpp"
+
+#include "measure/asis_sequence_builder.hpp"
+#include "measure/word_sequence_builder.hpp"
+#include "measure/pronunciation_sequence_builder.hpp"
+#include "measure/romaji_sequence_builder.hpp"
+#include "measure/weighted_sequence_builder.hpp"
+#include "measure/keyword_match_preprocessor.hpp"
+
+#include "measure/feature_match_weight.hpp"
+#include "measure/surface_match_cost.hpp"
+#include "measure/romaji_match_weight.hpp"
+#include "measure/romaji_match_cost.hpp"
+
+#include "regression/extractor/feature_extractor.hpp"
+#include "regression/extractor/regex_feature_extractor.hpp"
+#include "regression/extractor/date_period_feature_extractor.hpp"
+#include "regression/extractor/time_period_feature_extractor.hpp"
+
+#include "measure/weighted_sequence_serializer.hpp"
 
 using namespace resembla;
 
@@ -45,8 +59,9 @@ const string_type DELIMITER = L"\t";
 const string_type WORD_FREQ_SEPARATOR = L"/";
 
 // generates SimString index and test data
-template<typename SequenceBuilder>
-TestData prepare_data(std::string test_data_path, std::string db_path, std::string inverse_path, int simstring_ngram_unit, SequenceBuilder builder)
+template<typename Preprocessor>
+TestData prepare_data(std::string test_data_path, std::string db_path, std::string inverse_path,
+        int simstring_ngram_unit, Preprocessor preprocess)
 {
     simstring::ngram_generator gen(simstring_ngram_unit, false);
     simstring::writer_base<std::wstring> dbw(gen, db_path);
@@ -72,7 +87,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
             size_t end = line.find(DELIMITER, start);
             if(first){
                 std::wstring original(line, start, end == std::wstring::npos ? line.size() : end - start);
-                auto s = builder.index(original);
+                auto s = preprocess.index(original);
                 if(inverse.count(s) == 0){
                     dbw.insert(s);
                     inverse[s] = {original};
@@ -167,6 +182,7 @@ int main(int argc, char* argv[])
         {"wred_consonant_coefficient", 1L, {"weighted_romaji_edit_distance", "consonant_coefficient"}, "wred-consonant-coefficient", 0, "coefficient for consonants for weighted romaji edit distance"},
         {"wred_case_mismatch_cost", 1L, {"weighted_romaji_edit_distance", "case_mismatch_cost"}, "wred-case-mismatch-cost", 0, "cost to replace case mismatches for weighted romaji edit distance"},
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
+        {"wred_mismatch_cost_path", "", {"weighted_romaji_edit_distance", "mismatch_cost_path"}, "wred-mismatch-cost-path", 0, "costs to replace similar letters for weighted romaji edit distance"},
         {"wred_ensemble_weight", 0.5, {"weighted_romaji_edit_distance", "ensemble_weight"}, "wred-ensemble-weight", 0, "weight coefficient for weighted romaji edit distance in ensemble mode"},
         {"km_simstring_ngram_unit", -1, {"keyword_match", "simstring_ngram_unit"}, "km-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
@@ -291,13 +307,40 @@ int main(int argc, char* argv[])
         // load test data and create index for each measure
         TestData test_data;
         for(const auto& resembla_measure: resembla_measures){
-            if(resembla_measure == svr){
-                continue;
-            }
-
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
             switch(resembla_measure){
+                case svr: {
+                    auto features = load_features(pm.get<std::string>("svr_features_path"));
+                    if(features.empty()){
+                        throw std::runtime_error("no feature");
+                    }
+                    const auto& base_feature = features[0][0];
+
+                    FeatureExtractor extractor;
+                    for(const auto& feature: features){
+                        const auto& name = feature[0];
+                        if(name == base_feature){
+                            continue;
+                        }
+
+                        const auto& feature_extractor_type = feature[1];
+                        if(feature_extractor_type == "re"){
+                            extractor.append(name, std::make_shared<RegexFeatureExtractor>(pm.get<std::string>("svr_patterns_home") + "/" + name + ".tsv"));
+                        }
+                        else if(feature_extractor_type == "date_period"){
+                            extractor.append(name, std::make_shared<DatePeriodFeatureExtractor>());
+                        }
+                        else if(feature_extractor_type == "time_period"){
+                            extractor.append(name, std::make_shared<TimePeriodFeatureExtractor>());
+                        }
+                        else if(feature_extractor_type != "-"){
+                            throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
+                        }
+                    }
+                    test_data = prepare_data(corpus_path, db_path, inverse_path, ed_simstring_ngram_unit, extractor);
+                    break;
+                }
                 case edit_distance: {
                     if(pm.get<double>("ed_ensemble_weight") > 0){
                         AsIsSequenceBuilder<std::wstring> builder;
@@ -307,7 +350,11 @@ int main(int argc, char* argv[])
                 }
                 case weighted_word_edit_distance: {
                     if(pm.get<double>("wwed_ensemble_weight") > 0){
-                        WordSequenceBuilder builder(pm.get<std::string>("wwed_mecab_options"));
+                        WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight> builder(
+                            WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
+                            FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
+                                pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
+                                pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
                         test_data = prepare_data(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder);
                     }
                     break;
@@ -322,15 +369,19 @@ int main(int argc, char* argv[])
                 }
                 case weighted_romaji_edit_distance: {
                     if(pm.get<double>("wred_ensemble_weight") > 0){
-                        RomajiSequenceBuilder builder(pm.get<std::string>("wred_mecab_options"),
-                                pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
+                        WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight> builder(
+                            RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
+                                pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
+                            RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
+                                pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
+                                pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                         test_data = prepare_data(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit, builder);
                     }
                     break;
                 }
                 case keyword_match: {
                     if(pm.get<double>("km_ensemble_weight") > 0){
-                        AsIsSequenceBuilder<std::wstring> builder;
+                        KeywordMatchPreprocessor<string_type> builder;
                         test_data = prepare_data(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit, builder);
                     }
                     break;
