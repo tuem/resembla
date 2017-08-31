@@ -35,7 +35,6 @@ void test_string_normalizer_noramlize(const std::wstring& input,
 
     StringNormalizer normalize_text("../misc/icu/normalization", "resembla", "nfkc",
             "../misc/icu/transliteration/resembla_collapse.txt", to_lower);
-    REQUIRE(normalize_text.available());
 
     auto answer = normalize_text(input);
 #ifdef DEBUG

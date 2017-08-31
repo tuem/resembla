@@ -37,7 +37,6 @@ public:
         bool to_lower = false);
     virtual ~StringNormalizer();
 
-    bool available() const;
     string_type operator()(const string_type& input) const;
 
 protected:
