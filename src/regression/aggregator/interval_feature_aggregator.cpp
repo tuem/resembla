@@ -40,20 +40,45 @@ Feature::real_type IntervalFeatureAggregator::operator()(const Feature::text_typ
         auto t = Feature::toReal(u[0]);
         auto s = Feature::toReal(v[0]);
         auto e = Feature::toReal(v[1]);
-        return (s <= t && t <= e) ? 1.0 : -1.0;
+        if(s <= e){
+            return (s <= t && t <= e) ? 1.0 : -1.0;
+        }
+        else{
+            return (s <= t || t <= e) ? 1.0 : -1.0;
+        }
     }
     else if(v.size() == 1 && u.size() > 1){
         auto t = Feature::toReal(v[0]);
         auto s = Feature::toReal(u[0]);
         auto e = Feature::toReal(u[1]);
-        return (s <= t && t <= e) ? 1.0 : -1.0;
+        if(s <= e){
+            return (s <= t && t <= e) ? 1.0 : -1.0;
+        }
+        else{
+            return (s <= t || t <= e) ? 1.0 : -1.0;
+        }
     }
     else{
         auto s0 = Feature::toReal(u[0]);
         auto e0 = Feature::toReal(u[1]);
         auto s1 = Feature::toReal(v[0]);
         auto e1 = Feature::toReal(v[1]);
-        return (s0 <= e1 && s1 <= e0) ? 1.0 : -1.0;
+        if(s0 <= e0){
+            if(s1 <= e1){
+                return (s0 <= e1 && s1 <= e0) ? 1.0 : -1.0;
+            }
+            else{
+                return (s0 <= e1 || s1 <= e0) ? 1.0 : -1.0;
+            }
+        }
+        else{
+            if(s1 <= e1){
+                return (s1 <= e0 || s0 <= e1) ? 1.0 : -1.0;
+            }
+            else{
+                return 1.0;
+            }
+        }
     }
 }
 
