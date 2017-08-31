@@ -32,7 +32,6 @@ public:
         const std::string& predefined_nrm_name, bool to_lower = false);
     virtual ~SymbolNormalizer();
 
-    bool available() const;
     string_type operator()(const string_type& input) const;
 
 protected:

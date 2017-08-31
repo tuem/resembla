@@ -32,7 +32,6 @@ void test_symbol_normalizer_noramlize_symbol(const std::wstring& input, const st
 {
     init_locale();
     SymbolNormalizer normalize("../misc/icu/normalization/", "resembla", "nfkc", to_lower);
-    REQUIRE(normalize.available());
 
     auto answer = normalize(input);
 #ifdef DEBUG

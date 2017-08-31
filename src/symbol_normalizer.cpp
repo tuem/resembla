@@ -32,29 +32,38 @@ SymbolNormalizer::SymbolNormalizer(const std::string& nrm_dir, const std::string
     UErrorCode error_code = U_ZERO_ERROR;
     normalizer_resembla = !nrm_dir.empty() ?
         Normalizer2::getInstance(nrm_dir.c_str(), nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
-    if(normalizer_resembla != nullptr && !U_FAILURE(error_code)) {
-        normalizer_nfkc = !predefined_nrm_name.empty() ?
-            Normalizer2::getInstance(NULL, predefined_nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
+    if(normalizer_resembla != nullptr && U_FAILURE(error_code)) {
+        throw std::runtime_error("failed to initialize normalizer");
+    }
+    normalizer_nfkc = !predefined_nrm_name.empty() ?
+        Normalizer2::getInstance(NULL, predefined_nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
+    if(normalizer_nfkc != nullptr && U_FAILURE(error_code)) {
+        throw std::runtime_error("failed to initialize normalizer");
     }
 }
 
 SymbolNormalizer::~SymbolNormalizer(){}
 
-bool SymbolNormalizer::available() const
-{
-    return normalizer_resembla != nullptr && normalizer_nfkc != nullptr;
-}
 
 string_type SymbolNormalizer::operator()(const string_type& input) const
 {
-    UErrorCode error_code = U_ZERO_ERROR;
-    auto work = normalizer_resembla->normalize(cast_string<UnicodeString>(input), error_code);
-    if(U_FAILURE(error_code)) {
-        throw std::runtime_error("failed to normalize input");
+    if(normalizer_resembla == nullptr && normalizer_nfkc == nullptr){
+        return nullptr;
     }
-    work = normalizer_nfkc->normalize(work, error_code);
-    if(U_FAILURE(error_code)) {
-        throw std::runtime_error("failed to normalize input");
+
+    UErrorCode error_code = U_ZERO_ERROR;
+    auto work = cast_string<UnicodeString>(input);
+    if(normalizer_resembla != nullptr){
+        work = normalizer_resembla->normalize(work, error_code);
+        if(U_FAILURE(error_code)) {
+            throw std::runtime_error("failed to normalize input");
+        }
+    }
+    if(normalizer_nfkc != nullptr){
+        work = normalizer_nfkc->normalize(work, error_code);
+        if(U_FAILURE(error_code)) {
+            throw std::runtime_error("failed to normalize input");
+        }
     }
 
     return cast_string<string_type>(to_lower ? work.toLower() : work);

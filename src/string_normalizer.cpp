@@ -55,7 +55,7 @@ StringNormalizer::~StringNormalizer(){}
 
 bool StringNormalizer::available() const
 {
-    return SymbolNormalizer::available() && transliterator != nullptr;
+    return transliterator != nullptr;
 }
 
 string_type StringNormalizer::operator()(const string_type& input) const
