@@ -32,7 +32,6 @@ void test_symbol_normalizer_noramlize_symbol(const std::wstring& input, const st
 {
     init_locale();
     SymbolNormalizer normalize("../misc/icu/normalization/", "resembla", "nfkc", to_lower);
-    REQUIRE(normalize.available());
 
     auto answer = normalize(input);
 #ifdef DEBUG
@@ -57,6 +56,14 @@ void test_symbol_normalizer_noramlize_symbol(const std::wstring& input, const st
     std::cerr << std::endl;
 #endif
     CHECK(answer == correct);
+}
+
+TEST_CASE( "empty symbol normalizer", "[language]" ) {
+    init_locale();
+    SymbolNormalizer normalize_nothing("", "", "", false);
+    CHECK(normalize_nothing(L"ＨｅLLo、＠＄％!！？！!") == L"ＨｅLLo、＠＄％!！？！!");
+    SymbolNormalizer normalize_case("", "", "", true);
+    CHECK(normalize_case(L"ＨｅLLo、＠＄％!！？！!") == L"ｈｅllo、＠＄％!！？！!");
 }
 
 TEST_CASE( "normalize symbols", "[language]" ) {

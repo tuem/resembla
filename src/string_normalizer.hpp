@@ -29,7 +29,7 @@ limitations under the License.
 
 namespace resembla {
 
-class StringNormalizer: public SymbolNormalizer
+class StringNormalizer final: public SymbolNormalizer
 {
 public:
     StringNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
@@ -37,7 +37,6 @@ public:
         bool to_lower = false);
     virtual ~StringNormalizer();
 
-    bool available() const;
     string_type operator()(const string_type& input) const;
 
 protected:

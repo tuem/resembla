@@ -32,44 +32,57 @@ StringNormalizer::StringNormalizer(const std::string& nrm_dir, const std::string
     SymbolNormalizer(nrm_dir, nrm_name, predefined_nrm_name),
     transliterator(nullptr), to_lower(to_lower)
 {
-    std::string rules;
-    std::ifstream ifs(transliteration_path);
-    if(!ifs.is_open()){
-        return;
-    }
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof()){
-            break;
+    if(!transliteration_path.empty()){
+        std::string rules;
+        std::ifstream ifs(transliteration_path);
+        if(!ifs.is_open()){
+            throw std::runtime_error("input file is not available: " + transliteration_path);
         }
-        rules += line;
-    }
+        while(ifs.good()){
+            std::string line;
+            std::getline(ifs, line);
+            if(ifs.eof()){
+                break;
+            }
+            rules += line;
+        }
 
-    UParseError parse_error;
-    UErrorCode error_code = U_ZERO_ERROR;
-    transliterator.reset(Transliterator::createFromRules("resembla_transliteration", UnicodeString(rules.c_str()), UTRANS_FORWARD, parse_error, error_code));
+        UParseError parse_error;
+        UErrorCode error_code = U_ZERO_ERROR;
+        transliterator.reset(Transliterator::createFromRules("resembla_transliteration",
+                UnicodeString(rules.c_str()), UTRANS_FORWARD, parse_error, error_code));
+        if(U_FAILURE(error_code)){
+            throw std::runtime_error("failed to normalize input");
+        }
+    }
 }
 
 StringNormalizer::~StringNormalizer(){}
 
-bool StringNormalizer::available() const
-{
-    return SymbolNormalizer::available() && transliterator != nullptr;
-}
-
 string_type StringNormalizer::operator()(const string_type& input) const
 {
+    if(normalizer_resembla == nullptr && normalizer_nfkc == nullptr &&
+            transliterator == nullptr && !to_lower){
+        return input;
+    }
+
     UErrorCode error_code = U_ZERO_ERROR;
-    auto work = normalizer_resembla->normalize(cast_string<UnicodeString>(input), error_code);
-    if(U_FAILURE(error_code)) {
-        throw std::runtime_error("failed to normalize input");
+    auto work = cast_string<UnicodeString>(input);
+    if(normalizer_resembla != nullptr){
+        work = normalizer_resembla->normalize(work, error_code);
+        if(U_FAILURE(error_code)){
+            throw std::runtime_error("failed to normalize input");
+        }
     }
-    work = normalizer_nfkc->normalize(work, error_code);
-    if(U_FAILURE(error_code)) {
-        throw std::runtime_error("failed to normalize input");
+    if(normalizer_nfkc != nullptr){
+        work = normalizer_nfkc->normalize(work, error_code);
+        if(U_FAILURE(error_code)){
+            throw std::runtime_error("failed to normalize input");
+        }
     }
-    transliterator->transliterate(work);
+    if(transliterator != nullptr){
+        transliterator->transliterate(work);
+    }
 
     return cast_string<string_type>(to_lower ? work.toLower() : work);
 }

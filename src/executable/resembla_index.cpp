@@ -22,12 +22,15 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 #include <set>
+#include <memory>
 #include <stdexcept>
 
 #include <paramset.hpp>
 
 #include <simstring/simstring.h>
 #include <json.hpp>
+
+#include "string_normalizer.hpp"
 
 #include "resembla_util.hpp"
 
@@ -54,7 +57,8 @@ using namespace resembla;
 
 template<typename Preprocessor>
 void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
-        int n, Preprocessor preprocess, size_t text_col, size_t features_col = 0)
+        int n, Preprocessor preprocess, size_t text_col, size_t features_col,
+        std::shared_ptr<StringNormalizer> normalize)
 {
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
@@ -76,18 +80,19 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         }
 
         auto original = columns[text_col - 1];
-        auto s = preprocess.index(original);
+        auto normalized = normalize != nullptr ? (*normalize)(original) : original;
+        auto indexed = preprocess.index(normalized);
 
         if(features_col > 0 && features_col - 1 < columns.size()){
             original += L"\t" + columns[features_col - 1];
         }
 
-        if(inserted.count(s) == 0){
-            dbw.insert(s);
-            inserted[s] = {original};
+        if(inserted.count(indexed) == 0){
+            dbw.insert(indexed);
+            inserted[indexed] = {original};
         }
         else{
-            inserted[s].insert(original);
+            inserted[indexed].insert(original);
         }
     }
     dbw.close();
@@ -95,9 +100,13 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            nlohmann::json j = preprocess(original, true);
-            auto preprocessed = cast_string<string_type>(j.dump());
             auto columns = split(original, L'\t');
+            auto normalized = normalize != nullptr ? (*normalize)(columns[0]) : columns[0];
+            if(columns.size() > 0){
+                normalized += L"\t" + columns[1];
+            }
+            nlohmann::json j = preprocess(normalized, true);
+            auto preprocessed = cast_string<string_type>(j.dump());
             ofs << p.first << L'\t' << columns[0] << L'\t' << preprocessed << std::endl;
         }
     }
@@ -144,7 +153,13 @@ int main(int argc, char* argv[])
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 0, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
-        {"verbose", false, {"common", "verbose"}, 'v', "show more information"},
+        {"normalize_text", false, {"icu", "enabled"}, "normalize-text", 0, "enable text normalization"},
+        {"icu_normalization_dir", "", {"icu", "normalization", "dir"}, "icu-normalization-dir", 0, "directory for ICU normalizer configuration file"},
+        {"icu_normalization_name", "", {"icu", "normalization", "name"}, "icu-normalization-name", 0, "file name of ICU normalizer configuration file"},
+        {"icu_predefined_normalizer", "", {"icu", "normalization", "predefined_normalizer"}, "icu-predefined-normalizer", 0, "name of predefined ICU normalizer"},
+        {"icu_transliteration_path", "", {"icu", "transliteration", "path"}, "icu-transliteration-path", 0, "path for configuration file of transliterator"},
+        {"icu_to_lower", "", {"icu", "to_lower"}, "icu-to-lower", 0, "convert input texts to lowercase"},
+        {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
@@ -172,6 +187,14 @@ int main(int argc, char* argv[])
             std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;
             std::cerr << "    ngram_unit=" << default_simstring_ngram_unit << std::endl;
+            if(pm.get<bool>("normalize_text")){
+                std::cerr << "  ICU:" << std::endl;
+                std::cerr << "    normalization_dir=" << pm.get<std::string>("icu_normalization_dir") << std::endl;
+                std::cerr << "    normalization_name=" << pm.get<std::string>("icu_normalization_name") << std::endl;
+                std::cerr << "    predefined_normalizer=" << pm.get<std::string>("icu_predefined_normalizer") << std::endl;
+                std::cerr << "    transliteration_path=" << pm.get<std::string>("icu_transliteration_path") << std::endl;
+                std::cerr << "    to_lower=" << (pm.get<bool>("icu_to_lower") ? "true" : "false")<< std::endl;
+            }
             for(auto resembla_measure: resembla_measures){
                 if(resembla_measure == edit_distance){
                     std::cerr << "  measure=" << STR(edit_distance) << std::endl;
@@ -208,6 +231,15 @@ int main(int argc, char* argv[])
             }
         }
 
+        std::shared_ptr<StringNormalizer> normalize;
+        if(pm.get<bool>("normalize_text")){
+            normalize = std::make_shared<StringNormalizer>(
+                pm.get<std::string>("icu_normalization_dir"),
+                pm.get<std::string>("icu_normalization_name"),
+                pm.get<std::string>("icu_predefined_normalizer"),
+                pm.get<std::string>("icu_transliteration_path"),
+                pm.get<bool>("icu_to_lower"));
+        }
         for(auto resembla_measure: resembla_measures){
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
@@ -215,7 +247,7 @@ int main(int argc, char* argv[])
             if(resembla_measure == edit_distance){
                 AsIsSequenceBuilder<string_type> builder;
                 create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
-                        pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
                 WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight> builder(
@@ -224,13 +256,13 @@ int main(int argc, char* argv[])
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
-                        pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
                 PronunciationSequenceBuilder builder(pm.get<std::string>("wped_mecab_options"),
                         pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
                 create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit,
-                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
                 WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight> builder(
@@ -240,11 +272,12 @@ int main(int argc, char* argv[])
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
-                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
                 create_index(corpus_path, db_path, inverse_path, km_simstring_ngram_unit,
-                        KeywordMatchPreprocessor<string_type>(), pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        KeywordMatchPreprocessor<string_type>(),
+                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == svr){
                 auto features = load_features(pm.get<std::string>("svr_features_path"));
@@ -275,7 +308,7 @@ int main(int argc, char* argv[])
                     }
                 }
                 create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
-                        extractor, pm.get<int>("text_col"), pm.get<int>("features_col"));
+                        extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
             std::cerr << "database saved to " << db_path << std::endl;
