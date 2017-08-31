@@ -43,7 +43,7 @@ void test_string_normalizer_noramlize(const std::wstring& input,
     std::wcerr << "answer : " << answer << std::endl;
     std::wcerr << "correct: " << correct << std::endl;
 #endif
-    CHECK(answer == correct);
+    CHECK(cast_string<std::string>(answer) == cast_string<std::string>(correct));
 }
 
 TEST_CASE( "truncate marks in prefix and suffix", "[language]" ) {
@@ -83,4 +83,8 @@ TEST_CASE( "truncate marks in prefix and suffix", "[language]" ) {
     test_string_normalizer_noramlize(L"  ab  cd  ", L"ab cd");
     test_string_normalizer_noramlize(L"  a b  c  d   e   f  ", L"a b c d e f");
     test_string_normalizer_noramlize(L"  a B  c  Ｄ   e   F  ", L"a b c d e f", true);
+
+    test_string_normalizer_noramlize(L"テ。ス、ト。", L"テ ス ト");
+    test_string_normalizer_noramlize(L"、、テ。。。ス、、、、ト。。。。。", L"テ ス ト");
+    test_string_normalizer_noramlize(L"、。、テ。。。ス、、、、ト。、。。。、。", L"テ ス ト");
 }
