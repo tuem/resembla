@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __PREJUDICED_PREDICTOR_PREDICTOR_HPP__
-#define __PREJUDICED_PREDICTOR_PREDICTOR_HPP__
+#ifndef RESEMBLA_PREJUDICED_PREDICTOR_PREDICTOR_HPP
+#define RESEMBLA_PREJUDICED_PREDICTOR_PREDICTOR_HPP
 
 #include <string>
 

@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __FLAG_FEATURE_AGGREGATOR_HPP__
-#define __FLAG_FEATURE_AGGREGATOR_HPP__
+#ifndef RESEMBLA_FLAG_FEATURE_AGGREGATOR_HPP
+#define RESEMBLA_FLAG_FEATURE_AGGREGATOR_HPP
 
 #include "feature_aggregator.hpp"
 

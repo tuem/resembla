@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __PRONUNCIATION_SEQUENCE_BUILDER_HPP__
-#define __PRONUNCIATION_SEQUENCE_BUILDER_HPP__
+#ifndef RESEMBLA_PRONUNCIATION_SEQUENCE_BUILDER_HPP
+#define RESEMBLA_PRONUNCIATION_SEQUENCE_BUILDER_HPP
 
 #include <memory>
 #include <string>

@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __ROMAJI_MATCH_COST_HPP__
-#define __ROMAJI_MATCH_COST_HPP__
+#ifndef RESEMBLA_ROMAJI_MATCH_COST_HPP
+#define RESEMBLA_ROMAJI_MATCH_COST_HPP
 
 #include <string>
 #include <unordered_set>

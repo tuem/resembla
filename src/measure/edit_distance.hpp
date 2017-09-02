@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __EDIT_DISTANCE_HPP__
-#define __EDIT_DISTANCE_HPP__
+#ifndef RESEMBLA_EDIT_DISTANCE_HPP
+#define RESEMBLA_EDIT_DISTANCE_HPP
 
 #include <string>
 #include <vector>

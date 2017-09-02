@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __FEATURE_HPP__
-#define __FEATURE_HPP__
+#ifndef RESEMBLA_FEATURE_HPP
+#define RESEMBLA_FEATURE_HPP
 
 #include <string>
 #include <unordered_map>

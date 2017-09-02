@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __WORD_HPP__
-#define __WORD_HPP__
+#ifndef RESEMBLA_WORD_HPP
+#define RESEMBLA_WORD_HPP
 
 #include <string>
 #include <vector>

@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __WEIGHTED_SEQUENCE_BUILDER_HPP__
-#define __WEIGHTED_SEQUENCE_BUILDER_HPP__
+#ifndef RESEMBLA_WEIGHTED_SEQUENCE_BUILDER_HPP
+#define RESEMBLA_WEIGHTED_SEQUENCE_BUILDER_HPP
 
 #include <vector>
 

@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __ROMAJI_SEQUENCE_BUILDER_HPP__
-#define __ROMAJI_SEQUENCE_BUILDER_HPP__
+#ifndef RESEMBLA_ROMAJI_SEQUENCE_BUILDER_HPP
+#define RESEMBLA_ROMAJI_SEQUENCE_BUILDER_HPP
 
 #include <string>
 #include <unordered_map>

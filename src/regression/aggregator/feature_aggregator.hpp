@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __FEATURE_AGGREGATOR_HPP__
-#define __FEATURE_AGGREGATOR_HPP__
+#ifndef RESEMBLA_FEATURE_AGGREGATOR_HPP
+#define RESEMBLA_FEATURE_AGGREGATOR_HPP
 
 #include <unordered_map>
 #include <memory>

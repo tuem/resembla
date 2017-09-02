@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __TIME_PERIOD_FEATURE_EXTRACTOR_HPP__
-#define __TIME_PERIOD_FEATURE_EXTRACTOR_HPP__
+#ifndef RESEMBLA_TIME_PERIOD_FEATURE_EXTRACTOR_HPP
+#define RESEMBLA_TIME_PERIOD_FEATURE_EXTRACTOR_HPP
 
 #include "feature_extractor.hpp"
 

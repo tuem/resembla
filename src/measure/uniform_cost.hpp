@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __UNIFORM_COST_HPP__
-#define __UNIFORM_COST_HPP__
+#ifndef RESEMBLA_UNIFORM_COST_HPP
+#define RESEMBLA_UNIFORM_COST_HPP
 
 namespace resembla {
 

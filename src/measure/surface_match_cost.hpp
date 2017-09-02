@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __SURFACE_MATCH_COST_HPP__
-#define __SURFACE_MATCH_COST_HPP__
+#ifndef RESEMBLA_SURFACE_MATCH_COST_HPP
+#define RESEMBLA_SURFACE_MATCH_COST_HPP
 
 #include "../word.hpp"
 

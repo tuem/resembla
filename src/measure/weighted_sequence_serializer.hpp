@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_MEASURE_WEIGHTED_SEQUENCE_SERIALIZER_HPP
-#define RESEMBLA_MEASURE_WEIGHTED_SEQUENCE_SERIALIZER_HPP
+#ifndef RESEMBLA_WEIGHTED_SEQUENCE_SERIALIZER_HPP
+#define RESEMBLA_WEIGHTED_SEQUENCE_SERIALIZER_HPP
 
 #include <json.hpp>
 

@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __RESEMBLA_INTERFACE_HPP__
-#define __RESEMBLA_INTERFACE_HPP__
+#ifndef RESEMBLA_RESEMBLA_INTERFACE_HPP
+#define RESEMBLA_RESEMBLA_INTERFACE_HPP
 
 #include <vector>
 

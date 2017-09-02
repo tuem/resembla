@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __RERANKER_HPP__
-#define __RERANKER_HPP__
+#ifndef RESEMBLA_RERANKER_HPP
+#define RESEMBLA_RERANKER_HPP
 
 #include <iostream>
 #include <vector>

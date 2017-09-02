@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __STRING_NORMALIZER_HPP__
-#define __STRING_NORMALIZER_HPP__
+#ifndef RESEMBLA_STRING_NORMALIZER_HPP
+#define RESEMBLA_STRING_NORMALIZER_HPP
 
 #include <string>
 #include <memory>

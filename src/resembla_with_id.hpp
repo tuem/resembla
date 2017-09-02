@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __RESEMBLA_WITH_ID_HPP__
-#define __RESEMBLA_WITH_ID_HPP__
+#ifndef RESEMBLA_RESEMBLA_WITH_ID_HPP
+#define RESEMBLA_RESEMBLA_WITH_ID_HPP
 
 #include <string>
 #include <vector>

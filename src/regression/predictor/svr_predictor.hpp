@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __SVR_PREDICTOR_HPP__
-#define __SVR_PREDICTOR_HPP__
+#ifndef RESEMBLA_SVR_PREDICTOR_HPP
+#define RESEMBLA_SVR_PREDICTOR_HPP
 
 #include <string>
 #include <vector>

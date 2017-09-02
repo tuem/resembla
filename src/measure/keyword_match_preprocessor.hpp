@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __KEYWORD_MATCH_PREPROCESSOR_HPP__
-#define __KEYWORD_MATCH_PREPROCESSOR_HPP__
+#ifndef RESEMBLA_KEYWORD_MATCH_PREPROCESSOR_HPP
+#define RESEMBLA_KEYWORD_MATCH_PREPROCESSOR_HPP
 
 #include <string>
 #include <vector>

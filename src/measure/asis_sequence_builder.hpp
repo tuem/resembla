@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef __ASIS_SEQUENCE_BUILDER_HPP__
-#define __ASIS_SEQUENCE_BUILDER_HPP__
+#ifndef RESEMBLA_ASIS_SEQUENCE_BUILDER_HPP
+#define RESEMBLA_ASIS_SEQUENCE_BUILDER_HPP
 
 #include "../string_util.hpp"
 
