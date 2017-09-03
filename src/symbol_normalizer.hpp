@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_STRING_UTIL_HPP
-#define RESEMBLA_STRING_UTIL_HPP
+#ifndef RESEMBLA_SYMBOL_NORMALIZER_HPP
+#define RESEMBLA_SYMBOL_NORMALIZER_HPP
 
 #include <string>
 
