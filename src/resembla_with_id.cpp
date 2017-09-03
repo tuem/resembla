@@ -28,7 +28,8 @@ ResemblaWithId::ResemblaWithId(const std::shared_ptr<ResemblaInterface> resembla
     loadCorpus(corpus_path, id_col, text_col);
 }
 
-std::vector<ResemblaWithId::output_type> ResemblaWithId::find(const string_type& query, double threshold, size_t max_response)
+std::vector<ResemblaWithId::output_type> ResemblaWithId::find(const string_type& query,
+        double threshold, size_t max_response) const
 {
     std::vector<output_type> results;
     for(auto raw_result: resembla->find(query, threshold, max_response)){
@@ -37,8 +38,8 @@ std::vector<ResemblaWithId::output_type> ResemblaWithId::find(const string_type&
     return results;
 }
 
-std::vector<ResemblaWithId::output_type> ResemblaWithId::eval(const string_type& query, const std::vector<string_type>& targets,
-        double threshold, size_t max_response) const
+std::vector<ResemblaWithId::output_type> ResemblaWithId::eval(const string_type& query,
+        const std::vector<string_type>& targets, double threshold, size_t max_response) const
 {
     std::vector<output_type> results;
     for(auto raw_result: resembla->eval(query, targets, threshold, max_response)){
