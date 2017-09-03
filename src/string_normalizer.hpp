@@ -35,7 +35,6 @@ public:
     StringNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
         const std::string& predefined_nrm_name, const std::string& transliteration_path,
         bool to_lower = false);
-    virtual ~StringNormalizer();
 
     template<typename string_type>
     string_type operator()(const string_type& input) const

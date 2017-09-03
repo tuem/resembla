@@ -60,7 +60,6 @@ public:
         return cast_string<string_type>(to_lower ? work.toLower() : work);
     }
 
-
 protected:
     const Normalizer2* normalizer_resembla;
     const Normalizer2* normalizer_nfkc;
