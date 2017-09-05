@@ -128,7 +128,7 @@ protected:
             throw std::runtime_error("input file is not available: " + inverse_path);
         }
 
-        const auto delimiter = column_delimiter<std::string>();
+        const auto delimiter = column_delimiter<>();
         while(ifs.good()){
             std::string line;
             std::getline(ifs, line);
