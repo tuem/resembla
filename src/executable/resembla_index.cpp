@@ -102,7 +102,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         for(auto original: p.second){
             auto columns = split(original, L'\t');
             auto normalized = normalize != nullptr ? (*normalize)(columns[0]) : columns[0];
-            if(columns.size() > 0){
+            if(columns.size() > 1){
                 normalized += L"\t" + columns[1];
             }
             nlohmann::json j = preprocess(normalized, true);
