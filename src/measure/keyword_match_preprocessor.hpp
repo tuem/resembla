@@ -53,7 +53,7 @@ public:
         }
         auto columns = split(raw_text, delim_col);
         if(columns.size() > 1){
-            for(auto f: split(columns[1], delim_param)){
+            for(auto f: split(columns[1], delim_future)){
                 auto kv = split(f, delim_kv);
                 if(kv.size() == 2 && kv[0] == L"keyword"){
 #ifdef DEBUG
@@ -76,9 +76,9 @@ public:
 
 protected:
     const typename string_type::value_type delim_col = column_delimiter<string_type>();
-    const typename string_type::value_type delim_param = column_delimiter<string_type>();
-    const typename string_type::value_type delim_kv = column_delimiter<string_type>();
-    const typename string_type::value_type delim_val = column_delimiter<string_type>();
+    const typename string_type::value_type delim_future = feature_delimiter<string_type>();
+    const typename string_type::value_type delim_kv = keyvalue_delimiter<string_type>();
+    const typename string_type::value_type delim_val = value_delimiter<string_type>();
 
 // TODO: use synonym dictionary to improve keyword matching quality
 //    std::vector<std::vector<string_type>> synonyms;

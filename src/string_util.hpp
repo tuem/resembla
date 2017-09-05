@@ -57,7 +57,7 @@ const typename string_type::value_type column_delimiter()
 
 // TODO: use constexpr
 template<typename string_type = std::string>
-const typename string_type::value_type parameter_delimiter()
+const typename string_type::value_type feature_delimiter()
 {
     return cast_string<string_type>(std::string(1, '&'))[0];
 }
