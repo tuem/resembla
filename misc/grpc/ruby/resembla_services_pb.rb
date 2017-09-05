@@ -16,6 +16,7 @@ module Resembla
         self.service_name = 'resembla.server.ResemblaService'
 
         rpc :find, ResemblaRequest, stream(ResemblaResponse)
+        rpc :eval, ResemblaOnDemandRequest, stream(ResemblaResponse)
       end
 
       Stub = Service.rpc_stub_class
