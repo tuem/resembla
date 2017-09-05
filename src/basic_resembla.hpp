@@ -58,7 +58,7 @@ public:
         if(ifs.fail()){
             throw std::runtime_error("input file is not available: " + inverse_path);
         }
-        auto delimiter = cast_string<string_type>(std::string("\t"));
+        const auto delimiter = column_delimiter<string_type>();
         while(ifs.good()){
             string_type line;
             std::getline(ifs, line);
@@ -66,7 +66,7 @@ public:
                 break;
             }
 
-            auto columns = split(line, L'\t');
+            auto columns = split(line, delimiter);
             if(columns.size() < 2){
                 throw std::runtime_error("too few columns, corpus=" + inverse_path + ", line=" + cast_string<std::string>(line));
             }
@@ -124,6 +124,7 @@ public:
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
             double threshold = 0.0, size_t max_response = 0) const
     {
+        const auto delimiter = column_delimiter<string_type>();
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> candidates;
         for(const auto& t: targets){
@@ -134,7 +135,7 @@ public:
                     continue;
                 }
             }
-            auto tabpos = t.find(L'\t');
+            auto tabpos = t.find(delimiter);
             candidates.push_back(std::make_pair(
                 tabpos != string_type::npos ? t.substr(0, tabpos) : t,
                 (*preprocess)(t, true)));
