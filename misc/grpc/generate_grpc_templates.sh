@@ -28,7 +28,7 @@ PROTO_DIR=$BASE_DIR/protos
 CPP_DIR=$BASE_DIR/src/grpc
 HEADER_DIR=$BASE_DIR/include
 PYTHON_DIR=$BASE_DIR/python
-RUBY_DIR=$BASEDIR/ruby
+RUBY_DIR=$BASE_DIR/ruby
 
 echo "${ECHO_PREFIX} Generate C++ gRPC server templete"
 protoc -I $PROTO_DIR $PROTO_DIR/$PROJECT_NAME.proto --grpc_out=$CPP_DIR --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
