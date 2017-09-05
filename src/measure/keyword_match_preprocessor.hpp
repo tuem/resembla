@@ -51,17 +51,17 @@ public:
         if(!is_original){
             return {raw_text, {}};
         }
-        auto columns = split(raw_text, L'\t');
+        auto columns = split(raw_text, delim_col);
         if(columns.size() > 1){
-            for(auto f: split(columns[1], L'&')){
-                auto kv = split(f, L'=');
+            for(auto f: split(columns[1], delim_param)){
+                auto kv = split(f, delim_kv);
                 if(kv.size() == 2 && kv[0] == L"keyword"){
 #ifdef DEBUG
-                    for(auto w: split(kv[1], L',')){
+                    for(auto w: split(kv[1], delim_val)){
                         std::cerr << "load keyword: text=" << cast_string<std::string>(columns[0]) << ", keyword=" << cast_string<std::string>(w) << std::endl;
                     }
 #endif
-                    return {columns[0], split(kv[1], L',')};
+                    return {columns[0], split(kv[1], delim_val)};
                 }
             }
             return {columns[0], {}};
@@ -75,6 +75,11 @@ public:
     }
 
 protected:
+    const typename string_type::value_type delim_col = column_delimiter<string_type>();
+    const typename string_type::value_type delim_param = column_delimiter<string_type>();
+    const typename string_type::value_type delim_kv = column_delimiter<string_type>();
+    const typename string_type::value_type delim_val = column_delimiter<string_type>();
+
 // TODO: use synonym dictionary to improve keyword matching quality
 //    std::vector<std::vector<string_type>> synonyms;
 //    std::unordered_map<string_type, size_t> synonym_index;
