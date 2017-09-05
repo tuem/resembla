@@ -62,7 +62,6 @@ public:
     Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
     {
         std::vector<string_type> candidates;
-        //for(const auto i = std::begin(request->candidates()); i != std::end(request->candidates()); ++i){
         for(const auto& c: request->candidates()){
             candidates.push_back(cast_string<string_type>(c));
         }
