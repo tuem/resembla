@@ -33,13 +33,16 @@ public:
 
     output_type operator()(const string_type& text, bool is_original) const
     {
-        return is_original ? split(text, L'\t')[0] : text;
+        return is_original ? split(text, delimiter)[0] : text;
     }
 
     string_type index(const string_type& text) const
     {
         return text;
     }
+
+protected:
+    const typename string_type::value_type delimiter = column_delimiter<string_type>();
 };
 
 }

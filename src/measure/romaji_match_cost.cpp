@@ -17,10 +17,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "romaji_match_cost.hpp"
+
 #include <fstream>
 #include <algorithm>
-
-#include "romaji_match_cost.hpp"
 
 namespace resembla {
 
@@ -56,7 +56,6 @@ RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path,
     if(ifs.fail()){
         throw std::runtime_error("input file is not available: " + letter_similarity_file_path);
     }
-    auto delimiter = cast_string<string_type>(std::string("\t"));
     while(ifs.good()){
         string_type line;
         std::getline(ifs, line);
@@ -64,7 +63,7 @@ RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path,
             break;
         }
 
-        auto columns = split(line, L'\t');
+        auto columns = split(line, delimiter);
         if(columns.size() < 2){
             throw std::runtime_error("invalid line in " + letter_similarity_file_path + ": " + cast_string<std::string>(line));
         }

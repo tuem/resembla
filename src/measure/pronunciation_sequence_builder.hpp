@@ -47,6 +47,8 @@ public:
 protected:
     static const std::unordered_map<token_type, string_type> KANA_MAP;
 
+    const typename string_type::value_type delimiter = column_delimiter<string_type>();
+
     std::shared_ptr<MeCab::Tagger> tagger;
     const size_t mecab_feature_pos;
     string_type mecab_pronunciation_of_marks;

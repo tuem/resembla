@@ -34,6 +34,8 @@ struct RomajiMatchCost
 
     static const std::unordered_set<string_type> DEFAULT_SIMILAR_LETTER_PAIRS;
 
+    const typename string_type::value_type delimiter = column_delimiter<string_type>();
+
     std::unordered_map<string_type, double> letter_similarities;
     const double case_mismatch_cost;
 
