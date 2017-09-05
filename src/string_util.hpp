@@ -48,6 +48,34 @@ dest_type cast_string(const src_type& src)
     return desc;
 }
 
+// TODO: use constexpr
+template<typename string_type>
+const typename string_type::value_type column_delimiter()
+{
+    return cast_string<string_type>(std::string('\t', 1))[0];
+}
+
+// TODO: use constexpr
+template<typename string_type>
+const typename string_type::value_type parameter_delimiter()
+{
+    return cast_string<string_type>(std::string('&', 1))[0];
+}
+
+// TODO: use constexpr
+template<typename string_type>
+const typename string_type::value_type keyvalue_delimiter()
+{
+    return cast_string<string_type>(std::string('=', 1))[0];
+}
+
+// TODO: use constexpr
+template<typename string_type>
+const typename string_type::value_type value_delimiter()
+{
+    return cast_string<string_type>(std::string(',', 1))[0];
+}
+
 // split text by delimiter
 template<typename string_type>
 std::vector<string_type> split(const string_type& text, const typename string_type::value_type delimiter)
