@@ -25,8 +25,8 @@ import grpc
 
 _TIMEOUT_SECONDS = 10
 
-def run(port, queries):
-    channel = grpc.insecure_channel('localhost:' + str(port))
+def run(server_address, queries):
+    channel = grpc.insecure_channel(server_address)
     resembla = resembla_pb2.ResemblaServiceStub(channel)
 
     for (query, candidates) in queries:
@@ -44,4 +44,4 @@ if __name__ == '__main__':
         ('こんにちわん', ['こんにちは', 'こんばんは', 'ごはんちゃわん']),
     ]
 
-    run(50051, queries)
+    run('localhost:50051', queries)
