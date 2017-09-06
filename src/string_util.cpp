@@ -86,18 +86,4 @@ void cast_string(const UnicodeString& src, std::wstring& dest)
     cast_string(tmp, dest);
 }
 
-// TODO: implement by a generic template function
-template<>
-constexpr char column_delimiter_char()
-{
-    return '\t';
-}
-
-// TODO: implement by a generic template function
-template<>
-constexpr wchar_t column_delimiter_char()
-{
-    return L'\t';
-}
-
 }

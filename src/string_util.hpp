@@ -58,6 +58,20 @@ constexpr typename string_type::value_type column_delimiter()
 template<typename char_type>
 constexpr char_type column_delimiter_char();
 
+// TODO: implement by a generic template function
+template<>
+constexpr char column_delimiter_char()
+{
+    return '\t';
+}
+
+// TODO: implement by a generic template function
+template<>
+constexpr wchar_t column_delimiter_char()
+{
+    return L'\t';
+}
+
 // TODO: use constexpr
 template<typename string_type = std::string>
 const typename string_type::value_type feature_delimiter()
