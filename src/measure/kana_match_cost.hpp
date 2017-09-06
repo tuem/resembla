@@ -37,6 +37,10 @@ struct KanaMatchCost
 
     KanaMatchCost(const std::string& letter_similarity_file_path)
     {
+        if(letter_similarity_file_path.empty()){
+            return;
+        }
+
         std::basic_ifstream<value_type> ifs(letter_similarity_file_path);
         if(ifs.fail()){
             throw std::runtime_error("input file is not available: " + letter_similarity_file_path);
