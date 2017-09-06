@@ -17,6 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "string_util.hpp"
+
 #include <stdlib.h>
 
 #include <locale>
@@ -24,8 +26,6 @@ limitations under the License.
 #include <iostream>
 
 #include <unicode/unistr.h>
-
-#include "string_util.hpp"
 
 namespace resembla {
 
@@ -84,6 +84,20 @@ void cast_string(const UnicodeString& src, std::wstring& dest)
     std::string tmp;
     src.toUTF8String(tmp);
     cast_string(tmp, dest);
+}
+
+// TODO: implement by a generic template function
+template<>
+constexpr char column_delimiter_char()
+{
+    return '\t';
+}
+
+// TODO: implement by a generic template function
+template<>
+constexpr wchar_t column_delimiter_char()
+{
+    return L'\t';
 }
 
 }

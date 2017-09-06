@@ -50,10 +50,13 @@ dest_type cast_string(const src_type& src)
 
 // TODO: use constexpr
 template<typename string_type = std::string>
-const typename string_type::value_type column_delimiter()
+constexpr typename string_type::value_type column_delimiter()
 {
     return cast_string<string_type>(std::string(1, '\t'))[0];
 }
+
+template<typename char_type>
+constexpr char_type column_delimiter_char();
 
 // TODO: use constexpr
 template<typename string_type = std::string>
