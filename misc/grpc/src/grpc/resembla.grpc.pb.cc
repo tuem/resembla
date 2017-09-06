@@ -18,6 +18,7 @@ namespace server {
 
 static const char* ResemblaService_method_names[] = {
   "/resembla.server.ResemblaService/find",
+  "/resembla.server.ResemblaService/eval",
 };
 
 std::unique_ptr< ResemblaService::Stub> ResemblaService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -27,6 +28,7 @@ std::unique_ptr< ResemblaService::Stub> ResemblaService::NewStub(const std::shar
 
 ResemblaService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
   : channel_(channel), rpcmethod_find_(ResemblaService_method_names[0], ::grpc::RpcMethod::SERVER_STREAMING, channel)
+  , rpcmethod_eval_(ResemblaService_method_names[1], ::grpc::RpcMethod::SERVER_STREAMING, channel)
   {}
 
 ::grpc::ClientReader< ::resembla::server::ResemblaResponse>* ResemblaService::Stub::findRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request) {
@@ -37,18 +39,38 @@ ResemblaService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& ch
   return new ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>(channel_.get(), cq, rpcmethod_find_, context, request, tag);
 }
 
+::grpc::ClientReader< ::resembla::server::ResemblaResponse>* ResemblaService::Stub::evalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request) {
+  return new ::grpc::ClientReader< ::resembla::server::ResemblaResponse>(channel_.get(), rpcmethod_eval_, context, request);
+}
+
+::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>* ResemblaService::Stub::AsyncevalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return new ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>(channel_.get(), cq, rpcmethod_eval_, context, request, tag);
+}
+
 ResemblaService::Service::Service() {
   AddMethod(new ::grpc::RpcServiceMethod(
       ResemblaService_method_names[0],
       ::grpc::RpcMethod::SERVER_STREAMING,
       new ::grpc::ServerStreamingHandler< ResemblaService::Service, ::resembla::server::ResemblaRequest, ::resembla::server::ResemblaResponse>(
           std::mem_fn(&ResemblaService::Service::find), this)));
+  AddMethod(new ::grpc::RpcServiceMethod(
+      ResemblaService_method_names[1],
+      ::grpc::RpcMethod::SERVER_STREAMING,
+      new ::grpc::ServerStreamingHandler< ResemblaService::Service, ::resembla::server::ResemblaOnDemandRequest, ::resembla::server::ResemblaResponse>(
+          std::mem_fn(&ResemblaService::Service::eval), this)));
 }
 
 ResemblaService::Service::~Service() {
 }
 
 ::grpc::Status ResemblaService::Service::find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) {
+  (void) context;
+  (void) request;
+  (void) writer;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status ResemblaService::Service::eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) {
   (void) context;
   (void) request;
   (void) writer;

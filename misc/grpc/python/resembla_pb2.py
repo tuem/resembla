@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='resembla.proto',
   package='resembla.server',
   syntax='proto3',
-  serialized_pb=_b('\n\x0eresembla.proto\x12\x0fresembla.server\" \n\x0fResemblaRequest\x12\r\n\x05query\x18\x01 \x01(\t\"/\n\x10ResemblaResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x02\x32\x62\n\x0fResemblaService\x12O\n\x04\x66ind\x12 .resembla.server.ResemblaRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x30\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0eresembla.proto\x12\x0fresembla.server\" \n\x0fResemblaRequest\x12\r\n\x05query\x18\x01 \x01(\t\"<\n\x17ResemblaOnDemandRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x12\n\ncandidates\x18\x02 \x03(\t\"/\n\x10ResemblaResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x02\x32\xbb\x01\n\x0fResemblaService\x12O\n\x04\x66ind\x12 .resembla.server.ResemblaRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x30\x01\x12W\n\x04\x65val\x12(.resembla.server.ResemblaOnDemandRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x30\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -57,6 +57,44 @@ _RESEMBLAREQUEST = _descriptor.Descriptor(
 )
 
 
+_RESEMBLAONDEMANDREQUEST = _descriptor.Descriptor(
+  name='ResemblaOnDemandRequest',
+  full_name='resembla.server.ResemblaOnDemandRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='query', full_name='resembla.server.ResemblaOnDemandRequest.query', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='candidates', full_name='resembla.server.ResemblaOnDemandRequest.candidates', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=69,
+  serialized_end=129,
+)
+
+
 _RESEMBLARESPONSE = _descriptor.Descriptor(
   name='ResemblaResponse',
   full_name='resembla.server.ResemblaResponse',
@@ -90,11 +128,12 @@ _RESEMBLARESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=69,
-  serialized_end=116,
+  serialized_start=131,
+  serialized_end=178,
 )
 
 DESCRIPTOR.message_types_by_name['ResemblaRequest'] = _RESEMBLAREQUEST
+DESCRIPTOR.message_types_by_name['ResemblaOnDemandRequest'] = _RESEMBLAONDEMANDREQUEST
 DESCRIPTOR.message_types_by_name['ResemblaResponse'] = _RESEMBLARESPONSE
 
 ResemblaRequest = _reflection.GeneratedProtocolMessageType('ResemblaRequest', (_message.Message,), dict(
@@ -103,6 +142,13 @@ ResemblaRequest = _reflection.GeneratedProtocolMessageType('ResemblaRequest', (_
   # @@protoc_insertion_point(class_scope:resembla.server.ResemblaRequest)
   ))
 _sym_db.RegisterMessage(ResemblaRequest)
+
+ResemblaOnDemandRequest = _reflection.GeneratedProtocolMessageType('ResemblaOnDemandRequest', (_message.Message,), dict(
+  DESCRIPTOR = _RESEMBLAONDEMANDREQUEST,
+  __module__ = 'resembla_pb2'
+  # @@protoc_insertion_point(class_scope:resembla.server.ResemblaOnDemandRequest)
+  ))
+_sym_db.RegisterMessage(ResemblaOnDemandRequest)
 
 ResemblaResponse = _reflection.GeneratedProtocolMessageType('ResemblaResponse', (_message.Message,), dict(
   DESCRIPTOR = _RESEMBLARESPONSE,
@@ -135,11 +181,21 @@ try:
           request_serializer=ResemblaRequest.SerializeToString,
           response_deserializer=ResemblaResponse.FromString,
           )
+      self.eval = channel.unary_stream(
+          '/resembla.server.ResemblaService/eval',
+          request_serializer=ResemblaOnDemandRequest.SerializeToString,
+          response_deserializer=ResemblaResponse.FromString,
+          )
 
 
   class ResemblaServiceServicer(object):
 
     def find(self, request, context):
+      context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+      context.set_details('Method not implemented!')
+      raise NotImplementedError('Method not implemented!')
+
+    def eval(self, request, context):
       context.set_code(grpc.StatusCode.UNIMPLEMENTED)
       context.set_details('Method not implemented!')
       raise NotImplementedError('Method not implemented!')
@@ -150,6 +206,11 @@ try:
         'find': grpc.unary_stream_rpc_method_handler(
             servicer.find,
             request_deserializer=ResemblaRequest.FromString,
+            response_serializer=ResemblaResponse.SerializeToString,
+        ),
+        'eval': grpc.unary_stream_rpc_method_handler(
+            servicer.eval,
+            request_deserializer=ResemblaOnDemandRequest.FromString,
             response_serializer=ResemblaResponse.SerializeToString,
         ),
     }
@@ -166,6 +227,8 @@ try:
     only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0."""
     def find(self, request, context):
       context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
+    def eval(self, request, context):
+      context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
 
 
   class BetaResemblaServiceStub(object):
@@ -176,6 +239,8 @@ try:
     only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0."""
     def find(self, request, timeout, metadata=None, with_call=False, protocol_options=None):
       raise NotImplementedError()
+    def eval(self, request, timeout, metadata=None, with_call=False, protocol_options=None):
+      raise NotImplementedError()
 
 
   def beta_create_ResemblaService_server(servicer, pool=None, pool_size=None, default_timeout=None, maximum_timeout=None):
@@ -185,12 +250,15 @@ try:
     file not marked beta) for all further purposes. This function was
     generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
     request_deserializers = {
+      ('resembla.server.ResemblaService', 'eval'): ResemblaOnDemandRequest.FromString,
       ('resembla.server.ResemblaService', 'find'): ResemblaRequest.FromString,
     }
     response_serializers = {
+      ('resembla.server.ResemblaService', 'eval'): ResemblaResponse.SerializeToString,
       ('resembla.server.ResemblaService', 'find'): ResemblaResponse.SerializeToString,
     }
     method_implementations = {
+      ('resembla.server.ResemblaService', 'eval'): face_utilities.unary_stream_inline(servicer.eval),
       ('resembla.server.ResemblaService', 'find'): face_utilities.unary_stream_inline(servicer.find),
     }
     server_options = beta_implementations.server_options(request_deserializers=request_deserializers, response_serializers=response_serializers, thread_pool=pool, thread_pool_size=pool_size, default_timeout=default_timeout, maximum_timeout=maximum_timeout)
@@ -204,12 +272,15 @@ try:
     file not marked beta) for all further purposes. This function was
     generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
     request_serializers = {
+      ('resembla.server.ResemblaService', 'eval'): ResemblaOnDemandRequest.SerializeToString,
       ('resembla.server.ResemblaService', 'find'): ResemblaRequest.SerializeToString,
     }
     response_deserializers = {
+      ('resembla.server.ResemblaService', 'eval'): ResemblaResponse.FromString,
       ('resembla.server.ResemblaService', 'find'): ResemblaResponse.FromString,
     }
     cardinalities = {
+      'eval': cardinality.Cardinality.UNARY_STREAM,
       'find': cardinality.Cardinality.UNARY_STREAM,
     }
     stub_options = beta_implementations.stub_options(host=host, metadata_transformer=metadata_transformer, request_serializers=request_serializers, response_deserializers=response_deserializers, thread_pool=pool, thread_pool_size=pool_size)

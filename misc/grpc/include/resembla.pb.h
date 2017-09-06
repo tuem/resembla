@@ -31,6 +31,9 @@
 // @@protoc_insertion_point(includes)
 namespace resembla {
 namespace server {
+class ResemblaOnDemandRequest;
+class ResemblaOnDemandRequestDefaultTypeInternal;
+extern ResemblaOnDemandRequestDefaultTypeInternal _ResemblaOnDemandRequest_default_instance_;
 class ResemblaRequest;
 class ResemblaRequestDefaultTypeInternal;
 extern ResemblaRequestDefaultTypeInternal _ResemblaRequest_default_instance_;
@@ -141,6 +144,114 @@ class ResemblaRequest : public ::google::protobuf::Message /* @@protoc_insertion
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr query_;
+  mutable int _cached_size_;
+  friend struct  protobuf_resembla_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ResemblaOnDemandRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:resembla.server.ResemblaOnDemandRequest) */ {
+ public:
+  ResemblaOnDemandRequest();
+  virtual ~ResemblaOnDemandRequest();
+
+  ResemblaOnDemandRequest(const ResemblaOnDemandRequest& from);
+
+  inline ResemblaOnDemandRequest& operator=(const ResemblaOnDemandRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ResemblaOnDemandRequest& default_instance();
+
+  static inline const ResemblaOnDemandRequest* internal_default_instance() {
+    return reinterpret_cast<const ResemblaOnDemandRequest*>(
+               &_ResemblaOnDemandRequest_default_instance_);
+  }
+
+  void Swap(ResemblaOnDemandRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ResemblaOnDemandRequest* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ResemblaOnDemandRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ResemblaOnDemandRequest& from);
+  void MergeFrom(const ResemblaOnDemandRequest& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ResemblaOnDemandRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated string candidates = 2;
+  int candidates_size() const;
+  void clear_candidates();
+  static const int kCandidatesFieldNumber = 2;
+  const ::std::string& candidates(int index) const;
+  ::std::string* mutable_candidates(int index);
+  void set_candidates(int index, const ::std::string& value);
+  void set_candidates(int index, const char* value);
+  void set_candidates(int index, const char* value, size_t size);
+  ::std::string* add_candidates();
+  void add_candidates(const ::std::string& value);
+  void add_candidates(const char* value);
+  void add_candidates(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& candidates() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_candidates();
+
+  // string query = 1;
+  void clear_query();
+  static const int kQueryFieldNumber = 1;
+  const ::std::string& query() const;
+  void set_query(const ::std::string& value);
+  #if LANG_CXX11
+  void set_query(::std::string&& value);
+  #endif
+  void set_query(const char* value);
+  void set_query(const char* value, size_t size);
+  ::std::string* mutable_query();
+  ::std::string* release_query();
+  void set_allocated_query(::std::string* query);
+
+  // @@protoc_insertion_point(class_scope:resembla.server.ResemblaOnDemandRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> candidates_;
   ::google::protobuf::internal::ArenaStringPtr query_;
   mutable int _cached_size_;
   friend struct  protobuf_resembla_2eproto::TableStruct;
@@ -305,6 +416,117 @@ inline void ResemblaRequest::set_allocated_query(::std::string* query) {
 
 // -------------------------------------------------------------------
 
+// ResemblaOnDemandRequest
+
+// string query = 1;
+inline void ResemblaOnDemandRequest::clear_query() {
+  query_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& ResemblaOnDemandRequest::query() const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaOnDemandRequest.query)
+  return query_.GetNoArena();
+}
+inline void ResemblaOnDemandRequest::set_query(const ::std::string& value) {
+  
+  query_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaOnDemandRequest.query)
+}
+#if LANG_CXX11
+inline void ResemblaOnDemandRequest::set_query(::std::string&& value) {
+  
+  query_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:resembla.server.ResemblaOnDemandRequest.query)
+}
+#endif
+inline void ResemblaOnDemandRequest::set_query(const char* value) {
+  
+  query_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaOnDemandRequest.query)
+}
+inline void ResemblaOnDemandRequest::set_query(const char* value, size_t size) {
+  
+  query_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaOnDemandRequest.query)
+}
+inline ::std::string* ResemblaOnDemandRequest::mutable_query() {
+  
+  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaOnDemandRequest.query)
+  return query_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* ResemblaOnDemandRequest::release_query() {
+  // @@protoc_insertion_point(field_release:resembla.server.ResemblaOnDemandRequest.query)
+  
+  return query_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void ResemblaOnDemandRequest::set_allocated_query(::std::string* query) {
+  if (query != NULL) {
+    
+  } else {
+    
+  }
+  query_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), query);
+  // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaOnDemandRequest.query)
+}
+
+// repeated string candidates = 2;
+inline int ResemblaOnDemandRequest::candidates_size() const {
+  return candidates_.size();
+}
+inline void ResemblaOnDemandRequest::clear_candidates() {
+  candidates_.Clear();
+}
+inline const ::std::string& ResemblaOnDemandRequest::candidates(int index) const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_.Get(index);
+}
+inline ::std::string* ResemblaOnDemandRequest::mutable_candidates(int index) {
+  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_.Mutable(index);
+}
+inline void ResemblaOnDemandRequest::set_candidates(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaOnDemandRequest.candidates)
+  candidates_.Mutable(index)->assign(value);
+}
+inline void ResemblaOnDemandRequest::set_candidates(int index, const char* value) {
+  candidates_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+inline void ResemblaOnDemandRequest::set_candidates(int index, const char* value, size_t size) {
+  candidates_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+inline ::std::string* ResemblaOnDemandRequest::add_candidates() {
+  // @@protoc_insertion_point(field_add_mutable:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_.Add();
+}
+inline void ResemblaOnDemandRequest::add_candidates(const ::std::string& value) {
+  candidates_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+inline void ResemblaOnDemandRequest::add_candidates(const char* value) {
+  candidates_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+inline void ResemblaOnDemandRequest::add_candidates(const char* value, size_t size) {
+  candidates_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+ResemblaOnDemandRequest::candidates() const {
+  // @@protoc_insertion_point(field_list:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+ResemblaOnDemandRequest::mutable_candidates() {
+  // @@protoc_insertion_point(field_mutable_list:resembla.server.ResemblaOnDemandRequest.candidates)
+  return &candidates_;
+}
+
+// -------------------------------------------------------------------
+
 // ResemblaResponse
 
 // string text = 1;
@@ -374,6 +596,8 @@ inline void ResemblaResponse::set_score(float value) {
 }
 
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

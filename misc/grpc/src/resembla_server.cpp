@@ -58,6 +58,21 @@ public:
         }
         return Status::OK;
     }
+
+    Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
+    {
+        std::vector<string_type> candidates;
+        for(const auto& c: request->candidates()){
+            candidates.push_back(cast_string<string_type>(c));
+        }
+        for(const auto& r: resembla->eval(cast_string<string_type>(request->query()), candidates, threshold, max_response)){
+            server::ResemblaResponse response;
+            response.set_text(cast_string<std::string>(r.text));
+            response.set_score(static_cast<float>(r.score));
+            writer->Write(response);
+        }
+        return Status::OK;
+    }
 };
 
 void RunServer(const std::string& server_address, std::shared_ptr<ResemblaInterface> resembla, size_t max_response, double threshold)

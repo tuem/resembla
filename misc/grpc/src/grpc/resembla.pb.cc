@@ -21,6 +21,8 @@ namespace resembla {
 namespace server {
 class ResemblaRequestDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ResemblaRequest> {
 } _ResemblaRequest_default_instance_;
+class ResemblaOnDemandRequestDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ResemblaOnDemandRequest> {
+} _ResemblaOnDemandRequest_default_instance_;
 class ResemblaResponseDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ResemblaResponse> {
 } _ResemblaResponse_default_instance_;
 
@@ -29,7 +31,7 @@ namespace protobuf_resembla_2eproto {
 
 namespace {
 
-::google::protobuf::Metadata file_level_metadata[2];
+::google::protobuf::Metadata file_level_metadata[3];
 
 }  // namespace
 
@@ -40,6 +42,12 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   ~0u,  // no _oneof_case_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaRequest, query_),
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaOnDemandRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaOnDemandRequest, query_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaOnDemandRequest, candidates_),
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -49,11 +57,13 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
 
 static const ::google::protobuf::internal::MigrationSchema schemas[] = {
   { 0, -1, sizeof(ResemblaRequest)},
-  { 5, -1, sizeof(ResemblaResponse)},
+  { 5, -1, sizeof(ResemblaOnDemandRequest)},
+  { 11, -1, sizeof(ResemblaResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaRequest_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaOnDemandRequest_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaResponse_default_instance_),
 };
 
@@ -75,7 +85,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 2);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 3);
 }
 
 }  // namespace
@@ -83,8 +93,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void TableStruct::Shutdown() {
   _ResemblaRequest_default_instance_.Shutdown();
   delete file_level_metadata[0].reflection;
-  _ResemblaResponse_default_instance_.Shutdown();
+  _ResemblaOnDemandRequest_default_instance_.Shutdown();
   delete file_level_metadata[1].reflection;
+  _ResemblaResponse_default_instance_.Shutdown();
+  delete file_level_metadata[2].reflection;
 }
 
 void TableStruct::InitDefaultsImpl() {
@@ -92,6 +104,7 @@ void TableStruct::InitDefaultsImpl() {
 
   ::google::protobuf::internal::InitProtobufDefaults();
   _ResemblaRequest_default_instance_.DefaultConstruct();
+  _ResemblaOnDemandRequest_default_instance_.DefaultConstruct();
   _ResemblaResponse_default_instance_.DefaultConstruct();
 }
 
@@ -103,14 +116,18 @@ void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] = {
       "\n\016resembla.proto\022\017resembla.server\" \n\017Res"
-      "emblaRequest\022\r\n\005query\030\001 \001(\t\"/\n\020ResemblaR"
-      "esponse\022\014\n\004text\030\001 \001(\t\022\r\n\005score\030\002 \001(\0022b\n\017"
-      "ResemblaService\022O\n\004find\022 .resembla.serve"
-      "r.ResemblaRequest\032!.resembla.server.Rese"
-      "mblaResponse\"\0000\001b\006proto3"
+      "emblaRequest\022\r\n\005query\030\001 \001(\t\"<\n\027ResemblaO"
+      "nDemandRequest\022\r\n\005query\030\001 \001(\t\022\022\n\ncandida"
+      "tes\030\002 \003(\t\"/\n\020ResemblaResponse\022\014\n\004text\030\001 "
+      "\001(\t\022\r\n\005score\030\002 \001(\0022\273\001\n\017ResemblaService\022O"
+      "\n\004find\022 .resembla.server.ResemblaRequest"
+      "\032!.resembla.server.ResemblaResponse\"\0000\001\022"
+      "W\n\004eval\022(.resembla.server.ResemblaOnDema"
+      "ndRequest\032!.resembla.server.ResemblaResp"
+      "onse\"\0000\001b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 224);
+      descriptor, 376);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "resembla.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -414,6 +431,391 @@ void ResemblaRequest::set_allocated_query(::std::string* query) {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int ResemblaOnDemandRequest::kQueryFieldNumber;
+const int ResemblaOnDemandRequest::kCandidatesFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+ResemblaOnDemandRequest::ResemblaOnDemandRequest()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_resembla_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:resembla.server.ResemblaOnDemandRequest)
+}
+ResemblaOnDemandRequest::ResemblaOnDemandRequest(const ResemblaOnDemandRequest& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      candidates_(from.candidates_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  query_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.query().size() > 0) {
+    query_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.query_);
+  }
+  // @@protoc_insertion_point(copy_constructor:resembla.server.ResemblaOnDemandRequest)
+}
+
+void ResemblaOnDemandRequest::SharedCtor() {
+  query_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _cached_size_ = 0;
+}
+
+ResemblaOnDemandRequest::~ResemblaOnDemandRequest() {
+  // @@protoc_insertion_point(destructor:resembla.server.ResemblaOnDemandRequest)
+  SharedDtor();
+}
+
+void ResemblaOnDemandRequest::SharedDtor() {
+  query_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+void ResemblaOnDemandRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ResemblaOnDemandRequest::descriptor() {
+  protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_resembla_2eproto::file_level_metadata[1].descriptor;
+}
+
+const ResemblaOnDemandRequest& ResemblaOnDemandRequest::default_instance() {
+  protobuf_resembla_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+ResemblaOnDemandRequest* ResemblaOnDemandRequest::New(::google::protobuf::Arena* arena) const {
+  ResemblaOnDemandRequest* n = new ResemblaOnDemandRequest;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void ResemblaOnDemandRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:resembla.server.ResemblaOnDemandRequest)
+  candidates_.Clear();
+  query_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+bool ResemblaOnDemandRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:resembla.server.ResemblaOnDemandRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // string query = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_query()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->query().data(), this->query().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "resembla.server.ResemblaOnDemandRequest.query"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated string candidates = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_candidates()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->candidates(this->candidates_size() - 1).data(),
+            this->candidates(this->candidates_size() - 1).length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "resembla.server.ResemblaOnDemandRequest.candidates"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:resembla.server.ResemblaOnDemandRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:resembla.server.ResemblaOnDemandRequest)
+  return false;
+#undef DO_
+}
+
+void ResemblaOnDemandRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:resembla.server.ResemblaOnDemandRequest)
+  // string query = 1;
+  if (this->query().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->query().data(), this->query().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "resembla.server.ResemblaOnDemandRequest.query");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->query(), output);
+  }
+
+  // repeated string candidates = 2;
+  for (int i = 0; i < this->candidates_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->candidates(i).data(), this->candidates(i).length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "resembla.server.ResemblaOnDemandRequest.candidates");
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->candidates(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:resembla.server.ResemblaOnDemandRequest)
+}
+
+::google::protobuf::uint8* ResemblaOnDemandRequest::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:resembla.server.ResemblaOnDemandRequest)
+  // string query = 1;
+  if (this->query().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->query().data(), this->query().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "resembla.server.ResemblaOnDemandRequest.query");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->query(), target);
+  }
+
+  // repeated string candidates = 2;
+  for (int i = 0; i < this->candidates_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->candidates(i).data(), this->candidates(i).length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "resembla.server.ResemblaOnDemandRequest.candidates");
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(2, this->candidates(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:resembla.server.ResemblaOnDemandRequest)
+  return target;
+}
+
+size_t ResemblaOnDemandRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:resembla.server.ResemblaOnDemandRequest)
+  size_t total_size = 0;
+
+  // repeated string candidates = 2;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->candidates_size());
+  for (int i = 0; i < this->candidates_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->candidates(i));
+  }
+
+  // string query = 1;
+  if (this->query().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->query());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ResemblaOnDemandRequest::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:resembla.server.ResemblaOnDemandRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ResemblaOnDemandRequest* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const ResemblaOnDemandRequest>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:resembla.server.ResemblaOnDemandRequest)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:resembla.server.ResemblaOnDemandRequest)
+    MergeFrom(*source);
+  }
+}
+
+void ResemblaOnDemandRequest::MergeFrom(const ResemblaOnDemandRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:resembla.server.ResemblaOnDemandRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  candidates_.MergeFrom(from.candidates_);
+  if (from.query().size() > 0) {
+
+    query_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.query_);
+  }
+}
+
+void ResemblaOnDemandRequest::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:resembla.server.ResemblaOnDemandRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ResemblaOnDemandRequest::CopyFrom(const ResemblaOnDemandRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:resembla.server.ResemblaOnDemandRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ResemblaOnDemandRequest::IsInitialized() const {
+  return true;
+}
+
+void ResemblaOnDemandRequest::Swap(ResemblaOnDemandRequest* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void ResemblaOnDemandRequest::InternalSwap(ResemblaOnDemandRequest* other) {
+  candidates_.UnsafeArenaSwap(&other->candidates_);
+  query_.Swap(&other->query_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata ResemblaOnDemandRequest::GetMetadata() const {
+  protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_resembla_2eproto::file_level_metadata[1];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// ResemblaOnDemandRequest
+
+// string query = 1;
+void ResemblaOnDemandRequest::clear_query() {
+  query_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& ResemblaOnDemandRequest::query() const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaOnDemandRequest.query)
+  return query_.GetNoArena();
+}
+void ResemblaOnDemandRequest::set_query(const ::std::string& value) {
+  
+  query_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaOnDemandRequest.query)
+}
+#if LANG_CXX11
+void ResemblaOnDemandRequest::set_query(::std::string&& value) {
+  
+  query_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:resembla.server.ResemblaOnDemandRequest.query)
+}
+#endif
+void ResemblaOnDemandRequest::set_query(const char* value) {
+  
+  query_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaOnDemandRequest.query)
+}
+void ResemblaOnDemandRequest::set_query(const char* value, size_t size) {
+  
+  query_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaOnDemandRequest.query)
+}
+::std::string* ResemblaOnDemandRequest::mutable_query() {
+  
+  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaOnDemandRequest.query)
+  return query_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* ResemblaOnDemandRequest::release_query() {
+  // @@protoc_insertion_point(field_release:resembla.server.ResemblaOnDemandRequest.query)
+  
+  return query_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void ResemblaOnDemandRequest::set_allocated_query(::std::string* query) {
+  if (query != NULL) {
+    
+  } else {
+    
+  }
+  query_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), query);
+  // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaOnDemandRequest.query)
+}
+
+// repeated string candidates = 2;
+int ResemblaOnDemandRequest::candidates_size() const {
+  return candidates_.size();
+}
+void ResemblaOnDemandRequest::clear_candidates() {
+  candidates_.Clear();
+}
+const ::std::string& ResemblaOnDemandRequest::candidates(int index) const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_.Get(index);
+}
+::std::string* ResemblaOnDemandRequest::mutable_candidates(int index) {
+  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_.Mutable(index);
+}
+void ResemblaOnDemandRequest::set_candidates(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaOnDemandRequest.candidates)
+  candidates_.Mutable(index)->assign(value);
+}
+void ResemblaOnDemandRequest::set_candidates(int index, const char* value) {
+  candidates_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+void ResemblaOnDemandRequest::set_candidates(int index, const char* value, size_t size) {
+  candidates_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+::std::string* ResemblaOnDemandRequest::add_candidates() {
+  // @@protoc_insertion_point(field_add_mutable:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_.Add();
+}
+void ResemblaOnDemandRequest::add_candidates(const ::std::string& value) {
+  candidates_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+void ResemblaOnDemandRequest::add_candidates(const char* value) {
+  candidates_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+void ResemblaOnDemandRequest::add_candidates(const char* value, size_t size) {
+  candidates_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:resembla.server.ResemblaOnDemandRequest.candidates)
+}
+const ::google::protobuf::RepeatedPtrField< ::std::string>&
+ResemblaOnDemandRequest::candidates() const {
+  // @@protoc_insertion_point(field_list:resembla.server.ResemblaOnDemandRequest.candidates)
+  return candidates_;
+}
+::google::protobuf::RepeatedPtrField< ::std::string>*
+ResemblaOnDemandRequest::mutable_candidates() {
+  // @@protoc_insertion_point(field_mutable_list:resembla.server.ResemblaOnDemandRequest.candidates)
+  return &candidates_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int ResemblaResponse::kTextFieldNumber;
 const int ResemblaResponse::kScoreFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -461,7 +863,7 @@ void ResemblaResponse::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* ResemblaResponse::descriptor() {
   protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_resembla_2eproto::file_level_metadata[1].descriptor;
+  return protobuf_resembla_2eproto::file_level_metadata[2].descriptor;
 }
 
 const ResemblaResponse& ResemblaResponse::default_instance() {
@@ -668,7 +1070,7 @@ void ResemblaResponse::InternalSwap(ResemblaResponse* other) {
 
 ::google::protobuf::Metadata ResemblaResponse::GetMetadata() const {
   protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_resembla_2eproto::file_level_metadata[1];
+  return protobuf_resembla_2eproto::file_level_metadata[2];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS

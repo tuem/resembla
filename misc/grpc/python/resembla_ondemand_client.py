@@ -26,20 +26,22 @@ import grpc
 _TIMEOUT_SECONDS = 10
 
 def run(server_address, queries):
-  channel = grpc.insecure_channel(server_address)
-  resembla = resembla_pb2.ResemblaServiceStub(channel)
+    channel = grpc.insecure_channel(server_address)
+    resembla = resembla_pb2.ResemblaServiceStub(channel)
 
-  for s in queries:
-    print ('query=%s' % s)
-    responses = resembla.find(resembla_pb2.ResemblaRequest(query=s), _TIMEOUT_SECONDS)
-    for response in responses:
-      print ('  response.text=%s' % response.text)
-      print ('  response.score=%s' % response.score)
+    for (query, candidates) in queries:
+        print ('query=%s' % query)
+        print ('candidates=%s' % ', '.join(candidates))
+        responses = resembla.eval(resembla_pb2.ResemblaOnDemandRequest(query=query, candidates=candidates), _TIMEOUT_SECONDS)
+        for response in responses:
+            print ('  response.text=%s' % response.text)
+            print ('  response.score=%s' % response.score)
 
 if __name__ == '__main__':
-  if len(sys.argv) > 1:
-    queries = sys.argv[1:]
-  else:
-    queries = ["りんごはおいしいよね", "りんごおいしくねえ", "りんごまずいから好きじゃない"]
+    queries = [
+        ('サトー', ['サトウ', 'サイトウ', 'セト']),
+        ('高田', ['高畑', '多田', '武田']),
+        ('こんにちわん', ['こんにちは', 'こんばんは', 'ごはんちゃわん']),
+    ]
 
-  run('localhost:50051', queries)
+    run('localhost:50051', queries)
