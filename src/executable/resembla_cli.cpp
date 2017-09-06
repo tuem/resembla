@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
         {"wped_mecab_pronunciation_of_marks", "", {"weighted_pronunciation_edit_distance", "mecab_pronunciation_of_marks"}, "wped-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"wped_base_weight", 1L, {"weighted_pronunciation_edit_distance", "base_weight"}, "wped-base-weight", 0, "base weight for weighted pronunciation edit distance"},
         {"wped_delete_insert_ratio", 10L, {"weighted_pronunciation_edit_distance", "delete_insert_ratio"}, "wped-del-ins-ratio", 0, "cost ratio of deletion and insertion for weighted pronunciation edit distance"},
+        {"wped_mismatch_cost_path", "", {"weighted_pronunciation_edit_distance", "mismatch_cost_path"}, "wped-mismatch-cost-path", 0, "costs to replace similar letters for weighted pronunciation edit distance"},
         {"wped_ensemble_weight", 0.5, {"weighted_pronunciation_edit_distance", "ensemble_weight"}, "wped-ensemble-weight", 0, "weight coefficient for weighted pronunciation edit distance in ensemble mode"},
         {"wred_simstring_threshold", -1, {"weighted_romaji_edit_distance", "simstring_threshold"}, "wred-simstring-threshold", 0, "SimString threshold for weighted romaji edit distance"},
         {"wred_max_reranking_num", -1, {"weighted_romaji_edit_distance", "max_reranking_num"}, "wred-max-reranking-num", 0, "max number of reranking texts for weighted romaji edit distance"},
@@ -177,6 +178,7 @@ int main(int argc, char* argv[])
                     std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
                     std::cerr << "    base_weight=" << pm.get<double>("wped_base_weight") << std::endl;
                     std::cerr << "    delete_insert_ratio=" << pm.get<double>("wped_delete_insert_ratio") << std::endl;
+                    std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wped_mismatch_cost_path") << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("wped_ensemble_weight") << std::endl;
                 }
                 else if(measure == weighted_romaji_edit_distance && pm.get<double>("wred_ensemble_weight") > 0){
@@ -194,6 +196,7 @@ int main(int argc, char* argv[])
                     std::cerr << "    consonant_coefficient=" << pm.get<double>("wred_consonant_coefficient") << std::endl;
                     std::cerr << "    case_mismatch_cost=" << pm.get<double>("wred_case_mismatch_cost") << std::endl;
                     std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
+                    std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wped_mismatch_cost_path") << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
                 }
                 else if(measure == svr){

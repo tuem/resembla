@@ -35,14 +35,14 @@ limitations under the License.
 #include "measure/surface_match_cost.hpp"
 
 #include "measure/pronunciation_sequence_builder.hpp"
-#include "measure/uniform_cost.hpp"
-
-#include "measure/keyword_match_preprocessor.hpp"
-#include "measure/keyword_matcher.hpp"
+#include "measure/kana_match_cost.hpp"
 
 #include "measure/romaji_sequence_builder.hpp"
 #include "measure/romaji_match_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
+
+#include "measure/keyword_match_preprocessor.hpp"
+#include "measure/keyword_matcher.hpp"
 
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
@@ -306,7 +306,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                             pm.get<int>("wped_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<PronunciationSequenceBuilder>(pm.get<std::string>("wped_mecab_options"),
                             pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        std::make_shared<EditDistance<>>(STR(weighted_pronunciation_edit_distance)), true),
+                        std::make_shared<EditDistance<KanaMatchCost<string_type>>>(
+                            STR(weighted_pronunciation_edit_distance), pm.get<std::string>("wped_mismatch_cost_path")),
+                        true),
                     pm.get<double>("wped_ensemble_weight"));
                 break;
             case weighted_romaji_edit_distance:
