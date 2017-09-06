@@ -239,31 +239,20 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     int simstring_measure = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
     std::string resembla_measure_all = pm["resembla_measure"];
 
-    std::shared_ptr<ResemblaEnsemble> resembla_ensemble =
-        std::make_shared<ResemblaEnsemble>(resembla_measure_all, pm.get<double>("resembla_max_reranking_num"));
-    std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> resembla_regression = nullptr;
+    std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> basic_resemblas;
     std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
-    std::shared_ptr<ResemblaInterface> resembla = resembla_ensemble;
+    bool use_regression = false;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
-        std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
-        if(resembla_measure == svr){
-            resembla_regression = construct_resembla_regression(pm.get<int>("svr_max_candidate"),
-                    inverse_path,
-                    pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
-                    pm.get<std::string>("svr_model_path"), resembla);
-            resembla = resembla_regression;
-            continue;
-        }
+        auto db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
+        auto inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
 
-        std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
-
-        double weight = 0;
+        std::shared_ptr<ResemblaInterface> new_resembla;
         switch(resembla_measure){
+            case svr:
+                use_regression = true;
+                break;
             case edit_distance:
-                if((weight = pm["ed_ensemble_weight"]) == 0){
-                    continue;
-                }
-                resembla_ensemble->append(
+                basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("ed_simstring_threshold") != -1 ?
@@ -272,16 +261,13 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                             pm.get<int>("ed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                         std::make_shared<AsIsSequenceBuilder<string_type>>(),
                         std::make_shared<EditDistance<>>(STR(edit_distance)), true),
-                    pm.get<double>("ed_ensemble_weight"));
+                    pm.get<double>("ed_ensemble_weight")));
                 break;
             case weighted_word_edit_distance:
-                if((weight = pm["wwed_ensemble_weight"]) == 0){
-                    continue;
-                }
-                resembla_ensemble->append(
+                basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
-                        pm.get<double>("wwed_simstring_threshold") != -1 ?
+                            pm.get<double>("wwed_simstring_threshold") != -1 ?
                             pm.get<double>("wwed_simstring_threshold") : pm.get<double>("simstring_threshold"),
                         pm.get<int>("wwed_max_reranking_num") != -1 ?
                             pm.get<int>("wwed_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
@@ -291,13 +277,10 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
                         std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance)), true),
-                    pm.get<double>("wwed_ensemble_weight"));
+                    pm.get<double>("wwed_ensemble_weight")));
                 break;
             case weighted_pronunciation_edit_distance:
-                if((weight = pm["wped_ensemble_weight"]) == 0){
-                    continue;
-                }
-                resembla_ensemble->append(
+                basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wped_simstring_threshold") != -1 ?
@@ -309,13 +292,10 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                         std::make_shared<EditDistance<KanaMatchCost<string_type>>>(
                             STR(weighted_pronunciation_edit_distance), pm.get<std::string>("wped_mismatch_cost_path")),
                         true),
-                    pm.get<double>("wped_ensemble_weight"));
+                    pm.get<double>("wped_ensemble_weight")));
                 break;
             case weighted_romaji_edit_distance:
-                if((weight = pm["wred_ensemble_weight"]) == 0){
-                    continue;
-                }
-                resembla_ensemble->append(
+                basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wred_simstring_threshold") != -1 ?
@@ -335,12 +315,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                                 RomajiMatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
                                 pm.get<double>("wred_case_mismatch_cost"))),
                         true),
-                    pm.get<double>("wred_ensemble_weight"));
+                    pm.get<double>("wred_ensemble_weight")));
                 break;
             case keyword_match:
-                if((weight = pm["km_ensemble_weight"]) == 0){
-                    continue;
-                }
                 keyword_resembla = construct_basic_resembla(
                     db_path, inverse_path, simstring_measure,
                     pm.get<double>("km_simstring_threshold") != -1 ?
@@ -349,19 +326,52 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                         pm.get<int>("km_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
                     std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true);
-                if(resembla_regression != nullptr){
-                    resembla_regression->append(STR(keyword_match), keyword_resembla, false);
-                }
-                else{
-                    resembla_ensemble->append(keyword_resembla, pm.get<double>("km_ensemble_weight"));
-                }
-                break;
-            default:
                 break;
         }
     }
-    if(resembla == nullptr){
-        throw std::runtime_error("no valid measure specified: " + resembla_measure_all);
+    if(basic_resemblas.size() == 0 && keyword_resembla == nullptr){
+        throw std::runtime_error("at least one BasicResembla instance is needed: " + resembla_measure_all);
+    }
+
+    if(!use_regression && keyword_resembla != nullptr){
+        basic_resemblas.push_back(std::make_pair(keyword_resembla, pm.get<double>("km_ensemble_weight")));
+        keyword_resembla = nullptr;
+    }
+
+    std::shared_ptr<ResemblaInterface> base_resembla;
+    if(basic_resemblas.size() > 0){
+        if(basic_resemblas.size() == 1){
+            base_resembla = basic_resemblas[0].first;
+        }
+        else{
+            std::shared_ptr<ResemblaEnsemble> resembla_ensemble =
+                std::make_shared<ResemblaEnsemble>(resembla_measure_all, pm.get<double>("resembla_max_reranking_num"));
+            for(auto p: basic_resemblas){
+                if(p.second > 0){
+                    resembla_ensemble->append(p.first, p.second);
+                }
+            }
+            base_resembla = resembla_ensemble;
+        }
+    }
+    else{
+        base_resembla = keyword_resembla;
+    }
+
+    std::shared_ptr<ResemblaInterface> resembla;
+    if(use_regression){
+        std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>>
+            resembla_regression = construct_resembla_regression(pm.get<int>("svr_max_candidate"),
+                inverse_path_from_resembla_measure(corpus_path, svr),
+                pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
+                pm.get<std::string>("svr_model_path"), base_resembla);
+        if(base_resembla != keyword_resembla){
+            resembla_regression->append(STR(keyword_match), keyword_resembla, false);
+        }
+        resembla = resembla_regression;
+    }
+    else{
+        resembla = base_resembla;
     }
 
     return resembla;
