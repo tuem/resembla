@@ -372,7 +372,6 @@ std::vector<std::vector<std::string>> load_features(const std::string file_path)
         throw std::runtime_error("input file is not available: " + file_path);
     }
 
-    const auto delimiter = column_delimiter<>();
     std::vector<std::vector<std::string>> features;
     while(ifs.good()){
         std::string line;
@@ -384,7 +383,7 @@ std::vector<std::vector<std::string>> load_features(const std::string file_path)
             continue;
         }
 
-        auto values = split(line, delimiter);
+        auto values = split(line, column_delimiter<>());
         if(values.size() == 3){
             features.push_back(values);
         }
