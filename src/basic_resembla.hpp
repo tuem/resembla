@@ -58,7 +58,6 @@ public:
         if(ifs.fail()){
             throw std::runtime_error("input file is not available: " + inverse_path);
         }
-        auto delimiter = cast_string<string_type>(std::string("\t"));
         while(ifs.good()){
             string_type line;
             std::getline(ifs, line);
@@ -66,7 +65,7 @@ public:
                 break;
             }
 
-            auto columns = split(line, L'\t');
+            auto columns = split(line, column_delimiter<string_type::value_type>());
             if(columns.size() < 2){
                 throw std::runtime_error("too few columns, corpus=" + inverse_path + ", line=" + cast_string<std::string>(line));
             }
@@ -134,7 +133,7 @@ public:
                     continue;
                 }
             }
-            auto tabpos = t.find(L'\t');
+            auto tabpos = t.find(column_delimiter<string_type::value_type>());
             candidates.push_back(std::make_pair(
                 tabpos != string_type::npos ? t.substr(0, tabpos) : t,
                 (*preprocess)(t, true)));

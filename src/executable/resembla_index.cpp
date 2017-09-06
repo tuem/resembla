@@ -60,6 +60,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         int n, Preprocessor preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
+    constexpr auto delimiter = column_delimiter<typename string_type::value_type>();
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
     std::unordered_map<string_type, std::set<string_type>> inserted;
@@ -67,6 +68,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     if(ifs.fail()){
         throw std::runtime_error("input file is not available: " + corpus_path);
     }
+
     while(ifs.good()){
         string_type line;
         std::getline(ifs, line);
@@ -74,7 +76,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
             break;
         }
 
-        auto columns = split(line, L'\t');
+        auto columns = split(line, delimiter);
         if(text_col > columns.size()){
             continue;
         }
@@ -84,7 +86,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         auto indexed = preprocess.index(normalized);
 
         if(features_col > 0 && features_col - 1 < columns.size()){
-            original += L"\t" + columns[features_col - 1];
+            original += delimiter + columns[features_col - 1];
         }
 
         if(inserted.count(indexed) == 0){
@@ -100,14 +102,14 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     ofs.open(inverse_path);
     for(auto p: inserted){
         for(auto original: p.second){
-            auto columns = split(original, L'\t');
+            auto columns = split(original, delimiter);
             auto normalized = normalize != nullptr ? (*normalize)(columns[0]) : columns[0];
             if(columns.size() > 1){
-                normalized += L"\t" + columns[1];
+                normalized += delimiter + columns[1];
             }
             nlohmann::json j = preprocess(normalized, true);
             auto preprocessed = cast_string<string_type>(j.dump());
-            ofs << p.first << L'\t' << columns[0] << L'\t' << preprocessed << std::endl;
+            ofs << p.first << delimiter << columns[0] << delimiter << preprocessed << std::endl;
         }
     }
 }

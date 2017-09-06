@@ -383,7 +383,7 @@ std::vector<std::vector<std::string>> load_features(const std::string file_path)
             continue;
         }
 
-        auto values = split(line, '\t');
+        auto values = split(line, column_delimiter<>());
         if(values.size() == 3){
             features.push_back(values);
         }

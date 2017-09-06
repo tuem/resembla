@@ -51,17 +51,17 @@ public:
         if(!is_original){
             return {raw_text, {}};
         }
-        auto columns = split(raw_text, L'\t');
+        auto columns = split(raw_text, column_delimiter<typename string_type::value_type>());
         if(columns.size() > 1){
-            for(auto f: split(columns[1], L'&')){
-                auto kv = split(f, L'=');
+            for(auto f: split(columns[1], feature_delimiter<typename string_type::value_type>())){
+                auto kv = split(f, keyvalue_delimiter<typename string_type::value_type>());
                 if(kv.size() == 2 && kv[0] == L"keyword"){
 #ifdef DEBUG
-                    for(auto w: split(kv[1], L',')){
+                    for(auto w: split(kv[1], value_delimiter<typename string_type::value_type>())){
                         std::cerr << "load keyword: text=" << cast_string<std::string>(columns[0]) << ", keyword=" << cast_string<std::string>(w) << std::endl;
                     }
 #endif
-                    return {columns[0], split(kv[1], L',')};
+                    return {columns[0], split(kv[1], value_delimiter<typename string_type::value_type>())};
                 }
             }
             return {columns[0], {}};

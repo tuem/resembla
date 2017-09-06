@@ -33,7 +33,7 @@ public:
 
     output_type operator()(const string_type& text, bool is_original) const
     {
-        return is_original ? split(text, L'\t')[0] : text;
+        return is_original ? split(text, column_delimiter<token_type>())[0] : text;
     }
 
     string_type index(const string_type& text) const

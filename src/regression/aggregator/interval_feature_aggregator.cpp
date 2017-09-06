@@ -23,16 +23,14 @@ limitations under the License.
 
 namespace resembla {
 
-const Feature::text_type::value_type IntervalFeatureAggregator::DELIMITER = ',';
-
 Feature::real_type IntervalFeatureAggregator::operator()(const Feature::text_type& a, const Feature::text_type& b) const
 {
     if(a.empty() || b.empty()){
         return 0.0;
     }
 
-    auto u = split(a, DELIMITER);    
-    auto v = split(b, DELIMITER);    
+    auto u = split(a, value_delimiter<Feature::text_type::value_type>());
+    auto v = split(b, value_delimiter<Feature::text_type::value_type>());
     if(u.size() == 1 && v.size() == 1){
         return 0.0;
     }

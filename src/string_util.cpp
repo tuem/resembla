@@ -17,6 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "string_util.hpp"
+
 #include <stdlib.h>
 
 #include <locale>
@@ -24,8 +26,6 @@ limitations under the License.
 #include <iostream>
 
 #include <unicode/unistr.h>
-
-#include "string_util.hpp"
 
 namespace resembla {
 

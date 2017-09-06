@@ -134,7 +134,7 @@ protected:
             if(ifs.eof() || line.length() == 0){
                 break;
             }
-            auto columns = split(line, '\t');
+            auto columns = split(line, column_delimiter<>());
             if(columns.size() > 1){
                 if(columns.size() > 2){
 #ifdef DEBUG

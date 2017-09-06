@@ -26,8 +26,6 @@ namespace resembla {
 
 struct IntervalFeatureAggregator: public FeatureAggregator::Function
 {
-    static const Feature::text_type::value_type DELIMITER;
-
     Feature::real_type operator()(const Feature::text_type& a, const Feature::text_type& b) const;
 };
 

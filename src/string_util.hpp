@@ -48,6 +48,69 @@ dest_type cast_string(const src_type& src)
     return desc;
 }
 
+// TODO: use constexpr
+template<typename char_type = char>
+constexpr char_type column_delimiter();
+// TODO: implement by a generic template function like this:
+//    return cast_string<string_type>(std::string(1, '\t'))[0];
+
+template<>
+constexpr char column_delimiter()
+{
+    return '\t';
+}
+
+template<>
+constexpr wchar_t column_delimiter()
+{
+    return L'\t';
+}
+
+template<typename char_type = char>
+constexpr char_type feature_delimiter();
+
+template<>
+constexpr char feature_delimiter()
+{
+    return '&';
+}
+
+template<>
+constexpr wchar_t feature_delimiter()
+{
+    return L'&';
+}
+
+template<typename char_type = char>
+constexpr char_type keyvalue_delimiter();
+
+template<>
+constexpr char keyvalue_delimiter()
+{
+    return '=';
+}
+
+template<>
+constexpr wchar_t keyvalue_delimiter()
+{
+    return L'=';
+}
+
+template<typename char_type = char>
+constexpr char_type value_delimiter();
+
+template<>
+constexpr char value_delimiter()
+{
+    return ',';
+}
+
+template<>
+constexpr wchar_t value_delimiter()
+{
+    return L',';
+}
+
 // split text by delimiter
 template<typename string_type>
 std::vector<string_type> split(const string_type& text, const typename string_type::value_type delimiter)

@@ -36,9 +36,6 @@ public:
     using string_type = resembla::string_type;
     using output_type = StringFeatureMap;
 
-    static const char FEATURE_DELIMITER;
-    static const char KEYVALUE_DELIMITER;
-
     struct Function
     {
         virtual ~Function(){}
