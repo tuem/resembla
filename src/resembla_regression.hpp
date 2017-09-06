@@ -128,14 +128,13 @@ protected:
             throw std::runtime_error("input file is not available: " + inverse_path);
         }
 
-        const auto delimiter = column_delimiter<>();
         while(ifs.good()){
             std::string line;
             std::getline(ifs, line);
             if(ifs.eof() || line.length() == 0){
                 break;
             }
-            auto columns = split(line, delimiter);
+            auto columns = split(line, column_delimiter<>());
             if(columns.size() > 1){
                 if(columns.size() > 2){
 #ifdef DEBUG

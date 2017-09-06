@@ -44,7 +44,7 @@ public:
     output_type operator()(const string_type& text, bool is_original = false) const
     {
         output_type ws;
-        auto s = tokenize(is_original ? split(text, delimiter)[0] : text, is_original);
+        auto s = tokenize(is_original ? split(text, column_delimiter<string_type::value_type>())[0] : text, is_original);
         for(size_t i = 0; i < s.size(); ++i){
             ws.push_back({s[i], weight_func(s[i], is_original, s.size(), i)});
         }
@@ -57,8 +57,6 @@ public:
     }
 
 protected:
-    const typename string_type::value_type delimiter = column_delimiter<string_type>();
-
     SequenceTokenizer tokenize;
     WeightFunction weight_func;
 };

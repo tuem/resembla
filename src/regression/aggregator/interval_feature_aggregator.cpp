@@ -29,8 +29,8 @@ Feature::real_type IntervalFeatureAggregator::operator()(const Feature::text_typ
         return 0.0;
     }
 
-    auto u = split(a, delimiter);
-    auto v = split(b, delimiter);
+    auto u = split(a, value_delimiter<Feature::text_type::value_type>());
+    auto v = split(b, value_delimiter<Feature::text_type::value_type>());
     if(u.size() == 1 && v.size() == 1){
         return 0.0;
     }

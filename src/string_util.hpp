@@ -49,48 +49,66 @@ dest_type cast_string(const src_type& src)
 }
 
 // TODO: use constexpr
-template<typename string_type = std::string>
-constexpr typename string_type::value_type column_delimiter()
-{
-    return cast_string<string_type>(std::string(1, '\t'))[0];
-}
+template<typename char_type = char>
+constexpr char_type column_delimiter();
+// TODO: implement by a generic template function like this:
+//    return cast_string<string_type>(std::string(1, '\t'))[0];
 
-template<typename char_type>
-constexpr char_type column_delimiter_char();
-
-// TODO: implement by a generic template function
 template<>
-constexpr char column_delimiter_char()
+constexpr char column_delimiter()
 {
     return '\t';
 }
 
-// TODO: implement by a generic template function
 template<>
-constexpr wchar_t column_delimiter_char()
+constexpr wchar_t column_delimiter()
 {
     return L'\t';
 }
 
-// TODO: use constexpr
-template<typename string_type = std::string>
-const typename string_type::value_type feature_delimiter()
+template<typename char_type = char>
+constexpr char_type feature_delimiter();
+
+template<>
+constexpr char feature_delimiter()
 {
-    return cast_string<string_type>(std::string(1, '&'))[0];
+    return '&';
 }
 
-// TODO: use constexpr
-template<typename string_type = std::string>
-const typename string_type::value_type keyvalue_delimiter()
+template<>
+constexpr wchar_t feature_delimiter()
 {
-    return cast_string<string_type>(std::string(1, '='))[0];
+    return L'&';
 }
 
-// TODO: use constexpr
-template<typename string_type = std::string>
-const typename string_type::value_type value_delimiter()
+template<typename char_type = char>
+constexpr char_type keyvalue_delimiter();
+
+template<>
+constexpr char keyvalue_delimiter()
 {
-    return cast_string<string_type>(std::string(1, ','))[0];
+    return '=';
+}
+
+template<>
+constexpr wchar_t keyvalue_delimiter()
+{
+    return L'=';
+}
+
+template<typename char_type = char>
+constexpr char_type value_delimiter();
+
+template<>
+constexpr char value_delimiter()
+{
+    return ',';
+}
+
+template<>
+constexpr wchar_t value_delimiter()
+{
+    return L',';
 }
 
 // split text by delimiter

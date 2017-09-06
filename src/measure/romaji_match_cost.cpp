@@ -63,7 +63,7 @@ RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path,
             break;
         }
 
-        auto columns = split(line, delimiter);
+        auto columns = split(line, column_delimiter<string_type::value_type>());
         if(columns.size() < 2){
             throw std::runtime_error("invalid line in " + letter_similarity_file_path + ": " + cast_string<std::string>(line));
         }
