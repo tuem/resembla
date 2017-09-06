@@ -56,7 +56,6 @@ void ResemblaWithId::loadCorpus(const std::string& corpus_path, size_t id_col, s
         throw std::runtime_error("input file is not available: " + corpus_path);
     }
 
-    const auto delimiter = column_delimiter<>();
     while(ifs.good()){
         std::string line;
         std::getline(ifs, line);
@@ -64,7 +63,7 @@ void ResemblaWithId::loadCorpus(const std::string& corpus_path, size_t id_col, s
             break;
         }
 
-        auto columns = split(line, delimiter);
+        auto columns = split(line, column_delimiter<>());
         if(text_col - 1 < columns.size()){
             auto text = cast_string<string_type>(columns[text_col - 1]);
             auto i = ids.find(text);

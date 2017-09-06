@@ -72,13 +72,6 @@ public:
     output_type operator()(const string_type& text, bool is_original) const;
     string_type index(const string_type& text) const;
 protected:
-    /*
-    const typename string_type::value_type delim_col = column_delimiter<string_type>();
-    const typename string_type::value_type delim_future = feature_delimiter<string_type>();
-    const typename string_type::value_type delim_kv = keyvalue_delimiter<string_type>();
-    const typename string_type::value_type delim_val = value_delimiter<string_type>();
-    */
-
     const std::string base_similarity_key;
 
     std::unordered_map<Feature::key_type, std::shared_ptr<Function>> functions;
