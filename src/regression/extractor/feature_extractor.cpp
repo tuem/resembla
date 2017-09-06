@@ -25,9 +25,6 @@ limitations under the License.
 
 namespace resembla {
 
-const char FeatureExtractor::FEATURE_DELIMITER = '&';
-const char FeatureExtractor::KEYVALUE_DELIMITER = '=';
-
 FeatureExtractor::FeatureExtractor(const std::string base_similarity_key): 
     base_similarity_key(base_similarity_key)
 {}
@@ -45,8 +42,8 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
     (void)raw_text;
 #endif
     output_type features;
-    for(const auto& f: split(raw_features, FEATURE_DELIMITER)){
-        auto kv = split(f, KEYVALUE_DELIMITER);
+    for(const auto& f: split(raw_features, delim_future)){
+        auto kv = split(f, delim_kv);
         if(kv.size() == 2){
             auto i = functions.find(kv[0]);
             if(i != std::end(functions)){
@@ -110,11 +107,11 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& te
 
     auto raw_text = cast_string<std::string>(text);
     if(is_original){
-        auto columns = split(raw_text, '\t');
+        auto columns = split(raw_text, delim_col);
         if(columns.size() > 1){
             raw_text = columns[0];
-            for(const auto& f: split(columns[1], FEATURE_DELIMITER)){
-                auto kv = split(f, KEYVALUE_DELIMITER);
+            for(const auto& f: split(columns[1], delim_future)){
+                auto kv = split(f, delim_kv);
                 if(kv.size() == 2){
                     auto i = functions.find(kv[0]);
                     if(i != std::end(functions)){
