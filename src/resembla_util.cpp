@@ -35,6 +35,7 @@ limitations under the License.
 #include "measure/surface_match_cost.hpp"
 
 #include "measure/pronunciation_sequence_builder.hpp"
+#include "measure/letter_weight.hpp"
 #include "measure/kana_match_cost.hpp"
 
 #include "measure/romaji_sequence_builder.hpp"
@@ -287,9 +288,12 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                             pm.get<double>("wped_simstring_threshold") : pm.get<double>("simstring_threshold"),
                         pm.get<int>("wped_max_reranking_num") != -1 ?
                             pm.get<int>("wped_max_reranking_num") : pm.get<int>("resembla_max_reranking_num"),
-                        std::make_shared<PronunciationSequenceBuilder>(pm.get<std::string>("wped_mecab_options"),
-                            pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                        std::make_shared<EditDistance<KanaMatchCost<string_type>>>(
+                        std::make_shared<WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>>(
+                            PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
+                                pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
+                            LetterWeight<string_type>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
+                                pm.get<std::string>("wped_letter_weight_path"))),
+                        std::make_shared<WeightedEditDistance<KanaMatchCost<string_type>>>(
                             STR(weighted_pronunciation_edit_distance), pm.get<std::string>("wped_mismatch_cost_path")),
                         true),
                     pm.get<double>("wped_ensemble_weight")));
