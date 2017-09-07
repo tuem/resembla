@@ -8,22 +8,32 @@
     },
     "simstring": {
         "ngram_unit": 2,
-        "text_preprocess": "asis,romaji",
         "measure": "cosine",
         "threshold": 0.01
     },
     "resembla": {
-        "measure": "edit_distance,weighted_romaji_edit_distance",
+        "measure": "edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance",
         "max_reranking_num": 10000,
         "max_response": 20,
         "threshold": 0.5
     },
     "edit_distance": {
+        "simstring_ngram_unit": 1,
+        "simstring_threshold": 0.1,
         "ensemble_weight": 0.01
+    },
+    "weighted_pronunciation_edit_distance": {
+        "simstring_ngram_unit": 1,
+        "simstring_threshold": 0.3,
+        "base_weight": 1.0,
+        "delete_insert_ratio": 0.9,
+        "letter_weight_path": "../../example/conf/kana_weight.tsv",
+        "mismatch_cost_path": "../../example/conf/kana_mismatch_cost.tsv",
+        "ensemble_weight": 0.49
     },
     "weighted_romaji_edit_distance": {
         "simstring_ngram_unit": 2,
-        "simstring_threshold": 0.1,
+        "simstring_threshold": 0.4,
         "base_weight": 1.0,
         "delete_insert_ratio": 0.9,
         "uppercase_coefficient": 1.0,
@@ -33,11 +43,6 @@
         "case_mismatch_cost": 0.3,
         "similar_letter_cost": 0.1,
         "mismatch_cost_path": "../../example/conf/romaji_mismatch_cost.tsv",
-        "ensemble_weight": 0.99
-    },
-    "svr": {
-        "features_path": "../../example/regression/features.kw.tsv",
-        "patterns_home": "../../example/regression/patterns",
-        "model_path": "../../example/regression/model.kw"
+        "ensemble_weight": 0.5
     }
 }
