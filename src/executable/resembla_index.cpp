@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
         {"wped_mecab_pronunciation_of_marks", "", {"weighted_pronunciation_edit_distance", "mecab_pronunciation_of_marks"}, "wped-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"wped_base_weight", 1L, {"weighted_pronunciation_edit_distance", "base_weight"}, "wped-base-weight", 0, "base weight for weighted pronunciation edit distance"},
         {"wped_delete_insert_ratio", 10L, {"weighted_pronunciation_edit_distance", "delete_insert_ratio"}, "wped-del-ins-ratio", 0, "cost ratio of deletion and insertion for weighted pronunciation edit distance"},
+        {"wped_letter_weight_path", "", {"weighted_pronunciation_edit_distance", "letter_weight_path"}, "wped-letter-weight-path", 0, "weights of kana letters for weighted pronunciation edit distance"},
         {"wred_simstring_ngram_unit", -1, {"weighted_romaji_edit_distance", "simstring_ngram_unit"}, "wred-simstring-ngram-unit", 0, "Unit of N-gram for romaji notation of input text"},
         {"wred_mecab_options", "", {"weighted_romaji_edit_distance", "mecab_options"}, "wred-mecab-options", 0, "MeCab options for weighted romaji edit distance"},
         {"wred_mecab_feature_pos", 7, {"weighted_romaji_edit_distance", "mecab_feature_pos"}, "wred-mecab-feature-pos", 0, "Position of pronunciation in feature for weighted romaji edit distance"},
@@ -214,6 +215,9 @@ int main(int argc, char* argv[])
                     std::cerr << "    mecab_options=" << pm.get<std::string>("wped_mecab_options") << std::endl;
                     std::cerr << "    mecab_feature_pos=" << pm.get<int>("wped_mecab_feature_pos") << std::endl;
                     std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
+                    std::cerr << "    base_weight=" << pm.get<double>("wped_base_weight") << std::endl;
+                    std::cerr << "    delete_insert_ratio=" << pm.get<double>("wped_delete_insert_ratio") << std::endl;
+                    std::cerr << "    letter_weight_path=" << pm.get<std::string>("wped_letter_weight_path") << std::endl;
                 }
                 else if(resembla_measure == weighted_romaji_edit_distance){
                     std::cerr << "  measure=" << STR(weighted_romaji_edit_distance) << std::endl;
@@ -261,8 +265,11 @@ int main(int argc, char* argv[])
                         pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
-                PronunciationSequenceBuilder builder(pm.get<std::string>("wped_mecab_options"),
-                        pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
+                WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>> builder(
+                    PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
+                        pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
+                    LetterWeight<string_type>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
+                        pm.get<std::string>("wped_letter_weight_path")));
                 create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit,
                         builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
