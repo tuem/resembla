@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
                         builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("kmed_simstring_ngram_unit"),
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("km_simstring_ngram_unit"),
                         KeywordMatchPreprocessor<string_type>(),
                         pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
