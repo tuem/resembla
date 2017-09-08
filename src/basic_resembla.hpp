@@ -70,7 +70,7 @@ public:
                 throw std::runtime_error("too few columns, corpus=" + inverse_path + ", line=" + cast_string<std::string>(line));
             }
             const auto& indexed = columns[0];
-            auto original = columns[1];
+            const auto& original = columns[1];
 
             const auto& i = inverse.find(indexed);
             if(i == std::end(inverse)){
