@@ -298,10 +298,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                                 pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
                         pm.get<std::string>("wred_mismatch_cost_path").empty() ?
                             std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
-                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"), pm.get<double>("wred_similar_letter_cost"))) :
+                                RomajiMatchCost(pm.get<double>("wred_case_mismatch_cost"),
+                                    pm.get<double>("wred_similar_letter_cost"))) :
                             std::make_shared<WeightedEditDistance<RomajiMatchCost>>(STR(weighted_romaji_edit_distance),
                                 RomajiMatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
-                                pm.get<double>("wred_case_mismatch_cost"))),
+                                    pm.get<double>("wred_case_mismatch_cost"))),
                         true),
                     pm.get<double>("wred_ensemble_weight")));
                 break;
