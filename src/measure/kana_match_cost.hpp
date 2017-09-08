@@ -65,7 +65,6 @@ struct KanaMatchCost
                 string_type s(1, letters[i]);
                 for(size_t j = i + 1; j < letters.size(); ++j){
                     string_type p = s + letters[j];
-                    std::sort(std::begin(p), std::end(p));
                     letter_similarities[p] = cost;
                 }
             }
