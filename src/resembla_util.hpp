@@ -65,7 +65,7 @@ template<typename T> T read_value_with_rest(paramset::manager& pm, const std::st
         value = pm.rest[0].as<T>();
     }
     if(value == throw_if){
-        throw std::invalid_argument("no input corpus specified");
+        throw std::invalid_argument("invalid parameter: key=" + key + ", value=" + pm.get<std::string>(key));
     }
     return value;
 }
