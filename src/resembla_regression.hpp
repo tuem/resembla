@@ -84,22 +84,23 @@ public:
         return eval(query, candidate_features, threshold, max_response);
     }
 
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets, double threshold = 0.0, size_t max_response = 0) const
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
+            double threshold = 0.0, size_t max_response = 0) const
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
-        for(const auto& t: targets){
+        for(const auto& c: candidates){
             if(preprocess_corpus){
-                auto i = corpus_features.find(t);
+                auto i = corpus_features.find(c);
                 if(i != std::end(corpus_features)){
-                    candidate_features[t] = i->second;
+                    candidate_features[c] = i->second;
                     continue;
                 }
             }
-            candidate_features[t] = (*preprocess)(t);
+            candidate_features[c] = (*preprocess)(c);
         }
 
         for(const auto& p: resemblas){
-            for(const auto& r: p.second->eval(query, targets, 0.0, 0)){
+            for(const auto& r: p.second->eval(query, candidates, 0.0, 0)){
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
@@ -145,7 +146,6 @@ protected:
                     for(nlohmann::json::iterator i = std::begin(j); i != std::end(j); ++i){
                         preprocessed[i.key()] = i.value();
                     }
-                    nlohmann::json j1 = preprocessed;
                     corpus_features[cast_string<string_type>(columns[1])] = preprocessed;
                 }
                 else{
@@ -172,7 +172,8 @@ protected:
 
         // rerank by its own metric
         std::vector<ResemblaInterface::output_type> results;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, threshold, max_response)){
+        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates),
+                *score_func, threshold, max_response)){
             results.push_back({r.first, score_func->name, std::max(std::min(r.second, 1.0), 0.0)});
         }
         return results;
