@@ -246,8 +246,11 @@ int main(int argc, char* argv[])
         while(true){
             std::string raw_input;
             std::getline(std::cin, raw_input);
-            if(raw_input == "exit" || raw_input == "quit" || raw_input == "bye"){
+            if(std::cin.eof() || raw_input == "exit" || raw_input == "quit" || raw_input == "bye"){
                 break;
+            }
+            else if(raw_input.length() == 0){
+                continue;
             }
 
             auto input = cast_string<string_type>(raw_input);
