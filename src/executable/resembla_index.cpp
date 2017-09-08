@@ -171,15 +171,21 @@ int main(int argc, char* argv[])
         pm.load(argc, argv, "config");
 
         std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
-        int default_simstring_ngram_unit = pm["simstring_ngram_unit"];
-        int wwed_simstring_ngram_unit = pm.get<int>("wwed_simstring_ngram_unit") != -1 ?
-            pm.get<int>("wwed_simstring_ngram_unit") : default_simstring_ngram_unit;
-        int wped_simstring_ngram_unit = pm.get<int>("wped_simstring_ngram_unit") != -1 ?
-            pm.get<int>("wped_simstring_ngram_unit") : default_simstring_ngram_unit;
-        int wred_simstring_ngram_unit = pm.get<int>("wred_simstring_ngram_unit") != -1 ?
-            pm.get<int>("wred_simstring_ngram_unit") : default_simstring_ngram_unit;
-        int km_simstring_ngram_unit = pm.get<int>("km_simstring_ngram_unit") != -1 ?
-            pm.get<int>("km_simstring_ngram_unit") : default_simstring_ngram_unit;
+        if(pm.get<int>("ed_simstring_ngram_unit") == -1){
+            pm["ed_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("wwed_simstring_ngram_unit") == -1){
+            pm["wwed_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("wped_simstring_ngram_unit") == -1){
+            pm["wped_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("wred_simstring_ngram_unit") == -1){
+            pm["wred_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("km_simstring_ngram_unit") == -1){
+            pm["km_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
         auto resembla_measures = split_to_resembla_measures(pm.get<std::string>("resembla_measure"));
 
         if(pm.get<bool>("verbose")){
@@ -189,7 +195,7 @@ int main(int argc, char* argv[])
             std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
             std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;
-            std::cerr << "    ngram_unit=" << default_simstring_ngram_unit << std::endl;
+            std::cerr << "    ngram_unit=" << pm.get<int>("simstring_ngram_unit") << std::endl;
             if(pm.get<bool>("normalize_text")){
                 std::cerr << "  ICU:" << std::endl;
                 std::cerr << "    normalization_dir=" << pm.get<std::string>("icu_normalization_dir") << std::endl;
@@ -201,17 +207,16 @@ int main(int argc, char* argv[])
             for(auto resembla_measure: resembla_measures){
                 if(resembla_measure == edit_distance){
                     std::cerr << "  measure=" << STR(edit_distance) << std::endl;
-                    std::cerr << "    simstring_ngram_unit=" << wwed_simstring_ngram_unit << std::endl;
-                    //std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << pm.get<int>("ed_simstring_ngram_unit") << std::endl;
                 }
                 if(resembla_measure == weighted_word_edit_distance){
                     std::cerr << "  measure=" << STR(weighted_word_edit_distance) << std::endl;
-                    std::cerr << "    simstring_ngram_unit=" << wwed_simstring_ngram_unit << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << pm.get<int>("wwed_simstring_ngram_unit") << std::endl;
                     std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
                 }
                 else if(resembla_measure == weighted_pronunciation_edit_distance){
                     std::cerr << "  measure=" << STR(weighted_pronunciation_edit_distance) << std::endl;
-                    std::cerr << "    simstring_ngram_unit=" << wped_simstring_ngram_unit << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << pm.get<int>("wped_simstring_ngram_unit") << std::endl;
                     std::cerr << "    mecab_options=" << pm.get<std::string>("wped_mecab_options") << std::endl;
                     std::cerr << "    mecab_feature_pos=" << pm.get<int>("wped_mecab_feature_pos") << std::endl;
                     std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
@@ -221,18 +226,19 @@ int main(int argc, char* argv[])
                 }
                 else if(resembla_measure == weighted_romaji_edit_distance){
                     std::cerr << "  measure=" << STR(weighted_romaji_edit_distance) << std::endl;
-                    std::cerr << "    simstring_ngram_unit=" << wred_simstring_ngram_unit << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << pm.get<int>("wred_simstring_ngram_unit") << std::endl;
                     std::cerr << "    mecab_options=" << pm.get<std::string>("wred_mecab_options") << std::endl;
                     std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
                     std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
                 }
                 else if(resembla_measure == keyword_match){
                     std::cerr << "  measure=" << STR(keyword_match) << std::endl;
-                    std::cerr << "    simstring_ngram_unit=" << km_simstring_ngram_unit << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << pm.get<int>("km_simstring_ngram_unit") << std::endl;
                 }
                 else if(resembla_measure == svr){
-                    std::cerr << "  measure=" << STR(keyword) << std::endl;
-                    std::cerr << "    simstring_ngram_unit=" << km_simstring_ngram_unit << std::endl;
+                    std::cerr << "  measure=" << STR(svr) << std::endl;
+                    std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
+                    std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
                 }
             }
         }
@@ -252,7 +258,7 @@ int main(int argc, char* argv[])
 
             if(resembla_measure == edit_distance){
                 AsIsSequenceBuilder<string_type> builder;
-                create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), builder,
                         pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
@@ -261,7 +267,7 @@ int main(int argc, char* argv[])
                     FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
-                create_index(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder,
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"), builder,
                         pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
@@ -270,7 +276,7 @@ int main(int argc, char* argv[])
                         pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
                     LetterWeight<string_type>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
                         pm.get<std::string>("wped_letter_weight_path")));
-                create_index(corpus_path, db_path, inverse_path, wped_simstring_ngram_unit,
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wped_simstring_ngram_unit"),
                         builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
@@ -280,11 +286,11 @@ int main(int argc, char* argv[])
                     RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
-                create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
                         builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
-                create_index(corpus_path, db_path, inverse_path, km_simstring_ngram_unit,
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("kmed_simstring_ngram_unit"),
                         KeywordMatchPreprocessor<string_type>(),
                         pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
@@ -316,7 +322,7 @@ int main(int argc, char* argv[])
                         throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
                     }
                 }
-                create_index(corpus_path, db_path, inverse_path, wred_simstring_ngram_unit,
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("simstring_ngram_unit"),
                         extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
