@@ -21,8 +21,6 @@ limitations under the License.
 
 namespace resembla {
 
-ResemblaResponse::~ResemblaResponse(){}
-
 bool ResemblaResponse::operator<(const ResemblaResponse& r) const
 {
     return score > r.score;
