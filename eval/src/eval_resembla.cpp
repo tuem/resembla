@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
             std::cerr << time_points[i].second << "\t" << (t / 1000000.0) << std::endl;
         }
     }
-    catch(const paramset::exception& e){
+    catch(const std::exception& e){
         std::cerr << "error: " << e.what() << std::endl;
         exit(1);
     }
