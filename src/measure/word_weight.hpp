@@ -17,14 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_FEATURE_MATCH_WEIGHT_HPP
-#define RESEMBLA_FEATURE_MATCH_WEIGHT_HPP
+#ifndef RESEMBLA_WORD_WEIGHT_HPP
+#define RESEMBLA_WORD_WEIGHT_HPP
 
 #include "../word.hpp"
 
 namespace resembla {
 
-struct FeatureMatchWeight
+struct WordWeight
 {
     const double base_weight;
     const double delete_insert_ratio;
@@ -32,7 +32,7 @@ struct FeatureMatchWeight
     const double verb_coefficient;
     const double adj_coefficient;
 
-    FeatureMatchWeight(double base_weight = 1L, double delete_insert_ratio = 1L, double noun_coefficient = 1L, double verb_coefficient = 1L, double adj_coefficient = 1L);
+    WordWeight(double base_weight = 1L, double delete_insert_ratio = 1L, double noun_coefficient = 1L, double verb_coefficient = 1L, double adj_coefficient = 1L);
     double operator()(const Word& word, bool is_original = false, size_t total = -1, size_t position = -1) const;
 };
 

@@ -25,7 +25,7 @@ limitations under the License.
 #include "weighted_sequence_builder.hpp"
 
 #include "word_sequence_builder.hpp"
-#include "feature_match_weight.hpp"
+#include "word_weight.hpp"
 #include "pronunciation_sequence_builder.hpp"
 #include "letter_weight.hpp"
 #include "romaji_sequence_builder.hpp"
@@ -46,8 +46,8 @@ void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<Sequenc
 }
 */
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::token_type& o);
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::token_type& o);
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o);
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o);
 
 void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>::token_type& o);
 void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>::token_type& o);

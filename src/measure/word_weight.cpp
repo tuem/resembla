@@ -17,14 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "feature_match_weight.hpp"
+#include "word_weight.hpp"
 
 namespace resembla {
 
-FeatureMatchWeight::FeatureMatchWeight(double base_weight, double delete_insert_ratio, double noun_coefficient, double verb_coefficient, double adj_coefficient):
+WordWeight::WordWeight(double base_weight, double delete_insert_ratio, double noun_coefficient, double verb_coefficient, double adj_coefficient):
     base_weight(base_weight), delete_insert_ratio(delete_insert_ratio), noun_coefficient(noun_coefficient), verb_coefficient(verb_coefficient), adj_coefficient(adj_coefficient) {}
 
-double FeatureMatchWeight::operator()(const Word& word, bool is_original, size_t, size_t) const
+double WordWeight::operator()(const Word& word, bool is_original, size_t, size_t) const
 {
     double weight = base_weight;
 
