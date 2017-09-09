@@ -65,14 +65,14 @@ TEST_CASE( "serialize and deserialize output data of keyword match preprocessor"
 TEST_CASE( "serialize and deserialize output data of weighted word sequence builder", "[serialization]" ) {
     init_locale();
 
-    WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::output_type o0 = {{{L"単語0", {L"素性00", L"素性01"}}, 0.3}, {{L"単語1", {L"素性10", L"素性11"}}, 0.7}};
+    WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::output_type o0 = {{{L"単語0", {L"素性00", L"素性01"}}, 0.3}, {{L"単語1", {L"素性10", L"素性11"}}, 0.7}};
 
     json j0 = o0;
     const std::string s = j0.dump();
     CHECK(s == "[{\"t\":{\"f\":[\"素性00\",\"素性01\"],\"s\":\"単語0\"},\"w\":0.3},{\"t\":{\"f\":[\"素性10\",\"素性11\"],\"s\":\"単語1\"},\"w\":0.7}]");
 
     json j1 = json::parse(s);
-    WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>::output_type o1 = j1;
+    WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::output_type o1 = j1;
     REQUIRE(o1.size() == o0.size());
     for(size_t i = 0; i < o1.size(); ++i){
         CHECK(o1[i].token.surface == o0[i].token.surface);

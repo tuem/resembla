@@ -38,7 +38,7 @@ limitations under the License.
 #include "measure/weighted_sequence_builder.hpp"
 #include "measure/keyword_match_preprocessor.hpp"
 
-#include "measure/feature_match_weight.hpp"
+#include "measure/word_weight.hpp"
 #include "measure/surface_match_cost.hpp"
 #include "measure/romaji_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
@@ -350,9 +350,9 @@ int main(int argc, char* argv[])
                 }
                 case weighted_word_edit_distance: {
                     if(pm.get<double>("wwed_ensemble_weight") > 0){
-                        WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight> builder(
+                        WeightedSequenceBuilder<WordSequenceBuilder, WordWeight> builder(
                             WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
-                            FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
+                            WordWeight(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
                         test_data = prepare_data(corpus_path, db_path, inverse_path, wwed_simstring_ngram_unit, builder);
