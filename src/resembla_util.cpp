@@ -31,7 +31,7 @@ limitations under the License.
 #include "measure/weighted_sequence_builder.hpp"
 
 #include "measure/word_sequence_builder.hpp"
-#include "measure/feature_match_weight.hpp"
+#include "measure/word_weight.hpp"
 #include "measure/surface_match_cost.hpp"
 
 #include "measure/pronunciation_sequence_builder.hpp"
@@ -266,9 +266,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wwed_simstring_threshold"), pm.get<int>("wwed_max_reranking_num"),
-                        std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, FeatureMatchWeight>>(
+                        std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>>(
                             WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
-                            FeatureMatchWeight(pm.get<double>("wwed_base_weight"),
+                            WordWeight(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
                         std::make_shared<WeightedEditDistance<SurfaceMatchCost>>(STR(weighted_word_edit_distance)), true),
