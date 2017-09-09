@@ -42,9 +42,8 @@ limitations under the License.
 #include "measure/keyword_match_preprocessor.hpp"
 
 #include "measure/word_weight.hpp"
-#include "measure/surface_match_cost.hpp"
+#include "measure/letter_weight.hpp"
 #include "measure/romaji_weight.hpp"
-#include "measure/romaji_match_cost.hpp"
 
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
