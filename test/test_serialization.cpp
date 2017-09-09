@@ -84,14 +84,14 @@ TEST_CASE( "serialize and deserialize output data of weighted word sequence buil
 TEST_CASE( "serialize and deserialize output data of weighted romaji sequence builder", "[serialization]" ) {
     init_locale();
 
-    WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>::output_type o0 = {{L'T', 0.3}, {L'e', 0.7}};
+    WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight>::output_type o0 = {{L'T', 0.3}, {L'e', 0.7}};
 
     json j0 = o0;
     const std::string s = j0.dump();
     CHECK(s == "[{\"t\":\"T\",\"w\":0.3},{\"t\":\"e\",\"w\":0.7}]");
 
     json j1 = json::parse(s);
-    WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>::output_type o1 = j1;
+    WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight>::output_type o1 = j1;
     REQUIRE(o1.size() == o0.size());
     for(size_t i = 0; i < o1.size(); ++i){
         CHECK(o1[i].token == o0[i].token);

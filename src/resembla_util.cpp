@@ -39,7 +39,7 @@ limitations under the License.
 #include "measure/kana_match_cost.hpp"
 
 #include "measure/romaji_sequence_builder.hpp"
-#include "measure/romaji_match_weight.hpp"
+#include "measure/romaji_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
 
 #include "measure/keyword_match_preprocessor.hpp"
@@ -294,10 +294,10 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     construct_basic_resembla(
                         db_path, inverse_path, simstring_measure,
                         pm.get<double>("wred_simstring_threshold"), pm.get<int>("wred_max_reranking_num"),
-                        std::make_shared<WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight>>(
+                        std::make_shared<WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight>>(
                             RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
                                 pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
-                            RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
+                            RomajiWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                                 pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                 pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
                         pm.get<std::string>("wred_mismatch_cost_path").empty() ?

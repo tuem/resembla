@@ -17,11 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "romaji_match_weight.hpp"
+#include "romaji_weight.hpp"
 
 namespace resembla {
 
-const std::unordered_set<RomajiMatchWeight::value_type> RomajiMatchWeight::VOWELS = {
+const std::unordered_set<RomajiWeight::value_type> RomajiWeight::VOWELS = {
     L'A',
     L'E',
     L'I',
@@ -35,7 +35,7 @@ const std::unordered_set<RomajiMatchWeight::value_type> RomajiMatchWeight::VOWEL
     L'-'
 };
 
-const std::unordered_set<RomajiMatchWeight::value_type> RomajiMatchWeight::CONSONANTS = {
+const std::unordered_set<RomajiWeight::value_type> RomajiWeight::CONSONANTS = {
     L'B',
     L'C',
     L'D',
@@ -80,34 +80,34 @@ const std::unordered_set<RomajiMatchWeight::value_type> RomajiMatchWeight::CONSO
     L'z'
 };
 
-RomajiMatchWeight::RomajiMatchWeight(double base_weight, double delete_insert_ratio, 
+RomajiWeight::RomajiWeight(double base_weight, double delete_insert_ratio, 
         double uppercase_coefficient, double lowercase_coefficient, 
         double vowel_coefficient, double consonant_coefficient):
     base_weight(base_weight), delete_insert_ratio(delete_insert_ratio),
     uppercase_coefficient(uppercase_coefficient), lowercase_coefficient(lowercase_coefficient),
     vowel_coefficient(vowel_coefficient), consonant_coefficient(consonant_coefficient) {}
 
-bool RomajiMatchWeight::isUpper(const value_type c)
+bool RomajiWeight::isUpper(const value_type c)
 {
     return L'A' <= c && c <= L'Z';
 }
 
-bool RomajiMatchWeight::isLower(const value_type c)
+bool RomajiWeight::isLower(const value_type c)
 {
     return L'a' <= c && c <= L'z';
 }
 
-bool RomajiMatchWeight::isVowel(const value_type c)
+bool RomajiWeight::isVowel(const value_type c)
 {
     return VOWELS.count(c) > 0;
 }
 
-bool RomajiMatchWeight::isConsonant(const value_type c)
+bool RomajiWeight::isConsonant(const value_type c)
 {
     return CONSONANTS.count(c) > 0;
 }
 
-double RomajiMatchWeight::operator()(const value_type c, bool is_original, size_t, size_t) const
+double RomajiWeight::operator()(const value_type c, bool is_original, size_t, size_t) const
 {
     double weight = base_weight;
     if(is_original){

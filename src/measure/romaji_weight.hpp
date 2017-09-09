@@ -17,14 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_ROMAJI_MATCH_WEIGHT_HPP
-#define RESEMBLA_ROMAJI_MATCH_WEIGHT_HPP
+#ifndef RESEMBLA_ROMAJI_WEIGHT_HPP
+#define RESEMBLA_ROMAJI_WEIGHT_HPP
 
 #include <unordered_set>
 
 namespace resembla {
 
-struct RomajiMatchWeight
+struct RomajiWeight
 {
     using value_type = wchar_t;
 
@@ -40,7 +40,7 @@ struct RomajiMatchWeight
     static const std::unordered_set<value_type> VOWELS;
     static const std::unordered_set<value_type> CONSONANTS;
 
-    RomajiMatchWeight(double base_weight = 1L, double delete_insert_ratio = 1L, 
+    RomajiWeight(double base_weight = 1L, double delete_insert_ratio = 1L, 
             double uppercase_coefficient = 1L, double lowercase_coefficient = 1L, 
             double vowel_coefficient = 1L, double consonant_coefficient = 1L);
 

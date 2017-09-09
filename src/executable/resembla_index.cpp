@@ -43,7 +43,7 @@ limitations under the License.
 
 #include "measure/feature_match_weight.hpp"
 #include "measure/surface_match_cost.hpp"
-#include "measure/romaji_match_weight.hpp"
+#include "measure/romaji_weight.hpp"
 #include "measure/romaji_match_cost.hpp"
 
 #include "regression/extractor/feature_extractor.hpp"
@@ -280,10 +280,10 @@ int main(int argc, char* argv[])
                         builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
-                WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiMatchWeight> builder(
+                WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight> builder(
                     RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
                         pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
-                    RomajiMatchWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
+                    RomajiWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
