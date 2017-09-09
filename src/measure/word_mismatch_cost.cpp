@@ -17,14 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "word_mismatch_cost.hpp"
+
 #include <algorithm>
 #include <iterator>
 
-#include "surface_match_cost.hpp"
-
 namespace resembla {
 
-double SurfaceMatchCost::operator()(const Word& reference, const Word& target) const
+double WordMismatchCost::operator()(const Word& reference, const Word& target) const
 {
     if(reference.surface == target.surface){
         return 0.0;

@@ -17,14 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_SURFACE_MATCH_COST_HPP
-#define RESEMBLA_SURFACE_MATCH_COST_HPP
+#ifndef RESEMBLA_WORD_MISMATCH_COST_HPP
+#define RESEMBLA_WORD_MISMATCH_COST_HPP
 
 #include "../word.hpp"
 
 namespace resembla {
 
-struct SurfaceMatchCost
+struct WordMismatchCost
 {
     double operator()(const Word& reference, const Word& target) const;
 };
