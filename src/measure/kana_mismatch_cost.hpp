@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_KANA_MATCH_COST_HPP
-#define RESEMBLA_KANA_MATCH_COST_HPP
+#ifndef RESEMBLA_KANA_MISMATCH_COST_HPP
+#define RESEMBLA_KANA_MISMATCH_COST_HPP
 
 #include <string>
 #include <fstream>
@@ -31,11 +31,11 @@ limitations under the License.
 namespace resembla {
 
 template<typename string_type>
-struct KanaMatchCost
+struct KanaMismatchCost
 {
     using value_type = typename string_type::value_type;
 
-    KanaMatchCost(const std::string& letter_similarity_file_path)
+    KanaMismatchCost(const std::string& letter_similarity_file_path)
     {
         if(letter_similarity_file_path.empty()){
             return;
