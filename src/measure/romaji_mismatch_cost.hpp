@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_ROMAJI_MATCH_COST_HPP
-#define RESEMBLA_ROMAJI_MATCH_COST_HPP
+#ifndef RESEMBLA_ROMAJI_MISMATCH_COST_HPP
+#define RESEMBLA_ROMAJI_MISMATCH_COST_HPP
 
 #include <string>
 #include <unordered_set>
@@ -28,7 +28,7 @@ limitations under the License.
 
 namespace resembla {
 
-struct RomajiMatchCost
+struct RomajiMismatchCost
 {
     using value_type = string_type::value_type;
 
@@ -37,8 +37,8 @@ struct RomajiMatchCost
     std::unordered_map<string_type, double> letter_similarities;
     const double case_mismatch_cost;
 
-    RomajiMatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
-    RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L);
+    RomajiMismatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
+    RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L);
 
     value_type toLower(value_type a) const;
 

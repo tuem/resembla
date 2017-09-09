@@ -17,14 +17,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "romaji_match_cost.hpp"
+#include "romaji_mismatch_cost.hpp"
 
 #include <fstream>
 #include <algorithm>
 
 namespace resembla {
 
-const std::unordered_set<string_type> RomajiMatchCost::DEFAULT_SIMILAR_LETTER_PAIRS = {
+const std::unordered_set<string_type> RomajiMismatchCost::DEFAULT_SIMILAR_LETTER_PAIRS = {
     L"bv",
     L"ck",
     L"cq",
@@ -41,7 +41,7 @@ const std::unordered_set<string_type> RomajiMatchCost::DEFAULT_SIMILAR_LETTER_PA
     L"-o",
 };
 
-RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_letter_cost): 
+RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar_letter_cost): 
     case_mismatch_cost(case_mismatch_cost)
 {
     for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
@@ -49,7 +49,7 @@ RomajiMatchCost::RomajiMatchCost(double case_mismatch_cost, double similar_lette
     }
 }
 
-RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost):
+RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost):
     case_mismatch_cost(case_mismatch_cost)
 {
     std::basic_ifstream<string_type::value_type> ifs(letter_similarity_file_path);
@@ -80,7 +80,7 @@ RomajiMatchCost::RomajiMatchCost(const std::string& letter_similarity_file_path,
     }
 }
 
-RomajiMatchCost::value_type RomajiMatchCost::toLower(value_type a) const
+RomajiMismatchCost::value_type RomajiMismatchCost::toLower(value_type a) const
 {
     if(L'A' <= a && a <= L'Z'){
         return a + (L'a' - L'A');
@@ -90,7 +90,7 @@ RomajiMatchCost::value_type RomajiMatchCost::toLower(value_type a) const
     }
 }
 
-double RomajiMatchCost::operator()(const value_type a, const value_type b) const
+double RomajiMismatchCost::operator()(const value_type a, const value_type b) const
 {
     if(a == b){
         return 0L;
