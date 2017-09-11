@@ -32,7 +32,7 @@ Feature::text_type Feature::toText(const real_type& a)
 
 Feature::real_type Feature::toReal(const text_type& a)
 {
-    return stod(a);
+    return std::stod(a);
 }
 
 }
