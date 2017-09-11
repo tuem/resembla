@@ -23,9 +23,7 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-#include "paramset.hpp"
-
-#include "resembla_util.hpp"
+#include <paramset.hpp>
 
 #include "basic_resembla.hpp"
 #include "resembla_ensemble.hpp"
