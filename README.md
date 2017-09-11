@@ -73,7 +73,8 @@ cd /var/tmp/resembla/misc/mecab_dic/mecab-unidic-neologd/
 
 - run sample program
 ```sh
-resembla_index /var/tmp/resembla/example/corpus/sample.tsv
-resembla_cli /var/tmp/resembla/example/corpus/sample.tsv
-# input some text like '東京都'
+# on src/executable
+./resembla_index -c ../../example/conf/address.tsv
+./resembla_cli -c ../../example/conf/address.tsv
+# input some text like '京都北区'
 ```
