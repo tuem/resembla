@@ -1,0 +1,70 @@
+{
+    "common": {
+        "corpus_path": "../../example/corpus/apple.tsv",
+        "id_col": 1,
+        "text_col": 2,
+        "features_col": 3,
+        "verbose": true
+    },
+    "simstring": {
+        "ngram_unit": 2,
+        "measure": "cosine",
+        "threshold": 0.001
+    },
+    "resembla": {
+        "measure": "svr,weighted_word_edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance,keyword_match",
+        "max_reranking_num": 100,
+        "max_response": 10,
+        "threshold": 0.5
+    },
+    "edit_distance": {
+        "ensemble_weight": 0
+    },
+    "weighted_word_edit_distance": {
+        "mecab_options": "",
+        "delete_insert_ratio": 1.0,
+        "noun_coefficient": 1.5,
+        "verb_coefficient": 1.4,
+        "adj_coefficient": 1.3,
+        "ensemble_weight": 0.5
+    },
+    "weighted_pronunciation_edit_distance": {
+        "mecab_options": "-d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
+        "mecab_feature_pos": 9,
+        "mecab_pronunciation_of_marks": "記号",
+        "base_weight": 1.0,
+        "delete_insert_ratio": 1.0,
+        "ensemble_weight": 0.3
+    },
+    "weighted_romaji_edit_distance": {
+        "mecab_options": "-d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
+        "mecab_feature_pos": 9,
+        "mecab_pronunciation_of_marks": "記号",
+        "base_weight": 1.0,
+        "delete_insert_ratio": 1.0,
+        "uppercase_coefficient": 1.0,
+        "lowercase_coefficient": 0.8,
+        "vowel_coefficient": 0.6,
+        "consonant_coefficient": 1.0,
+        "case_mismatch_cost": 0.3,
+        "similar_letter_cost": 0.75,
+        "ensemble_weight": 0.2
+    },
+    "svr": {
+        "features_path": "../../example/regression/features.kw.tsv",
+        "patterns_home": "../../example/regression/patterns",
+        "model_path": "../../example/regression/model.kw"
+    },
+    "icu": {
+        "enabled": true,
+        "normalization": {
+            "dir": "../../misc/icu/normalization",
+            "name": "resembla",
+            "predefined_normalizer": "nfkc"
+        },
+        "transliteration": {
+            "path": "../../misc/icu/transliteration/resembla_collapse.txt"
+        },
+        "to_lower": true
+    }
+}
