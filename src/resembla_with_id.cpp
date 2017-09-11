@@ -19,6 +19,9 @@ limitations under the License.
 
 #include "resembla_with_id.hpp"
 
+#include <fstream>
+#include <algorithm>
+
 namespace resembla {
 
 ResemblaWithId::ResemblaWithId(const std::shared_ptr<ResemblaInterface> resembla,

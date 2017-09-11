@@ -24,7 +24,6 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include <unordered_map>
-#include <fstream>
 
 #include "resembla_interface.hpp"
 #include "regression/feature.hpp"
