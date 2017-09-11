@@ -19,9 +19,6 @@ limitations under the License.
 
 #include "resembla_util.hpp"
 
-#include <locale>
-#include <codecvt>
-
 #include <simstring/simstring.h>
 
 #include "measure/edit_distance.hpp"
