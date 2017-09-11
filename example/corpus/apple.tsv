@@ -1,11 +1,21 @@
-りんごおいしい	is_negative=0&is_question=0
-りんごおいしいねえ	is_negative=0&is_question=0
-りんごおいしいな	is_negative=0&is_question=0
-りんごおいしくない	is_negative=1&is_question=0
-りんごおいしい?	is_negative=0&is_question=1
-りんごおいしいかな?	is_negative=0&is_question=1
-りんごが好きです	is_negative=0&is_question=0&keyword=好き
-りんごは好きですか?	is_negative=0&is_question=1&keyword=好き
-りんご好きじゃない	is_negative=1&is_question=0&keyword=好き
-りんごが嫌いです	is_negative=0&is_question=0&keyword=嫌い
-りんごまずい	is_negative=0&is_question=0&keyword=まずい
+1	りんごおいしい！！!!	is_negative=0&is_question=0
+1	りんごおいしいねえ	is_negative=0&is_question=0
+1	りんごおいしいな	is_negative=0&is_question=0
+2	りんごおいしくない	is_negative=1&is_question=0
+3	りんごおいしい?	is_negative=0&is_question=1
+3	りんごおいしいかな？？？	is_negative=0&is_question=1
+4	りんごが好きです	is_negative=0&is_question=0&keyword=好き
+5	りんごは好きですか!?	is_negative=0&is_question=1&keyword=好き
+6	りんご好きじゃない	is_negative=1&is_question=0&keyword=好き
+7	りんごが嫌いです	is_negative=0&is_question=0&keyword=嫌い
+8	りんごまずい	is_negative=0&is_question=0&keyword=まずい
+9	りんご買って	is_negative=0&is_question=0
+10	りんご食え	is_negative=0&is_question=0
+11	りんご食えない	is_negative=1&is_question=0
+12	りんご食いたい	is_negative=0&is_question=0
+13	りんご食べた	is_negative=0&is_question=0
+13	りんご食った	is_negative=0&is_question=0
+14	Appleうまい	is_negative=0&is_question=0
+14	apple美味	is_negative=0&is_question=0
+14	APPLEおいしい	is_negative=0&is_question=0
+15	ＡＰＰＬＥ甘い	is_negative=0&is_question=0
