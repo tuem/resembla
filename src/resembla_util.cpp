@@ -17,12 +17,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "resembla_util.hpp"
+
 #include <locale>
 #include <codecvt>
 
-#include "simstring/simstring.h"
-
-#include "resembla_util.hpp"
+#include <simstring/simstring.h>
 
 #include "measure/edit_distance.hpp"
 #include "measure/weighted_edit_distance.hpp"
