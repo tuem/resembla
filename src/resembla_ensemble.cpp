@@ -22,8 +22,6 @@ limitations under the License.
 #include <math.h>
 #include <algorithm>
 
-#include "resembla_util.hpp"
-
 namespace resembla {
 
 ResemblaEnsemble::ResemblaEnsemble(const std::string& measure_name, const size_t max_reranking_num):
