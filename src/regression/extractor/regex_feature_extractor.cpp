@@ -54,7 +54,6 @@ std::vector<std::pair<double, std::string>> RegexFeatureExtractor::load(const st
         throw std::runtime_error("input file is not available: " + file_path);
     }
 
-    const auto delimiter = column_delimiter<>();
     std::vector<std::pair<double, std::string>> patterns;
     while(ifs.good()){
         std::string line;
@@ -62,7 +61,7 @@ std::vector<std::pair<double, std::string>> RegexFeatureExtractor::load(const st
         if(ifs.eof() || line.length() == 0){
             break;
         }
-        size_t i = line.find(delimiter);
+        size_t i = line.find(column_delimiter<>());
         if(i != std::string::npos){
             patterns.push_back(std::make_pair(std::stod(line.substr(0, i)), line.substr(i + 1)));
         }
