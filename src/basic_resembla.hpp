@@ -34,8 +34,6 @@ limitations under the License.
 #include "resembla_interface.hpp"
 #include "reranker.hpp"
 
-#include "measure/weighted_sequence_serializer.hpp"
-
 namespace resembla {
 
 // Resembla with a fixed pair of preprocessor and score function

@@ -35,6 +35,8 @@ limitations under the License.
 #include "measure/letter_weight.hpp"
 #include "measure/kana_mismatch_cost.hpp"
 
+#include "measure/weighted_sequence_serializer.hpp"
+
 #include "measure/romaji_sequence_builder.hpp"
 #include "measure/romaji_weight.hpp"
 #include "measure/romaji_mismatch_cost.hpp"
