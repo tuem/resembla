@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
                 std::cerr << "    consonant_coefficient=" << pm.get<double>("wred_consonant_coefficient") << std::endl;
                 std::cerr << "    case_mismatch_cost=" << pm.get<double>("wred_case_mismatch_cost") << std::endl;
                 std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
-                std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wped_mismatch_cost_path") << std::endl;
+                std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wred_mismatch_cost_path") << std::endl;
                 std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
             }
             else if(resembla_measure == keyword_match && pm.get<double>("km_ensemble_weight") > 0){
