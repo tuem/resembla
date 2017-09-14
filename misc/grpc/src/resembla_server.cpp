@@ -99,10 +99,9 @@ int main(int argc, char** argv) {
 
     paramset::definitions defs = {
         {"resembla_measure", STR(weighted_word_edit_distance), {"resembla", "measure"}, "measure", 'm', "measure for scoring"},
-        {"resembla_threshold", 0.2, {"resembla", "threshold"}, "threshold", 't', "measure for scoring"},
         {"resembla_max_response", 20, {"resembla", "max_response"}, "max-response", 'n', "max number of responses from Resembla"},
+        {"resembla_threshold", 0.2, {"resembla", "threshold"}, "threshold", 't', "measure for scoring"},
         {"resembla_max_reranking_num", 1000, {"resembla", "max_reranking_num"}, "max-reranking-num", 'r', "max number of reranking texts in Resembla"},
-        {"simstring_text_preprocess", "asis", {"simstring", "text_preprocess"}, "simstring-text-preprocess", 'P', "preprocessing method for texts to create index"},
         {"simstring_measure_str", "cosine", {"simstring", "measure"}, "simstring-measure", 's', "SimString measure"},
         {"simstring_threshold", 0.2, {"simstring", "threshold"}, "simstring-threshold", 'T', "SimString threshold"},
         {"ed_simstring_threshold", -1, {"edit_distance", "simstring_threshold"}, "ed-simstring-threshold", 0, "SimString threshold for edit distance"},
@@ -143,7 +142,6 @@ int main(int argc, char** argv) {
         {"wred_mismatch_cost_path", "", {"weighted_romaji_edit_distance", "mismatch_cost_path"}, "wred-mismatch-cost-path", 0, "costs to replace similar letters for weighted romaji edit distance"},
         {"wred_ensemble_weight", 0.5, {"weighted_romaji_edit_distance", "ensemble_weight"}, "wred-ensemble-weight", 0, "weight coefficient for weighted romaji edit distance in ensemble mode"},
 
-        {"km_simstring_ngram_unit", -1, {"keyword_match", "simstring_ngram_unit"}, "km-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
@@ -156,81 +154,152 @@ int main(int argc, char** argv) {
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 2, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
-        {"varbose", false, {"common", "varbose"}, "varbose", 'v', "show more information"},
+        {"normalize_text", false, {"icu", "enabled"}, "normalize-text", 0, "enable text normalization"},
+        {"icu_normalization_dir", "", {"icu", "normalization", "dir"}, "icu-normalization-dir", 0, "directory for ICU normalizer configuration file"},
+        {"icu_normalization_name", "", {"icu", "normalization", "name"}, "icu-normalization-name", 0, "file name of ICU normalizer configuration file"},
+        {"icu_predefined_normalizer", "", {"icu", "normalization", "predefined_normalizer"}, "icu-predefined-normalizer", 0, "name of predefined ICU normalizer"},
+        {"icu_transliteration_path", "", {"icu", "transliteration", "path"}, "icu-transliteration-path", 0, "path for configuration file of transliterator"},
+        {"icu_to_lower", "", {"icu", "to_lower"}, "icu-to-lower", 0, "convert input texts to lowercase"},
+        {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
+std::cerr << "define" << std::endl;
     paramset::manager pm(defs);
 
     try{
+std::cerr << "load" << std::endl;
         pm.load(argc, argv, "config");
 
+std::cerr << "set" << std::endl;
         std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
-        if(pm.get<bool>("varbose")){
-            double default_simstring_threshold = pm["simstring_threshold"];
-            double wwed_simstring_threshold = pm.get<double>("wwed_simstring_threshold") != -1 ?
-                pm.get<double>("wwed_simstring_threshold") : default_simstring_threshold;
-            double wped_simstring_threshold = pm.get<double>("wped_simstring_threshold") != -1 ?
-                pm.get<double>("wped_simstring_threshold") : default_simstring_threshold;
-            double wred_simstring_threshold = pm.get<double>("wred_simstring_threshold") != -1 ?
-                pm.get<double>("wred_simstring_threshold") : default_simstring_threshold;
 
-            int default_max_reranking_num = pm["resembla_max_reranking_num"];
-            int wwed_max_reranking_num = pm.get<int>("wwed_max_reranking_num") != -1 ?
-                pm.get<int>("wwed_max_reranking_num") : default_max_reranking_num;
-            int wped_max_reranking_num = pm.get<int>("wped_max_reranking_num") != -1 ?
-                pm.get<int>("wped_max_reranking_num") : default_max_reranking_num;
-            int wred_max_reranking_num = pm.get<int>("wred_max_reranking_num") != -1 ?
-                pm.get<int>("wred_max_reranking_num") : default_max_reranking_num;
+        if(pm.get<double>("ed_simstring_threshold") == -1){
+            pm["ed_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("wwed_simstring_threshold") == -1){
+            pm["wwed_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("wped_simstring_threshold") == -1){
+            pm["wped_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("wred_simstring_threshold") == -1){
+            pm["wred_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("km_simstring_threshold") == -1){
+            pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
 
+        if(pm.get<int>("ed_max_reranking_num") == -1){
+            pm["ed_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
+        }
+        if(pm.get<int>("wwed_max_reranking_num") == -1){
+            pm["wwed_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
+        }
+        if(pm.get<int>("wped_max_reranking_num") == -1){
+            pm["wped_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
+        }
+        if(pm.get<int>("wred_max_reranking_num") == -1){
+            pm["wred_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
+        }
+        if(pm.get<int>("km_max_reranking_num") == -1){
+            pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
+        }
+        auto measures = split_to_resembla_measures(pm["resembla_measure"]);
+
+std::cerr << "show" << std::endl;
+        if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
             std::cerr << "    corpus_path=" << corpus_path << std::endl;
+            std::cerr << "    id_col=" << pm.get<int>("id_col") << std::endl;
+            std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
+            std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;
             std::cerr << "    measure=" << pm.get<std::string>("simstring_measure_str") << std::endl;
-            std::cerr << "    threshold=" << default_simstring_threshold << std::endl;
+            std::cerr << "    threshold=" << pm.get<double>("simstring_threshold") << std::endl;
+            if(pm.get<bool>("normalize_text")){
+                std::cerr << "  ICU:" << std::endl;
+                std::cerr << "    normalization_dir=" << pm.get<std::string>("icu_normalization_dir") << std::endl;
+                std::cerr << "    normalization_name=" << pm.get<std::string>("icu_normalization_name") << std::endl;
+                std::cerr << "    predefined_normalizer=" << pm.get<std::string>("icu_predefined_normalizer") << std::endl;
+                std::cerr << "    transliteration_path=" << pm.get<std::string>("icu_transliteration_path") << std::endl;
+                std::cerr << "    to_lower=" << (pm.get<bool>("icu_to_lower") ? "true" : "false")<< std::endl;
+            }
             std::cerr << "  Resembla:" << std::endl;
+            std::cerr << "    max_response=" << pm.get<int>("resembla_max_response") << std::endl;
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
-            std::cerr << "    max_reranking_num=" << default_max_reranking_num << std::endl;
-            std::cerr << "    max_response=" << pm.get<int>("resembla_max_response") << std::endl;
-            std::cerr << "    ensemble_weight=" << pm.get<double>("wwed_ensemble_weight") << std::endl;
-            std::cerr << "  Weighted word edit distance:" << std::endl;
-            std::cerr << "    simstring_threshold=" << wwed_simstring_threshold << std::endl;
-            std::cerr << "    max_reranking_num=" << wwed_max_reranking_num << std::endl;
-            std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
-            std::cerr << "    base_weight=" << pm.get<double>("wwed_base_weight") << std::endl;
-            std::cerr << "    delete_insert_ratio=" << pm.get<double>("wwed_delete_insert_ratio") << std::endl;
-            std::cerr << "    noun_coefficient=" << pm.get<double>("wwed_noun_coefficient") << std::endl;
-            std::cerr << "    verb_coefficient=" << pm.get<double>("wwed_verb_coefficient") << std::endl;
-            std::cerr << "    adj_coefficient=" << pm.get<double>("wwed_adj_coefficient") << std::endl;
-            std::cerr << "  Weighted Pronunciation edit distance:" << std::endl;
-            std::cerr << "    simstring_threshold=" << wped_simstring_threshold << std::endl;
-            std::cerr << "    max_reranking_num=" << wped_max_reranking_num << std::endl;
-            std::cerr << "    mecab_options=" << pm.get<std::string>("wped_mecab_options") << std::endl;
-            std::cerr << "    mecab_feature_pos=" << pm.get<int>("wped_mecab_feature_pos") << std::endl;
-            std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
-            std::cerr << "    base_weight=" << pm.get<double>("wped_base_weight") << std::endl;
-            std::cerr << "    delete_insert_ratio=" << pm.get<double>("wped_delete_insert_ratio") << std::endl;
-            std::cerr << "    ensemble_weight=" << pm.get<double>("wped_ensemble_weight") << std::endl;
-            std::cerr << "  Weighted romaji edit distance:" << std::endl;
-            std::cerr << "    simstring_threshold=" << wred_simstring_threshold << std::endl;
-            std::cerr << "    max_reranking_num=" << wred_max_reranking_num << std::endl;
-            std::cerr << "    mecab_options=" << pm.get<std::string>("wred_mecab_options") << std::endl;
-            std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
-            std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
-            std::cerr << "    base_weight=" << pm.get<double>("wred_base_weight") << std::endl;
-            std::cerr << "    delete_insert_ratio=" << pm.get<double>("wred_delete_insert_ratio") << std::endl;
-            std::cerr << "    uppercase_coefficient=" << pm.get<double>("wred_uppercase_coefficient") << std::endl;
-            std::cerr << "    lowercase_coefficient=" << pm.get<double>("wred_lowercase_coefficient") << std::endl;
-            std::cerr << "    vowel_coefficient=" << pm.get<double>("wred_vowel_coefficient") << std::endl;
-            std::cerr << "    consonant_coefficient=" << pm.get<double>("wred_consonant_coefficient") << std::endl;
-            std::cerr << "    case_mismatch_cost=" << pm.get<double>("wred_case_mismatch_cost") << std::endl;
-            std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
-            std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
+            std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
+            for(const auto& measure: measures){
+                if(measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
+                    std::cerr << "  Edit distance:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("ed_simstring_threshold") << std::endl;
+                    std::cerr << "    max_reranking_num=" << pm.get<int>("ed_max_reranking_num") << std::endl;
+                    std::cerr << "    ensemble_weight=" << pm.get<double>("ed_ensemble_weight") << std::endl;
+                }
+                else if(measure == weighted_word_edit_distance && pm.get<double>("wwed_ensemble_weight") > 0){
+                    std::cerr << "  Weighted word edit distance:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("wwed_simstring_threshold") << std::endl;
+                    std::cerr << "    max_reranking_num=" << pm.get<int>("wwed_max_reranking_num") << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wwed_mecab_options") << std::endl;
+                    std::cerr << "    base_weight=" << pm.get<double>("wwed_base_weight") << std::endl;
+                    std::cerr << "    delete_insert_ratio=" << pm.get<double>("wwed_delete_insert_ratio") << std::endl;
+                    std::cerr << "    noun_coefficient=" << pm.get<double>("wwed_noun_coefficient") << std::endl;
+                    std::cerr << "    verb_coefficient=" << pm.get<double>("wwed_verb_coefficient") << std::endl;
+                    std::cerr << "    adj_coefficient=" << pm.get<double>("wwed_adj_coefficient") << std::endl;
+                    std::cerr << "    ensemble_weight=" << pm.get<double>("wwed_ensemble_weight") << std::endl;
+                }
+                else if(measure == weighted_pronunciation_edit_distance && pm.get<double>("wped_ensemble_weight") > 0){
+                    std::cerr << "  Weighted pronunciation edit distance:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("wped_simstring_threshold") << std::endl;
+                    std::cerr << "    max_reranking_num=" << pm.get<int>("wped_max_reranking_num") << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wped_mecab_options") << std::endl;
+                    std::cerr << "    mecab_feature_pos=" << pm.get<int>("wped_mecab_feature_pos") << std::endl;
+                    std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wped_mecab_pronunciation_of_marks") << std::endl;
+                    std::cerr << "    base_weight=" << pm.get<double>("wped_base_weight") << std::endl;
+                    std::cerr << "    delete_insert_ratio=" << pm.get<double>("wped_delete_insert_ratio") << std::endl;
+                    std::cerr << "    letter_weight_path=" << pm.get<std::string>("wped_letter_weight_path") << std::endl;
+                    std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wped_mismatch_cost_path") << std::endl;
+                    std::cerr << "    ensemble_weight=" << pm.get<double>("wped_ensemble_weight") << std::endl;
+                }
+                else if(measure == weighted_romaji_edit_distance && pm.get<double>("wred_ensemble_weight") > 0){
+                    std::cerr << "  Weighted romaji edit distance:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("wred_simstring_threshold") << std::endl;
+                    std::cerr << "    max_reranking_num=" << pm.get<int>("wred_max_reranking_num") << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wred_mecab_options") << std::endl;
+                    std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
+                    std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
+                    std::cerr << "    base_weight=" << pm.get<double>("wred_base_weight") << std::endl;
+                    std::cerr << "    delete_insert_ratio=" << pm.get<double>("wred_delete_insert_ratio") << std::endl;
+                    std::cerr << "    uppercase_coefficient=" << pm.get<double>("wred_uppercase_coefficient") << std::endl;
+                    std::cerr << "    lowercase_coefficient=" << pm.get<double>("wred_lowercase_coefficient") << std::endl;
+                    std::cerr << "    vowel_coefficient=" << pm.get<double>("wred_vowel_coefficient") << std::endl;
+                    std::cerr << "    consonant_coefficient=" << pm.get<double>("wred_consonant_coefficient") << std::endl;
+                    std::cerr << "    case_mismatch_cost=" << pm.get<double>("wred_case_mismatch_cost") << std::endl;
+                    std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
+                    std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wred_mismatch_cost_path") << std::endl;
+                    std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
+                }
+                else if(measure == keyword_match && pm.get<double>("km_ensemble_weight") > 0){
+                    std::cerr << "  Keyword matching:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("km_simstring_threshold") << std::endl;
+                    std::cerr << "    max_reranking_num=" << pm.get<int>("km_max_reranking_num") << std::endl;
+                    std::cerr << "    ensemble_weight=" << pm.get<double>("km_ensemble_weight") << std::endl;
+                }
+                else if(measure == svr){
+                    std::cerr << "  SVR:" << std::endl;
+                    std::cerr << "    max_candidate=" << pm.get<int>("svr_max_candidate") << std::endl;
+                    std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
+                    std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
+                    std::cerr << "    model_path=" << pm.get<std::string>("svr_model_path") << std::endl;
+                }
+            }
             std::cerr << "  gRPC:" << std::endl;
             std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
         }
+std::cerr << "construct" << std::endl;
         auto resembla = construct_resembla(corpus_path, pm);
+std::cerr << "run" << std::endl;
         RunServer(pm.get<std::string>("grpc_server_address"), resembla,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }
