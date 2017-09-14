@@ -163,14 +163,11 @@ int main(int argc, char** argv) {
         {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
-std::cerr << "define" << std::endl;
     paramset::manager pm(defs);
 
     try{
-std::cerr << "load" << std::endl;
         pm.load(argc, argv, "config");
 
-std::cerr << "set" << std::endl;
         std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
 
         if(pm.get<double>("ed_simstring_threshold") == -1){
@@ -206,7 +203,6 @@ std::cerr << "set" << std::endl;
         }
         auto measures = split_to_resembla_measures(pm["resembla_measure"]);
 
-std::cerr << "show" << std::endl;
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
@@ -297,9 +293,8 @@ std::cerr << "show" << std::endl;
             std::cerr << "  gRPC:" << std::endl;
             std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
         }
-std::cerr << "construct" << std::endl;
+
         auto resembla = construct_resembla(corpus_path, pm);
-std::cerr << "run" << std::endl;
         RunServer(pm.get<std::string>("grpc_server_address"), resembla,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }

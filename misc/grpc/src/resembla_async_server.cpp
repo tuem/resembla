@@ -211,7 +211,7 @@ int main(int argc, char** argv)
         {"id_col", 0, {"common", "id_col"}, "id-col", 0, "column number (starts with 1) of ID in corpus rows. ignored if id_col==0"},
         {"text_col", 1, {"common", "text_col"}, "text-col", 0, "column mumber of text in corpus rows"},
         {"features_col", 2, {"common", "features_col"}, "features-col", 0, "column number of features in corpus rows"},
-        {"varbose", false, {"common", "varbose"}, "varbose", 'v', "show more information"},
+        {"verbose", false, {"common", "verbose"}, "verbose", 'v', "show more information"},
         {"conf_path", "", "config", 'c', "config file path"}
     };
     paramset::manager pm(defs);
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
         pm.load(argc, argv, "config");
 
         std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
-        if(pm.get<bool>("varbose")){
+        if(pm.get<bool>("verbose")){
             double default_simstring_threshold = pm["simstring_threshold"];
             double wwed_simstring_threshold = pm.get<double>("wwed_simstring_threshold") != -1 ?
                 pm.get<double>("wwed_simstring_threshold") : default_simstring_threshold;
