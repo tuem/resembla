@@ -23,8 +23,8 @@ limitations under the License.
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <unordered_set>
 #include <unordered_map>
+#include <algorithm>
 
 #include "../string_util.hpp"
 
