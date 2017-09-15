@@ -22,6 +22,7 @@ limitations under the License.
 
 #include "keyword_match_preprocessor.hpp"
 
+#include <string>
 #include <iostream>
 
 namespace resembla {
@@ -37,7 +38,6 @@ public:
     double operator()(const typename KeywordMatchPreprocessor<string_type>::output_type& target,
             const typename KeywordMatchPreprocessor<string_type>::output_type& reference) const
     {
-        // TODO: normalize target text
         // TODO: use synonyms
         if(reference.keywords.empty()){
             return 0.0;
