@@ -36,8 +36,8 @@ double WordMismatchCost::operator()(const Word& reference, const Word& target) c
     else{
         // compute symbol-based distance
         auto a = reference.surface, b = target.surface;
-        sort(std::begin(a), std::end(a));
-        sort(std::begin(b), std::end(b));
+        std::sort(std::begin(a), std::end(a));
+        std::sort(std::begin(b), std::end(b));
         size_t total = a.length() + b.length(), i = 0, j = 0, c = total;
         while(i < a.length() && j < b.length()){
             if(a[i] == b[j]){
