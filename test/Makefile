@@ -59,7 +59,7 @@ resembla_regression:
 	$(MAKE) -C ../src/regression
 
 test_all: resembla_common resembla_measure resembla_regression $(OBJS)
-	$(CXX) $(CXXLIBS) -o test_all $(ALL_OBJS)
+	$(CXX) -o test_all $(ALL_OBJS) $(CXXLIBS)
 	./test_all
 
 
