@@ -32,13 +32,17 @@ namespace resembla {
 
 struct TextClassificationFeatureExtractor: public FeatureExtractor::Function
 {
-    TextClassificationFeatureExtractor(const std::string& file_path);
+    TextClassificationFeatureExtractor(const std::string& mecab_options,
+            const std::string& dict_path, const std::string& model_path);
 
     Feature::text_type operator()(const string_type& text) const;
 
 protected:
     using std::unordered_map<string_type, id_type> = word_id_map;
     word_id_map word_ids;
+
+    std::shared_ptr<MeCab::Tagger> tagger;
+    mutable std::mutex mutex_tagger;
 
     svm_model *model;
     mutable std::mutex mutex_model;
