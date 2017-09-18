@@ -69,8 +69,7 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
                 continue;
             }
 
-            string_type surface = cast_string<string_type>(std::string(node->surface, node->surface + node->length));
-            auto i = word_ids.find(surface);
+            auto i = word_ids.find(std::string(node->surface, node->surface + node->length));
             if(i != word_ids.end()){
                 auto j = word_counts.find(*i);
                 if(j == word_counts.end()){
