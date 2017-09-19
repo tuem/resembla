@@ -36,8 +36,8 @@ TEST_CASE( "check letter_weight with kana letters", "[language]" ) {
     CHECK(kana_weight(L'ア', true) == Approx(0.56));
     CHECK(kana_weight(L'イ', false) == Approx(0.7));
     CHECK(kana_weight(L'ゥ', true) == Approx(0.32));
-    CHECK(kana_weight(L'ー') == Approx(0.4));
-    CHECK(kana_weight(L'ン') == Approx(0.4));
+    CHECK(kana_weight(L'ー') == Approx(0.5));
+    CHECK(kana_weight(L'ン') == Approx(0.5));
     CHECK(kana_weight(L'カ') == Approx(1.0));
     CHECK(kana_weight(L'ジ') == Approx(1.0));
     CHECK(kana_weight(L'プ') == Approx(1.0));
