@@ -42,7 +42,7 @@ TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
 
         auto i = line.find(column_delimiter<>());
         if(i != std::string::npos){
-            word_ids[line.substr(0, i)] = std::stoi(line.substr(i + 1));
+            dictionary[line.substr(0, i)] = std::stoi(line.substr(i + 1));
         }
     }
 }
@@ -69,8 +69,8 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
                 continue;
             }
 
-            auto i = word_ids.find(std::string(node->surface, node->surface + node->length));
-            if(i != word_ids.end()){
+            auto i = dictionary.find(std::string(node->surface, node->surface + node->length));
+            if(i != dictionary.end()){
                 auto j = word_counts.find(*i);
                 if(j == word_counts.end()){
                     word_counts[*i] = 1;
@@ -94,4 +94,3 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
 }
 
 }
-#endif
