@@ -64,7 +64,7 @@ Feature::text_type TextClassificationFeatureExtractor::operator()(const string_t
 
 std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_type& text) const
 {
-    std::unordered_map<int, int> word_counts;
+    std::unordered_map<int, int> bow;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
         const auto text_string = cast_string<std::string>(text);
@@ -76,9 +76,9 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
 
             auto i = dictionary.find(std::string(node->surface, node->surface + node->length));
             if(i != dictionary.end()){
-                auto j = word_counts.find(i->second);
-                if(j == word_counts.end()){
-                    word_counts[i->second] = 1;
+                auto j = bow.find(i->second);
+                if(j == bow.end()){
+                    bow[i->second] = 1;
                 }
                 else{
                     ++j->second;
@@ -87,9 +87,9 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
         }
     }
 
-    std::vector<svm_node> nodes(word_counts.size() + 1);
+    std::vector<svm_node> nodes(bow.size() + 1);
     size_t i = 0;
-    for(const auto j: word_counts){
+    for(const auto j: bow){
         nodes[j.first].index = j.first;
         nodes[j.first].value = static_cast<double>(j.second);
         ++i;
