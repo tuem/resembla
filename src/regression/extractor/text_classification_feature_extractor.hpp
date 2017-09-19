@@ -39,8 +39,7 @@ struct TextClassificationFeatureExtractor: public FeatureExtractor::Function
     Feature::text_type operator()(const string_type& text) const;
 
 protected:
-    using Dictionary = std::unordered_map<std::string, int>;
-    Dictionary dictionary;
+    std::unordered_map<std::string, int> dictionary;
 
     std::shared_ptr<MeCab::Tagger> tagger;
     mutable std::mutex mutex_tagger;
