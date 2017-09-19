@@ -20,12 +20,14 @@ limitations under the License.
 #include "text_classification_feature_extractor.hpp"
 
 #include <fstream>
+#include <sstream>
 #include <vector>
 
 namespace resembla {
 
 TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
         const std::string& mecab_options, const std::string& dict_path, const std::string& model_path):
+    tagger(MeCab::createTagger(mecab_options.c_str())),
     model(svm_load_model(model_path.c_str()))
 {
     std::ifstream ifs(dict_path);
@@ -55,7 +57,9 @@ Feature::text_type TextClassificationFeatureExtractor::operator()(const string_t
         std::lock_guard<std::mutex> lock(mutex_model);
         s = svm_predict(model, &nodes[0]);
     }
-    return s;
+    std::stringstream ss;
+    ss << s;
+    return ss.str();
 }
 
 std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_type& text) const
@@ -63,6 +67,7 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
     std::unordered_map<int, int> word_counts;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
+        const auto text_string = cast_string<std::string>(text);
         for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
             // skip BOS/EOS nodes
             if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
@@ -71,12 +76,12 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
 
             auto i = dictionary.find(std::string(node->surface, node->surface + node->length));
             if(i != dictionary.end()){
-                auto j = word_counts.find(*i);
+                auto j = word_counts.find(i->second);
                 if(j == word_counts.end()){
-                    word_counts[*i] = 1;
+                    word_counts[i->second] = 1;
                 }
                 else{
-                    ++*j;
+                    ++j->second;
                 }
             }
         }
@@ -85,8 +90,8 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
     std::vector<svm_node> nodes(word_counts.size() + 1);
     size_t i = 0;
     for(const auto j: word_counts){
-        nodes[j].index = j.first;
-        nodes[j].value = static_cast<double>(j.second);
+        nodes[j.first].index = j.first;
+        nodes[j.first].value = static_cast<double>(j.second);
         ++i;
     }
     nodes[i].index = -1; // end of features
