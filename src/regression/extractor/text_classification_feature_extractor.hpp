@@ -24,6 +24,7 @@ limitations under the License.
 #include <unordered_map>
 #include <mutex>
 
+#include <mecab.h>
 #include <libsvm/svm.h>
 
 #include "feature_extractor.hpp"
@@ -47,7 +48,7 @@ protected:
     svm_model *model;
     mutable std::mutex mutex_model;
 
-    std::vector<svm_node> toNodes(const input_type& x) const;
+    std::vector<svm_node> toNodes(const string_type& x) const;
 };
 
 }
