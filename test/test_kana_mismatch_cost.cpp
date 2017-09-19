@@ -90,19 +90,19 @@ TEST_CASE( "check kana_mismatch_cost with typical weight settings", "[language]"
     test_kana_mismatch_cost(L'ヤ', L'ャ', "../example/conf/kana_mismatch_cost.tsv", 0.3);
     test_kana_mismatch_cost(L'ユ', L'ュ', "../example/conf/kana_mismatch_cost.tsv", 0.3);
     test_kana_mismatch_cost(L'ヨ', L'ョ', "../example/conf/kana_mismatch_cost.tsv", 0.3);
-    test_kana_mismatch_cost(L'ヤ', L'ア', "../example/conf/kana_mismatch_cost.tsv", 0.5);
-    test_kana_mismatch_cost(L'ユ', L'ウ', "../example/conf/kana_mismatch_cost.tsv", 0.5);
-    test_kana_mismatch_cost(L'ヨ', L'オ', "../example/conf/kana_mismatch_cost.tsv", 0.5);
-    test_kana_mismatch_cost(L'ヤ', L'ァ', "../example/conf/kana_mismatch_cost.tsv", 0.6);
-    test_kana_mismatch_cost(L'ユ', L'ゥ', "../example/conf/kana_mismatch_cost.tsv", 0.6);
-    test_kana_mismatch_cost(L'ヨ', L'ォ', "../example/conf/kana_mismatch_cost.tsv", 0.6);
+    test_kana_mismatch_cost(L'ヤ', L'ア', "../example/conf/kana_mismatch_cost.tsv", 0.4);
+    test_kana_mismatch_cost(L'ユ', L'ウ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
+    test_kana_mismatch_cost(L'ヨ', L'オ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
+    test_kana_mismatch_cost(L'ヤ', L'ァ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
+    test_kana_mismatch_cost(L'ユ', L'ゥ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
+    test_kana_mismatch_cost(L'ヨ', L'ォ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'ャ', L'ァ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'ュ', L'ゥ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'ョ', L'ォ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
-    test_kana_mismatch_cost(L'ア', L'ワ', "../example/conf/kana_mismatch_cost.tsv", 0.5);
+    test_kana_mismatch_cost(L'ア', L'ワ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'オ', L'ヲ', "../example/conf/kana_mismatch_cost.tsv", 0.1);
-    test_kana_mismatch_cost(L'ン', L'ヌ', "../example/conf/kana_mismatch_cost.tsv", 0.5);
-    test_kana_mismatch_cost(L'ン', L'ウ', "../example/conf/kana_mismatch_cost.tsv", 0.5);
+    test_kana_mismatch_cost(L'ン', L'ヌ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
+    test_kana_mismatch_cost(L'ン', L'ウ', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'ア', L'ー', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'イ', L'ー', "../example/conf/kana_mismatch_cost.tsv", 0.4);
     test_kana_mismatch_cost(L'ウ', L'ー', "../example/conf/kana_mismatch_cost.tsv", 0.4);
@@ -116,6 +116,10 @@ TEST_CASE( "check kana_mismatch_cost with typical weight settings", "[language]"
     test_kana_mismatch_cost(L'ワ', L'ヮ', "../example/conf/kana_mismatch_cost.tsv", 0.2);
     test_kana_mismatch_cost(L'カ', L'ヵ', "../example/conf/kana_mismatch_cost.tsv", 0.2);
     test_kana_mismatch_cost(L'ケ', L'ヶ', "../example/conf/kana_mismatch_cost.tsv", 0.2);
+    test_kana_mismatch_cost(L'ア', L'イ', "../example/conf/kana_mismatch_cost.tsv", 0.9);
+    test_kana_mismatch_cost(L'ア', L'カ', "../example/conf/kana_mismatch_cost.tsv", 0.6);
+    test_kana_mismatch_cost(L'サ', L'カ', "../example/conf/kana_mismatch_cost.tsv", 0.8);
+    test_kana_mismatch_cost(L'チ', L'ニ', "../example/conf/kana_mismatch_cost.tsv", 0.8);
 }
 
 TEST_CASE( "check kana_mismatch_cost when input letter is not a kana", "[language]" ) {
