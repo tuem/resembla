@@ -144,7 +144,8 @@ void narrow_down_by_unigram_intersection(const string_type& reference, std::vect
     }
     string_type b(max_length, static_cast<typename string_type::value_type>(0));
 
-    std::vector<std::pair<string_type, double>> work;
+    std::vector<std::pair<string_type, double>> work(target.size());
+    size_t p = 0;
     for(const auto& t: target){
         std::copy(std::begin(t), std::end(t), std::begin(b));
         std::sort(std::begin(b), std::begin(b) + t.length());
@@ -162,7 +163,8 @@ void narrow_down_by_unigram_intersection(const string_type& reference, std::vect
                 ++j;
             }
         }
-        work.push_back(std::make_pair(t, c / static_cast<double>(total)));
+        work[p].first = t;
+        work[p++].second = c / static_cast<double>(total);
     }
     std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
         [](const std::pair<string_type, double>& a, const std::pair<string_type, double>& b) -> bool{
