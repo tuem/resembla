@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace resembla {
 
@@ -136,12 +137,19 @@ void narrow_down_by_unigram_intersection(const string_type& reference, std::vect
 {
     string_type a = reference;
     std::sort(std::begin(a), std::end(a));
+
+    size_t max_length = 0;
+    for(const auto& t: target){
+        max_length = std::max(max_length, t.length());
+    }
+    string_type b(max_length, static_cast<typename string_type::value_type>(0));
+
     std::vector<std::pair<string_type, double>> work;
     for(const auto& t: target){
-        string_type b = t;
-        std::sort(std::begin(b), std::end(b));
-        size_t total = a.length() + b.length(), i = 0, j = 0, c = 0;
-        while(i < a.length() && j < b.length()){
+        std::copy(std::begin(t), std::end(t), std::begin(b));
+        std::sort(std::begin(b), std::begin(b) + t.length());
+        size_t total = a.length() + t.length(), i = 0, j = 0, c = 0;
+        while(i < a.length() && j < t.length()){
             if(a[i] == b[j]){
                 ++i;
                 ++j;
@@ -156,12 +164,12 @@ void narrow_down_by_unigram_intersection(const string_type& reference, std::vect
         }
         work.push_back(std::make_pair(t, c / static_cast<double>(total)));
     }
-    std::sort(std::begin(work), std::end(work),
+    std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
         [](const std::pair<string_type, double>& a, const std::pair<string_type, double>& b) -> bool{
             return a.second > b.second;
         });
 #ifdef DEBUG
-    std::cerr << "narrow " << candidate_scores.size() << " strings" << std::endl;
+    std::cerr << "narrow " << work.size() << " strings" << std::endl;
     for(const auto& i: work){
         std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
     }
