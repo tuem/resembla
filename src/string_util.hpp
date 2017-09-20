@@ -131,5 +131,46 @@ std::vector<string_type> split(const string_type& text, const typename string_ty
     return result;
 }
 
+template<class string_type>
+void narrow_down_by_unigram_intersection(const string_type& reference, std::vector<string_type>& target, size_t k)
+{
+    string_type a = reference;
+    std::sort(std::begin(a), std::end(a));
+    std::vector<std::pair<string_type, double>> work;
+    for(const auto& t: target){
+        string_type b = t;
+        std::sort(std::begin(b), std::end(b));
+        size_t total = a.length() + b.length(), i = 0, j = 0, c = 0;
+        while(i < a.length() && j < b.length()){
+            if(a[i] == b[j]){
+                ++i;
+                ++j;
+                c += 2;
+            }
+            else if(a[i] < b[j]){
+                ++i;
+            }
+            else{
+                ++j;
+            }
+        }
+        work.push_back(std::make_pair(t, c / static_cast<double>(total)));
+    }
+    std::sort(std::begin(work), std::end(work),
+        [](const std::pair<string_type, double>& a, const std::pair<string_type, double>& b) -> bool{
+            return a.second > b.second;
+        });
+#ifdef DEBUG
+    std::cerr << "narrow " << candidate_scores.size() << " strings" << std::endl;
+    for(const auto& i: work){
+        std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
+    }
+#endif
+    for(size_t i = 0; i < k; ++i){
+        target[i] = work.at(i).first;
+    }
+    target.erase(std::begin(target) + k, std::end(target));
+}
+
 }
 #endif

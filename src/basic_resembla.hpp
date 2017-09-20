@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "resembla_interface.hpp"
 #include "reranker.hpp"
+#include "string_util.hpp"
 
 namespace resembla {
 
@@ -114,43 +115,7 @@ public:
         }
 
         if(candidate_texts.size() > max_reranking_num){
-            string_type q = query;
-            std::sort(std::begin(q), std::end(q));
-            std::vector<std::pair<string_type, double>> candidate_scores;
-            for(const auto& text: candidate_texts){
-                string_type t = text;
-                std::sort(std::begin(t), std::end(t));
-                size_t total = q.length() + t.length(), i = 0, j = 0, c = 0;
-                while(i < q.length() && j < t.length()){
-                    if(q[i] == t[j]){
-                        ++i;
-                        ++j;
-                        c += 2;
-                    }
-                    else if(q[i] < t[j]){
-                        ++i;
-                    }
-                    else{
-                        ++j;
-                    }
-                }
-                double score = c / static_cast<double>(total);
-                candidate_scores.push_back(std::make_pair(text, score));
-            }
-            std::sort(std::begin(candidate_scores), std::end(candidate_scores),
-                [](const std::pair<string_type, double>& a, const std::pair<string_type, double>& b) -> bool{
-                    return a.second > b.second;
-                });
-#ifdef DEBUG
-            std::cerr << "narrow " << candidate_scores.size() << " candidates" << std::endl;
-            for(const auto& i: candidate_scores){
-                std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
-            }
-#endif
-            for(size_t i = 0; i < max_reranking_num; ++i){
-                candidate_texts[i] = candidate_scores.at(i).first;
-            }
-            candidate_texts.erase(std::begin(candidate_texts) + max_reranking_num, std::end(candidate_texts));
+            narrow_down_by_unigram_intersection(query, candidate_texts, max_reranking_num);
         }
 
         return eval(query, candidate_texts, threshold, max_response);
