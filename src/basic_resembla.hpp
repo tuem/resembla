@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "resembla_interface.hpp"
 #include "reranker.hpp"
+#include "string_util.hpp"
 
 namespace resembla {
 
@@ -111,10 +112,12 @@ public:
             }
             const auto& j = inverse.at(i);
             std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
-            if(candidate_texts.size() == max_reranking_num){
-                break;
-            }
         }
+
+        if(candidate_texts.size() > max_reranking_num){
+            narrow_down_by_unigram_intersection(query, candidate_texts, max_reranking_num);
+        }
+
         return eval(query, candidate_texts, threshold, max_response);
     }
 

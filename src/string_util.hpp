@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace resembla {
 
@@ -129,6 +130,54 @@ std::vector<string_type> split(const string_type& text, const typename string_ty
         result.push_back(string_type());
     }
     return result;
+}
+
+template<class string_type>
+void narrow_down_by_unigram_intersection(const string_type& reference, std::vector<string_type>& target, size_t k)
+{
+    string_type a = reference;
+    std::sort(std::begin(a), std::end(a));
+
+    size_t max_length = 0;
+    for(const auto& t: target){
+        max_length = std::max(max_length, t.length());
+    }
+    string_type b(max_length, static_cast<typename string_type::value_type>(0));
+
+    std::vector<std::pair<string_type, double>> work;
+    for(const auto& t: target){
+        std::copy(std::begin(t), std::end(t), std::begin(b));
+        std::sort(std::begin(b), std::begin(b) + t.length());
+        size_t total = a.length() + t.length(), i = 0, j = 0, c = 0;
+        while(i < a.length() && j < t.length()){
+            if(a[i] == b[j]){
+                ++i;
+                ++j;
+                c += 2;
+            }
+            else if(a[i] < b[j]){
+                ++i;
+            }
+            else{
+                ++j;
+            }
+        }
+        work.push_back(std::make_pair(t, c / static_cast<double>(total)));
+    }
+    std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
+        [](const std::pair<string_type, double>& a, const std::pair<string_type, double>& b) -> bool{
+            return a.second > b.second;
+        });
+#ifdef DEBUG
+    std::cerr << "narrow " << work.size() << " strings" << std::endl;
+    for(const auto& i: work){
+        std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
+    }
+#endif
+    for(size_t i = 0; i < k; ++i){
+        target[i] = work.at(i).first;
+    }
+    target.erase(std::begin(target) + k, std::end(target));
 }
 
 }
