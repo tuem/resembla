@@ -207,7 +207,7 @@ protected:
         return D;
     }
 
-    distance_type edit_distance_sp(string_type const &text) const
+    distance_type distance_lp(string_type const &text) const
     {
         constexpr bitvector_type msb = bitvector_type{1} << (bit_width<bitvector_type>() - 1);
         for(size_type i = 0; i < block_size; ++i){
@@ -265,7 +265,7 @@ protected:
             return distance_sp(text);
         }
         else{
-            return edit_distance_sp(text);
+            return distance_lp(text);
         }
     }
 };
