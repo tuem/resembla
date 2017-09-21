@@ -46,6 +46,7 @@ struct Eliminator
         if(pattern.empty()){
             return;
         }
+
         pattern_length = pattern.size();
         block_size = ((pattern_length - 1) >> bit_offset<bitvector_type>()) + 1;
         rest_bits = pattern_length - (block_size - 1) * bit_width<bitvector_type>();
@@ -55,7 +56,6 @@ struct Eliminator
             preprocess_sp();
         }
         else{
-            work.resize(block_size);
             preprocess_lp();
         }
         zeroes.resize(block_size, 0);
@@ -109,6 +109,10 @@ protected:
     size_type rest_bits;
     bitvector_type sink;
 
+    std::vector<std::pair<symbol_type, bitvector_type>> PM_sp;
+    std::vector<std::pair<symbol_type, std::vector<bitvector_type>>> PM_lp;
+    std::vector<bitvector_type> zeroes;
+
     struct WorkData
     {
         bitvector_type D0;
@@ -124,10 +128,6 @@ protected:
         }
     };
     mutable std::vector<WorkData> work;
-
-    std::vector<std::pair<symbol_type, bitvector_type>> PM_sp;
-    std::vector<std::pair<symbol_type, std::vector<bitvector_type>>> PM_lp;
-    std::vector<bitvector_type> zeroes;
 
     template<typename Integer> static constexpr int bit_width()
     {
@@ -176,11 +176,11 @@ protected:
 
     void preprocess_sp()
     {
-        std::map<symbol_type, bitvector_type> pm;
+        std::map<symbol_type, bitvector_type> PM_work;
         for(size_type i = 0; i < pattern.size(); ++i){
-            auto j = pm.find(pattern[i]);
-            if(j == pm.end()){
-                pm[pattern[i]] = bitvector_type{1} << i;
+            auto j = PM_work.find(pattern[i]);
+            if(j == PM_work.end()){
+                PM_work[pattern[i]] = bitvector_type{1} << i;
             }
             else{
                 j->second |= bitvector_type{1} << i;
@@ -188,33 +188,34 @@ protected:
         }
 
         PM_sp.clear();
-        for(const auto& p: pm){
+        for(const auto& p: PM_work){
             PM_sp.push_back(p);
         }
     }
 
     void preprocess_lp()
     {
-        std::map<symbol_type, std::vector<bitvector_type>> pm;
+        std::map<symbol_type, std::vector<bitvector_type>> PM_work;
         for(size_type i = 0; i < block_size - 1; ++i){
             for(size_type j = 0; j < bit_width<bitvector_type>(); ++j){
-                if(pm[pattern[i * bit_width<bitvector_type>() + j]].empty()){
-                    pm[pattern[i * bit_width<bitvector_type>() + j]].resize(block_size, 0);
+                if(PM_work[pattern[i * bit_width<bitvector_type>() + j]].empty()){
+                    PM_work[pattern[i * bit_width<bitvector_type>() + j]].resize(block_size, 0);
                 }
-                pm[pattern[i * bit_width<bitvector_type>() + j]][i] |= bitvector_type{1} << j;
+                PM_work[pattern[i * bit_width<bitvector_type>() + j]][i] |= bitvector_type{1} << j;
             }
         }
         for(size_type i = 0; i < rest_bits; ++i){
-            if(pm[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].empty()){
-                pm[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].resize(block_size, 0);
+            if(PM_work[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].empty()){
+                PM_work[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].resize(block_size, 0);
             }
-            pm[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].back() |= bitvector_type{1} << i;
+            PM_work[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].back() |= bitvector_type{1} << i;
         }
 
         PM_lp.clear();
-        for(const auto& p: pm){
+        for(const auto& p: PM_work){
             PM_lp.push_back(p);
         }
+        work.resize(block_size);
     }
 
     distance_type edit_distance_sp(string_type const &text) const
