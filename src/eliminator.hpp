@@ -61,6 +61,7 @@ struct Eliminator
     {
         using index_distance = std::pair<size_type, distance_type>;
 
+        // calculate scores
         std::vector<index_distance> work(candidates.size());
         for(size_type i = 0; i < work.size(); ++i){
             work[i].first = i;
