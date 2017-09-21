@@ -46,11 +46,11 @@ struct bped
         sink = bitvector_type{1} << (rest_bits - 1);
 
         if(block_size == 1){
-            preprocess_bp_1();
+            preprocess_sp();
         }
         else{
             work.resize(block_size);
-            preprocess_bp_n();
+            preprocess_lp();
         }
         zeroes.resize(block_size, 0);
     }
@@ -65,10 +65,10 @@ struct bped
         }
 
         if(block_size == 1){
-            return edit_distance_bp_1(text);
+            return edit_distance_sp(text);
         }
         else{
-            return edit_distance_bp_n(text);
+            return edit_distance_lp(text);
         }
     }
 
@@ -147,7 +147,7 @@ protected:
         return default_value;
     }
 
-    void preprocess_bp_1()
+    void preprocess_sp()
     {
         std::map<symbol_type, bitvector_type> pm;
         for(size_t i = 0; i < pattern.size(); ++i){
@@ -166,7 +166,7 @@ protected:
         }
     }
 
-    void preprocess_bp_n()
+    void preprocess_lp()
     {
         std::map<symbol_type, std::vector<bitvector_type>> pm;
         for(size_t i = 0; i < block_size - 1; ++i){
@@ -190,7 +190,7 @@ protected:
         }
     }
 
-    output_type edit_distance_bp_1(string_type const &text) const
+    output_type edit_distance_sp(string_type const &text) const
     {
         bitvector_type D0, HP, HN, VP = 0, VN = 0;
         for(size_t i = 0; i < m; ++i){
@@ -219,7 +219,7 @@ protected:
         return diff;
     }
 
-    output_type edit_distance_bp_n(string_type const &text) const
+    output_type edit_distance_lp(string_type const &text) const
     {
         constexpr bitvector_type msb = bitvector_type{1} << (bit_width<bitvector_type>() - 1);
         for(size_t i = 0; i < block_size; ++i){
