@@ -59,25 +59,35 @@ struct Eliminator
 
     void operator()(std::vector<string_type>& candidates, size_type k)
     {
-        using string_distance = std::pair<string_type, distance_type>;
-        std::vector<string_distance> work(candidates.size());
-        size_type p = 0;
-        for(const auto& c: candidates){
-            work[p].first = c;
-            work[p++].second = -distance(c);
+        using index_distance = std::pair<size_type, distance_type>;
+
+        std::vector<index_distance> work(candidates.size());
+        for(size_type i = 0; i < work.size(); ++i){
+            work[i].first = i;
+            work[i].second = -distance(candidates[i]);
         }
+
+        // sort partially to obtain top-k elements
         std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
-            [](const string_distance& a, const string_distance& b) -> bool{
+            [](const index_distance& a, const index_distance& b) -> bool{
                 return a.second > b.second;
+            });
+
+        // ensure that work[i].first < work[j].first if i < j < k
+        std::partial_sort(std::begin(work), std::begin(work) + k, std::begin(work) + k,
+            [](const index_distance& a, const index_distance& b) -> bool{
+                return a.first < b.first;
             });
 #ifdef DEBUG
         std::cerr << "narrow " << work.size() << " strings" << std::endl;
-        for(const auto& i: work){
-            std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
+        for(size_type i = 0; i < k; ++i){
+            std::cerr << cast_string<std::string>(candidates[work[i].first]) << ": " << work[i].second << std::endl;
         }
 #endif
+
+        // sort original list
         for(size_type i = 0; i < k; ++i){
-            candidates[i] = work.at(i).first;
+            std::swap(candidates[i], candidates[work[i].first]);
         }
         candidates.erase(std::begin(candidates) + k, std::end(candidates));
     }
@@ -211,8 +221,9 @@ protected:
     distance_type distance_lp(string_type const &text) const
     {
         constexpr bitvector_type msb = bitvector_type{1} << (bit_width<bitvector_type>() - 1);
-        for(size_type i = 0; i < block_size; ++i){
-            work[i].reset();
+
+        for(auto& w: work){
+            w.reset();
         }
         for(size_type i = 0; i < rest_bits; ++i){
             work.back().VP |= bitvector_type{1} << i;
