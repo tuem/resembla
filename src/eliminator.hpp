@@ -28,10 +28,11 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type>
+template<typename string_type, typename bitvector_type = uint64_t>
 struct Eliminator
 {
-    using output_type = int;
+    using symbol_type = typename string_type::value_type;
+    using distance_type = int;
 
     Eliminator(string_type const& pattern = string_type())
     {
@@ -59,8 +60,7 @@ struct Eliminator
         zeroes.resize(block_size, 0);
     }
 
-    //output_type operator()(string_type const &text) const
-    output_type distance(string_type const &text) const
+    distance_type distance(string_type const &text) const
     {
         if(text.empty()){
             return m;
@@ -102,8 +102,6 @@ struct Eliminator
     }
 
 protected:
-    using symbol_type = typename string_type::value_type;
-    using bitvector_type = uint64_t;
 
     string_type pattern;
     size_t m;
@@ -219,14 +217,14 @@ protected:
         }
     }
 
-    output_type edit_distance_sp(string_type const &text) const
+    distance_type edit_distance_sp(string_type const &text) const
     {
         bitvector_type D0, HP, HN, VP = 0, VN = 0;
         for(size_t i = 0; i < m; ++i){
             VP |= bitvector_type{1} << i;
         }
 
-        output_type diff = m;
+        distance_type diff = m;
         for(auto c: text){
             auto X = find_value(PM, c, bitvector_type{0}) | VN;
 
@@ -248,7 +246,7 @@ protected:
         return diff;
     }
 
-    output_type edit_distance_lp(string_type const &text) const
+    distance_type edit_distance_lp(string_type const &text) const
     {
         constexpr bitvector_type msb = bitvector_type{1} << (bit_width<bitvector_type>() - 1);
         for(size_t i = 0; i < block_size; ++i){
@@ -258,7 +256,7 @@ protected:
             work.back().VP |= bitvector_type{1} << i;
         }
 
-        output_type diff = m;
+        distance_type diff = m;
         for(auto c: text){
             const auto& PM = find_value(PMs, c, zeroes);
 
