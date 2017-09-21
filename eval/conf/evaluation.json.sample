@@ -17,7 +17,7 @@
     },
     "weighted_word_edit_distance": {
         "simstring_ngram_unit": 2,
-        "simstring_threshold": 0.1,
+        "simstring_threshold": 0.2,
         "mecab_options": "",
         "base_weight": 1.0,
         "delete_insert_ratio": 1.0,
@@ -28,16 +28,18 @@
     },
     "weighted_pronunciation_edit_distance": {
         "simstring_ngram_unit": 2,
-        "simstring_threshold": 0.2,
+        "simstring_threshold": 0.3,
         "mecab_options": "-d /usr/local/share/clova-chat-server/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
         "mecab_feature_pos": 9,
         "mecab_pronunciation_of_marks": "記号",
         "base_weight": 1.0,
         "delete_insert_ratio": 1.0,
+        "letter_weight_path": "../example/conf/kana_weight.tsv",
+        "mismatch_cost_path": "../example/conf/kana_mismatch_cost.tsv",
         "ensemble_weight": 0.3
     },
     "weighted_romaji_edit_distance": {
-        "simstring_ngram_unit": 5,
+        "simstring_ngram_unit": 4,
         "simstring_threshold": 0.3,
         "mecab_options": "-d /usr/local/share/clova-chat-server/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
         "mecab_feature_pos": 9,
@@ -50,6 +52,7 @@
         "consonant_coefficient": 1.0,
         "case_mismatch_cost": 0.3,
         "similar_letter_cost": 0.75,
+        "mismatch_cost_path": "../example/conf/romaji_mismatch_cost.tsv",
         "ensemble_weight": 0.2
     },
     "svr": {
