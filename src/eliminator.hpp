@@ -17,19 +17,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_BPED_HPP
-#define RESEMBLA_BPED_HPP
+#ifndef RESEMBLA_ELIMINATOR_HPP
+#define RESEMBLA_ELIMINATOR_HPP
 
 #include <string>
 #include <vector>
 #include <map>
 
+#include "string_util.hpp"
+
+namespace resembla {
+
 template<typename string_type>
-struct bped
+struct Eliminator
 {
     using output_type = int;
 
-    bped(string_type const& pattern = string_type())
+    Eliminator(string_type const& pattern = string_type())
     {
         init(pattern);
     }
@@ -55,7 +59,8 @@ struct bped
         zeroes.resize(block_size, 0);
     }
 
-    output_type operator()(string_type const &text) const
+    //output_type operator()(string_type const &text) const
+    output_type distance(string_type const &text) const
     {
         if(text.empty()){
             return m;
@@ -70,6 +75,30 @@ struct bped
         else{
             return edit_distance_lp(text);
         }
+    }
+
+    void operator()(std::vector<string_type>& candidates, size_t k)
+    {
+        std::vector<std::pair<string_type, int>> work(candidates.size());
+        size_t p = 0;
+        for(const auto& c: candidates){
+            work[p].first = c;
+            work[p++].second = -static_cast<int>(distance(c));
+        }
+        std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
+            [](const std::pair<string_type, int>& a, const std::pair<string_type, int>& b) -> bool{
+                return a.second > b.second;
+            });
+#ifdef DEBUG
+        std::cerr << "narrow " << work.size() << " strings" << std::endl;
+        for(const auto& i: work){
+            std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
+        }
+#endif
+        for(size_t i = 0; i < k; ++i){
+            candidates[i] = work.at(i).first;
+        }
+        candidates.erase(std::begin(candidates) + k, std::end(candidates));
     }
 
 protected:
@@ -265,4 +294,6 @@ protected:
         return diff;
     }
 };
+
+}
 #endif
