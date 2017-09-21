@@ -59,14 +59,14 @@ struct Eliminator
 
     void operator()(std::vector<string_type>& candidates, size_type k)
     {
-        std::vector<std::pair<string_type, int>> work(candidates.size());
+        std::vector<std::pair<string_type, distance_type>> work(candidates.size());
         size_type p = 0;
         for(const auto& c: candidates){
             work[p].first = c;
-            work[p++].second = -static_cast<int>(distance(c));
+            work[p++].second = -distance(c);
         }
         std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
-            [](const std::pair<string_type, int>& a, const std::pair<string_type, int>& b) -> bool{
+            [](const std::pair<string_type, distance_type>& a, const std::pair<string_type, distance_type>& b) -> bool{
                 return a.second > b.second;
             });
 #ifdef DEBUG
