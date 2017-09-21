@@ -106,6 +106,7 @@ public:
             return {};
         }
         else if(simstring_result.size() > max_reranking_num){
+            //narrow_down_by_edit_distance(search_query, simstring_result, max_reranking_num);
             narrow_down_by_unigram_intersection(search_query, simstring_result, max_reranking_num);
         }
 

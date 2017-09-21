@@ -24,6 +24,8 @@ limitations under the License.
 #include <vector>
 #include <iostream>
 
+#include "bped.hpp"
+
 namespace resembla {
 
 using string_type = std::wstring;
@@ -180,6 +182,33 @@ void narrow_down_by_unigram_intersection(const string_type& reference, std::vect
         target[i] = work.at(i).first;
     }
     target.erase(std::begin(target) + k, std::end(target));
+}
+
+template<class string_type>
+void narrow_down_by_edit_distance(const string_type& reference, std::vector<string_type>& target, size_t k)
+{
+    bped<string_type> ed(reference);
+    std::vector<std::pair<string_type, int>> work(target.size());
+    size_t p = 0;
+    for(const auto& t: target){
+        work[p].first = t;
+        work[p++].second = -static_cast<int>(ed(t));
+    }
+    std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
+        [](const std::pair<string_type, int>& a, const std::pair<string_type, int>& b) -> bool{
+            return a.second > b.second;
+        });
+#ifdef DEBUG
+    std::cerr << "narrow " << work.size() << " strings" << std::endl;
+    for(const auto& i: work){
+        std::cerr << cast_string<std::string>(i.first) << ": " << i.second << std::endl;
+    }
+#endif
+    for(size_t i = 0; i < k; ++i){
+        target[i] = work.at(i).first;
+    }
+    target.erase(std::begin(target) + k, std::end(target));
+
 }
 
 }
