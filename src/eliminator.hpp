@@ -100,7 +100,6 @@ protected:
     size_type rest_bits;
     bitvector_type sink;
 
-    std::vector<std::pair<symbol_type, bitvector_type>> PM_sp;
     std::vector<std::pair<symbol_type, std::vector<bitvector_type>>> PM;
     std::vector<bitvector_type> zeroes;
 
