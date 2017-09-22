@@ -80,7 +80,7 @@ struct Eliminator
             });
 
         // ensure that work[i].first < work[j].first if i < j < k
-        std::partial_sort(std::begin(work), std::begin(work) + k, std::begin(work) + k,
+        std::sort(std::begin(work), std::begin(work) + k,
             [](const index_distance& a, const index_distance& b) -> bool{
                 return a.first < b.first;
             });
