@@ -15,20 +15,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-all: eval_resembla
+BINS = eval_resembla benchmark_eliminator
+all: $(BINS)
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 -isystem../../include -isystem../../include/json -isystem../../include/cmdline -isystem../../include/paramset -I../../src `mecab-config --cflags`
 CXXLIBS := -lresembla -lsvm `pkg-config --libs icu-uc icu-i18n` `mecab-config --libs`
 
-
-BINS = eval_resembla
-SRCS = eval_resembla.cpp
+SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
-eval_resembla: $(OBJS)
-	$(CXX) -o $@ $(OBJS) $(CXXLIBS)
+eval_resembla: eval_resembla.o
+	$(CXX) -o $@ eval_resembla.o $(CXXLIBS)
+
+benchmark_eliminator: benchmark_eliminator.o
+	$(CXX) -o $@ benchmark_eliminator.o $(CXXLIBS)
 
 
 .PHONY: clean all
