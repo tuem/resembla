@@ -138,27 +138,23 @@ protected:
     const value_type& find_value(const std::vector<std::pair<key_type, value_type>>& data,
             const key_type c, const value_type& default_value) const
     {
-        if(data.size() < 9){
-            for(const auto& p: data){
-                if(p.first == c){
-                    return p.second;
-                }
+        size_type l = 0, r = data.size();
+        while(r - l > 8){
+            auto i = (l + r) / 2;
+            auto& p = data[i];
+            if(p.first < c){
+                l = i + 1;
+            }
+            else if(p.first > c){
+                r = i;
+            }
+            else{
+                return p.second;
             }
         }
-        else{
-            size_type l = 0, r = data.size();
-            while(l < r){
-                auto i = (l + r) / 2;
-                auto& p = data[i];
-                if(p.first < c){
-                    l = i + 1;
-                }
-                else if(p.first > c){
-                    r = i;
-                }
-                else{
-                    return p.second;
-                }
+        for(size_type i = l; i < r; ++i){
+            if(data[i].first == c){
+                return data[i].second;
             }
         }
         return default_value;
