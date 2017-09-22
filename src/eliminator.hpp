@@ -141,15 +141,14 @@ protected:
         size_type l = 0, r = data.size();
         while(r - l > 8){
             auto i = (l + r) / 2;
-            auto& p = data[i];
-            if(p.first < c){
+            if(data[i].first < c){
                 l = i + 1;
             }
-            else if(p.first > c){
+            else if(data[i].first > c){
                 r = i;
             }
             else{
-                return p.second;
+                return data[i].second;
             }
         }
         for(size_type i = l; i < r; ++i){
