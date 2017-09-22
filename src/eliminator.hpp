@@ -96,6 +96,7 @@ struct Eliminator
 protected:
     string_type pattern;
     size_type pattern_length;
+    symbol_type c_min, c_max;
     size_type block_size;
     size_type rest_bits;
     bitvector_type sink;
@@ -138,7 +139,17 @@ protected:
     const value_type& find_value(const std::vector<std::pair<key_type, value_type>>& data,
             const key_type c, const value_type& default_value) const
     {
-        size_type l = 0, r = data.size();
+        if(c < c_min || c_max < c){
+            return default_value;
+        }
+        else if(c == c_min){
+            return PM.front().second;
+        }
+        else if(c == c_max){
+            return PM.back().second;
+        }
+
+        size_type l = 1, r = data.size() - 1;
         while(r - l > 8){
             auto i = (l + r) / 2;
             if(data[i].first < c){
@@ -151,11 +162,13 @@ protected:
                 return data[i].second;
             }
         }
+
         for(size_type i = l; i < r; ++i){
             if(data[i].first == c){
                 return data[i].second;
             }
         }
+
         return default_value;
     }
 
@@ -181,6 +194,8 @@ protected:
         for(const auto& p: PM_work){
             PM.push_back(p);
         }
+        c_min = PM.front().first;
+        c_max = PM.back().first;
     }
 
     distance_type distance_sp(string_type const &text) const
