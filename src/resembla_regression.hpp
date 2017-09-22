@@ -150,7 +150,7 @@ protected:
                 }
                 else{
 #ifdef DEBUG
-                    std::cerr << "preprocess: " << columns[2] << std::endl;
+                    std::cerr << "preprocess: " << columns[1] << std::endl;
 #endif
                     corpus_features[cast_string<string_type>(columns[1])] =
                         (*preprocess)(columns[1], "");
