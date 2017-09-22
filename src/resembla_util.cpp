@@ -354,7 +354,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 inverse_path_from_resembla_measure(corpus_path, svr),
                 pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
                 pm.get<std::string>("svr_model_path"), base_resembla);
-        if(base_resembla != keyword_resembla){
+        if(keyword_resembla != nullptr && base_resembla != keyword_resembla){
             resembla_regression->append(STR(keyword_match), keyword_resembla, false);
         }
         resembla = resembla_regression;
