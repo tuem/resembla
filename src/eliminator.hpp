@@ -119,6 +119,7 @@ protected:
         }
     };
     mutable std::vector<WorkData> work;
+    bitvector_type VP0;
 
     template<typename Integer> static constexpr int bit_width()
     {
@@ -196,15 +197,18 @@ protected:
         }
         c_min = PM.front().first;
         c_max = PM.back().first;
+
+        VP0 = 0;
+        for(size_type i = 0; i < rest_bits; ++i){
+            VP0 |= bitvector_type{1} << i;
+        }
     }
 
     distance_type distance_sp(string_type const &text) const
     {
         auto& w = work.front();
         w.reset();
-        for(size_type i = 0; i < pattern_length; ++i){
-            w.VP |= bitvector_type{1} << i;
-        }
+        w.VP = VP0;
 
         distance_type D = pattern_length;
         for(auto c: text){
@@ -235,9 +239,7 @@ protected:
         for(auto& w: work){
             w.reset();
         }
-        for(size_type i = 0; i < rest_bits; ++i){
-            work.back().VP |= bitvector_type{1} << i;
-        }
+        work.back().VP = VP0;
 
         distance_type D = pattern_length;
         for(auto c: text){
