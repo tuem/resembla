@@ -55,6 +55,11 @@ struct Eliminator
         constructPM();
         zeroes.resize(block_size, 0);
         work.resize(block_size);
+
+        VP0 = 0;
+        for(size_type i = 0; i < rest_bits; ++i){
+            VP0 |= bitvector_type{1} << i;
+        }
     }
 
     void operator()(std::vector<string_type>& candidates, size_type k)
@@ -197,11 +202,6 @@ protected:
         }
         c_min = PM.front().first;
         c_max = PM.back().first;
-
-        VP0 = 0;
-        for(size_type i = 0; i < rest_bits; ++i){
-            VP0 |= bitvector_type{1} << i;
-        }
     }
 
     distance_type distance_sp(string_type const &text) const
