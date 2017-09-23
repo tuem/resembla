@@ -119,6 +119,9 @@ int main(int argc, char* argv[])
 
     paramset::definitions defs = {
         {"simstring_ngram_unit", 2, {"simstring", "ngram_unit"}, "simstring-ngram-unit", 'N', "Unit of N-gram for SimString"},
+        {"index_romaji_mecab_options", "", {"index", "romaji", "mecab_options"}, "index-romaji-mecab-options", 0, "MeCab options for romaji indexer"},
+        {"index_romaji_mecab_feature_pos", 7, {"index", "romaji", "mecab_feature_pos"}, "index-romaji-mecab-feature-pos", 0, "Position of pronunciation in feature for romaji indexer"},
+        {"index_romaji_mecab_pronunciation_of_marks", "", {"index", "romaji", "mecab_pronunciation_of_marks"}, "index-romaji-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"resembla_measure", STR(weighted_word_edit_distance), {"resembla", "measure"}, "measure", 'm', "measure for scoring"},
         {"ed_simstring_ngram_unit", -1, {"edit_distance", "simstring_ngram_unit"}, "ed-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"wwed_simstring_ngram_unit", -1, {"weighted_word_edit_distance", "simstring_ngram_unit"}, "wwed-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
@@ -294,8 +297,9 @@ int main(int argc, char* argv[])
                         preprocess, preprocess, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == svr){
-                RomajiSequenceBuilder indexer(pm.get<std::string>("wred_mecab_options"),
-                        pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
+                RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
+                        pm.get<int>("index_romaji_mecab_feature_pos"),
+                        pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
 
                 auto features = load_features(pm.get<std::string>("svr_features_path"));
                 if(features.empty()){
