@@ -168,12 +168,14 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
     return result;
 }
 
-std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
-        int max_candidate, std::string inverse_path,
-        std::string features_path, std::string patterns_home, std::string model_path,
+std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
+construct_resembla_regression(std::string db_path, std::string inverse_path, paramset::manager& pm,
         const std::shared_ptr<ResemblaInterface> resembla)
 {
-    auto features = load_features(features_path);
+    auto indexer = std::make_shared<RomajiSequenceBuilder>((pm.get<std::string>("svr_index_mecab_options"),
+            pm.get<int>("svr_index_mecab_feature_pos"), pm.get<std::string>("svr_index_mecab_pronunciation_of_marks")));
+
+    auto features = load_features(pm.get<std::string>("svr_features_path"));
     if(features.empty()){
         throw std::runtime_error("no feature");
     }
@@ -192,7 +194,8 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
 
         const auto& feature_extractor_type = feature[1];
         if(feature_extractor_type == "re"){
-            extractor->append(name, std::make_shared<RegexFeatureExtractor>(patterns_home + "/" + name + ".tsv"));
+            extractor->append(name, std::make_shared<RegexFeatureExtractor>(
+                pm.get<std::string>("svr_patterns_home") + "/" + name + ".tsv"));
         }
         else if(feature_extractor_type == "date_period"){
             extractor->append(name, std::make_shared<DatePeriodFeatureExtractor>());
@@ -223,13 +226,15 @@ std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>
     }
 
     // aggregated features => score
-    auto original_predictor = std::make_shared<SVRPredictor>(feature_names, model_path);
+    auto original_predictor = std::make_shared<SVRPredictor>(feature_names, pm.get<std::string>("svr_model_path"));
     // pair of features => score
     auto predictor = std::make_shared<Composition<FeatureAggregator, SVRPredictor>>(aggregator, original_predictor);
 
     auto resembla_regression = std::make_shared<
-            ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>>(
-                max_candidate, extractor, predictor, inverse_path);
+            ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>(
+                db_path, inverse_path,
+                pm.get<int>("svr_simstring_measure"), pm.get<double>("simstring_threshold"),
+                pm.get<int>("svr_max_candidate"), indexer, extractor, predictor);
     resembla_regression->append("base_similarity", resembla, true);
     return resembla_regression;
 }
@@ -349,11 +354,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
 
     std::shared_ptr<ResemblaInterface> resembla;
     if(use_regression){
-        std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>>
-            resembla_regression = construct_resembla_regression(pm.get<int>("svr_max_candidate"),
+        std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
+            resembla_regression = construct_resembla_regression(
+                db_path_from_resembla_measure(corpus_path, svr),
                 inverse_path_from_resembla_measure(corpus_path, svr),
-                pm.get<std::string>("svr_features_path"), pm.get<std::string>("svr_patterns_home"),
-                pm.get<std::string>("svr_model_path"), base_resembla);
+                pm, base_resembla);
         if(keyword_resembla != nullptr && base_resembla != keyword_resembla){
             resembla_regression->append(STR(keyword_match), keyword_resembla, false);
         }
