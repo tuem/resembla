@@ -208,10 +208,8 @@ protected:
             PM_work[pattern[(block_size - 1) * bitWidth<bitvector_type>() + i]].back() |= bitvector_type{1} << i;
         }
 
-        PM.clear();
-        for(const auto& p: PM_work){
-            PM.push_back(p);
-        }
+        PM.resize(PM_work.size());
+        std::copy(PM_work.begin(), PM_work.end(), PM.begin());
         c_min = PM.front().first;
         c_max = PM.back().first;
     }
