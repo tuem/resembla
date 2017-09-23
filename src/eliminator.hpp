@@ -48,8 +48,8 @@ struct Eliminator
         }
 
         pattern_length = pattern.size();
-        block_size = ((pattern_length - 1) >> bit_offset<bitvector_type>()) + 1;
-        rest_bits = pattern_length - (block_size - 1) * bit_width<bitvector_type>();
+        block_size = ((pattern_length - 1) >> bitOffset<bitvector_type>()) + 1;
+        rest_bits = pattern_length - (block_size - 1) * bitWidth<bitvector_type>();
         sink = bitvector_type{1} << (rest_bits - 1);
 
         constructPM();
@@ -135,26 +135,26 @@ protected:
             VP = ~(bitvector_type{0});
         }
     };
-    mutable std::vector<WorkData> work;
+    std::vector<WorkData> work;
     bitvector_type VP0;
 
-    template<typename Integer> static constexpr int bit_width()
+    template<typename Integer> static constexpr int bitWidth()
     {
         return 8 * sizeof(Integer);
     }
 
-    static constexpr int bit_offset(int w)
+    static constexpr int bitOffset(int w)
     {
-        return w < 2 ? 0 : (bit_offset(w >> 1) + 1);
+        return w < 2 ? 0 : (bitOffset(w >> 1) + 1);
     }
 
-    template<typename Integer> static constexpr int bit_offset()
+    template<typename Integer> static constexpr int bitOffset()
     {
-        return bit_offset(bit_width<Integer>());
+        return bitOffset(bitWidth<Integer>());
     }
 
     template<typename key_type, typename value_type>
-    const value_type& find_value(const std::vector<std::pair<key_type, value_type>>& data,
+    const value_type& findValue(const std::vector<std::pair<key_type, value_type>>& data,
             const key_type c, const value_type& default_value) const
     {
         if(c < c_min || c_max < c){
@@ -194,18 +194,18 @@ protected:
     {
         std::map<symbol_type, std::vector<bitvector_type>> PM_work;
         for(size_type i = 0; i < block_size - 1; ++i){
-            for(size_type j = 0; j < bit_width<bitvector_type>(); ++j){
-                if(PM_work[pattern[i * bit_width<bitvector_type>() + j]].empty()){
-                    PM_work[pattern[i * bit_width<bitvector_type>() + j]].resize(block_size, 0);
+            for(size_type j = 0; j < bitWidth<bitvector_type>(); ++j){
+                if(PM_work[pattern[i * bitWidth<bitvector_type>() + j]].empty()){
+                    PM_work[pattern[i * bitWidth<bitvector_type>() + j]].resize(block_size, 0);
                 }
-                PM_work[pattern[i * bit_width<bitvector_type>() + j]][i] |= bitvector_type{1} << j;
+                PM_work[pattern[i * bitWidth<bitvector_type>() + j]][i] |= bitvector_type{1} << j;
             }
         }
         for(size_type i = 0; i < rest_bits; ++i){
-            if(PM_work[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].empty()){
-                PM_work[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].resize(block_size, 0);
+            if(PM_work[pattern[(block_size - 1) * bitWidth<bitvector_type>() + i]].empty()){
+                PM_work[pattern[(block_size - 1) * bitWidth<bitvector_type>() + i]].resize(block_size, 0);
             }
-            PM_work[pattern[(block_size - 1) * bit_width<bitvector_type>() + i]].back() |= bitvector_type{1} << i;
+            PM_work[pattern[(block_size - 1) * bitWidth<bitvector_type>() + i]].back() |= bitvector_type{1} << i;
         }
 
         PM.clear();
@@ -216,7 +216,7 @@ protected:
         c_max = PM.back().first;
     }
 
-    distance_type distance_sp(string_type const &text) const
+    distance_type distance_sp(string_type const &text)
     {
         auto& w = work.front();
         w.reset();
@@ -224,7 +224,7 @@ protected:
 
         distance_type D = pattern_length;
         for(auto c: text){
-            auto X = find_value(PM, c, zeroes).front() | w.VN;
+            auto X = findValue(PM, c, zeroes).front() | w.VN;
 
             w.D0 = ((w.VP + (X & w.VP)) ^ w.VP) | X;
             w.HP = w.VN | ~(w.VP | w.D0);
@@ -244,9 +244,9 @@ protected:
         return D;
     }
 
-    distance_type distance_lp(string_type const &text) const
+    distance_type distance_lp(string_type const &text)
     {
-        constexpr bitvector_type msb = bitvector_type{1} << (bit_width<bitvector_type>() - 1);
+        constexpr bitvector_type msb = bitvector_type{1} << (bitWidth<bitvector_type>() - 1);
 
         for(auto& w: work){
             w.reset();
@@ -255,7 +255,7 @@ protected:
 
         distance_type D = pattern_length;
         for(auto c: text){
-            const auto& PMc = find_value(PM, c, zeroes);
+            const auto& PMc = findValue(PM, c, zeroes);
             for(size_type r = 0; r < block_size; ++r){
                 auto& w = work[r];
                 auto X = PMc[r];
@@ -288,7 +288,7 @@ protected:
         return D;
     }
 
-    distance_type distance(string_type const &text) const
+    distance_type distance(string_type const &text)
     {
         if(text.empty()){
             return pattern_length;
