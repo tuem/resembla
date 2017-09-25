@@ -11,6 +11,13 @@
         "measure": "cosine",
         "threshold": 0.001
     },
+    "index": {
+        "romaji": {
+            "mecab_options": "-d ../../misc/mecab_dic/unidic/unidic-mecab-2.1.2_bin -Odump",
+            "mecab_feature_pos": 9,
+            "mecab_pronunciation_of_marks": "記号"
+        }
+    },
     "resembla": {
         "measure": "svr,weighted_word_edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance,keyword_match",
         "max_reranking_num": 100,

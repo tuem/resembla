@@ -28,6 +28,7 @@ limitations under the License.
 #include "basic_resembla.hpp"
 #include "resembla_ensemble.hpp"
 
+#include "measure/romaji_sequence_builder.hpp"
 #include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/predictor/svr_predictor.hpp"
 #include "composition.hpp"
@@ -95,9 +96,8 @@ std::shared_ptr<ResemblaInterface> construct_basic_resembla(const std::string& d
             preprocess, score_func, preprocess_corpus);
 }
 
-std::shared_ptr<ResemblaRegression<Composition<FeatureAggregator, SVRPredictor>>> construct_resembla_regression(
-        int max_candidate, std::string inverse_path,
-        std::string features_path, std::string patterns_home, std::string model_path,
+std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
+construct_resembla_regression(std::string db_path, std::string inverse_path, paramset::manager& pm,
         const std::shared_ptr<ResemblaInterface> resembla);
 
 // utility function to construct Resembla instance

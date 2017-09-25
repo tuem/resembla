@@ -26,28 +26,31 @@ limitations under the License.
 #include <unordered_map>
 #include <fstream>
 
+#include <simstring/simstring.h>
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "eliminator.hpp"
 #include "reranker.hpp"
 #include "regression/feature.hpp"
 #include "regression/extractor/feature_extractor.hpp"
 
 namespace resembla {
 
-template<typename ScoreFunction>
+template<typename Indexer, typename ScoreFunction>
 class ResemblaRegression: public ResemblaInterface
 {
 public:
-    ResemblaRegression(size_t max_candidate,
-            std::shared_ptr<FeatureExtractor> feature_extractor, std::shared_ptr<ScoreFunction> score_func,
-            std::string inverse_path = ""):
-        max_candidate(max_candidate), preprocess(feature_extractor), score_func(score_func),
-        reranker(), preprocess_corpus(!inverse_path.empty())
+    ResemblaRegression(
+            const std::string& db_path, const std::string& inverse_path,
+            const int simstring_measure, const double simstring_threshold, const size_t max_candidate,
+            std::shared_ptr<Indexer> indexer, std::shared_ptr<FeatureExtractor> feature_extractor,
+            std::shared_ptr<ScoreFunction> score_func):
+        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_candidate(max_candidate),
+        indexer(indexer), preprocess(feature_extractor), score_func(score_func), reranker()
     {
-        if(preprocess_corpus){
-            loadCorpusFeatures(inverse_path);
-        }
+        db.open(db_path);
+        load(inverse_path);
     }
 
     void append(const std::string name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary = true)
@@ -60,23 +63,41 @@ public:
 
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
     {
-        std::vector<string_type> candidate_texts;
-        std::unordered_map<string_type, StringFeatureMap> candidate_features;
+        string_type search_query = indexer->index(query);
 
-        // primary resembla
-        for(const auto& r: resemblas.at(primary_resembla_name)->find(query, threshold / 2.0, max_candidate * 2)){
-            candidate_texts.push_back(r.text);
-            candidate_features[r.text] = preprocess_corpus ? corpus_features.at(r.text) : (*preprocess)(r.text);
-            candidate_features[r.text][primary_resembla_name] = Feature::toText(r.score);
+        // search from N-gram index
+        std::vector<string_type> simstring_result;
+        {
+            std::lock_guard<std::mutex> lock(mutex_simstring);
+            db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
+        }
+        if(simstring_result.empty()){
+            return {};
+        }
+        else if(simstring_result.size() > max_candidate){
+            Eliminator<string_type> eliminate(search_query);
+            eliminate(simstring_result, max_candidate, true);
         }
 
-        // other resemblas
-        for(const auto& p: resemblas){
-            if(p.first == primary_resembla_name){
+        // load original texts
+        std::vector<string_type> candidate_texts;
+        for(const auto& i: simstring_result){
+            if(i.empty()){
                 continue;
             }
+            const auto& j = inverse.at(i);
+            std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
+        }
+
+        // load pre-computed features
+        std::unordered_map<string_type, StringFeatureMap> candidate_features;
+        for(const auto& c: candidate_texts){
+            candidate_features[c] = corpus_features.at(c);
+        }
+
+        // compute similarity using child Resembla
+        for(const auto& p: resemblas){
             for(auto r: p.second->eval(query, candidate_texts, 0.0, 0)){
-                candidate_features[r.text][p.first] = Feature::toText(r.score);
                 candidate_features[r.text][p.first] = Feature::toText(r.score);
             }
         }
@@ -89,12 +110,10 @@ public:
     {
         std::unordered_map<string_type, StringFeatureMap> candidate_features;
         for(const auto& c: candidates){
-            if(preprocess_corpus){
-                auto i = corpus_features.find(c);
-                if(i != std::end(corpus_features)){
-                    candidate_features[c] = i->second;
-                    continue;
-                }
+            auto i = corpus_features.find(c);
+            if(i != std::end(corpus_features)){
+                candidate_features[c] = i->second;
+                continue;
             }
             candidate_features[c] = (*preprocess)(c);
         }
@@ -111,18 +130,26 @@ public:
 protected:
     using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
 
-    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
-    std::string primary_resembla_name;
+    mutable simstring::reader db;
+    std::unordered_map<string_type, std::vector<string_type>> inverse;
+
+    const int simstring_measure;
+    const double simstring_threshold;
     const size_t max_candidate;
 
+    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
+    std::string primary_resembla_name;
+
+    const std::shared_ptr<Indexer> indexer;
     const std::shared_ptr<FeatureExtractor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
     const Reranker<string_type> reranker;
 
-    const bool preprocess_corpus;
     std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
 
-    void loadCorpusFeatures(const std::string& inverse_path)
+    mutable std::mutex mutex_simstring;
+
+    void load(const std::string& inverse_path)
     {
         std::ifstream ifs(inverse_path);
         if(ifs.fail()){
@@ -132,29 +159,46 @@ protected:
         while(ifs.good()){
             std::string line;
             std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
+            if(ifs.eof()){
                 break;
             }
+            else if(line.empty()){
+                continue;
+            }
+
             auto columns = split(line, column_delimiter<>());
-            if(columns.size() > 1){
-                if(columns.size() > 2){
+            if(columns.size() < 2){
+                continue;
+            }
+
+            const auto& indexed = cast_string<string_type>(columns[0]);
+            const auto& original = cast_string<string_type>(columns[1]);
+
+            const auto& i = inverse.find(indexed);
+            if(i == std::end(inverse)){
+                inverse[indexed] = {original};
+            }
+            else{
+                i->second.push_back(original);
+            }
+
+            if(columns.size() > 2){
+                const auto& features = columns[2];
 #ifdef DEBUG
-                    std::cerr << "load from JSON: " << columns[2] << std::endl;
+                std::cerr << "load from JSON: " << features << std::endl;
 #endif
-                    nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[2]));
-                    typename FeatureExtractor::output_type preprocessed;
-                    for(nlohmann::json::iterator i = std::begin(j); i != std::end(j); ++i){
-                        preprocessed[i.key()] = i.value();
-                    }
-                    corpus_features[cast_string<string_type>(columns[1])] = preprocessed;
+                nlohmann::json j = nlohmann::json::parse(features);
+                typename FeatureExtractor::output_type preprocessed;
+                for(nlohmann::json::iterator i = std::begin(j); i != std::end(j); ++i){
+                    preprocessed[i.key()] = i.value();
                 }
-                else{
+                corpus_features[original] = preprocessed;
+            }
+            else{
 #ifdef DEBUG
-                    std::cerr << "preprocess: " << columns[1] << std::endl;
+                std::cerr << "preprocess: " << cast_string<std::string>(original) << std::endl;
 #endif
-                    corpus_features[cast_string<string_type>(columns[1])] =
-                        (*preprocess)(columns[1], "");
-                }
+                corpus_features[original] = (*preprocess)(original, "");
             }
         }
     }
@@ -170,7 +214,7 @@ protected:
         }
         WorkData input_data = std::make_pair(query, (*preprocess)(query));
 
-        // rerank by its own metric
+        // rerank by regression
         std::vector<ResemblaInterface::output_type> results;
         for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates),
                 *score_func, threshold, max_response)){
