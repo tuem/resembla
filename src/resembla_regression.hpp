@@ -30,6 +30,7 @@ limitations under the License.
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "eliminator.hpp"
 #include "reranker.hpp"
 #include "regression/feature.hpp"
 #include "regression/extractor/feature_extractor.hpp"
@@ -197,8 +198,7 @@ protected:
 #ifdef DEBUG
                 std::cerr << "preprocess: " << cast_string<std::string>(original) << std::endl;
 #endif
-                corpus_features[original] =
-                    (*preprocess)(original, "");
+                corpus_features[original] = (*preprocess)(original, "");
             }
         }
     }
