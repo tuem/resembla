@@ -343,6 +343,8 @@ int main(int argc, char* argv[])
             }
             else if(resembla_measure == svr){
                 std::cerr << "  SVR:" << std::endl;
+                std::cerr << "    simstring_ngram_unit=" << pm.get<int>("svr_simstring_ngram_unit") << std::endl;
+                std::cerr << "    simstring_threshold=" << pm.get<double>("svr_simstring_threshold") << std::endl;
                 std::cerr << "    max_candidate=" << pm.get<int>("svr_max_candidate") << std::endl;
                 std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                 std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
