@@ -144,6 +144,9 @@ int main(int argc, char* argv[])
         {"simstring_text_preprocess", "asis", {"simstring", "text_preprocess"}, "simstring-text-preprocess", 'P', "preprocessing method for texts to create index"},
         {"simstring_measure_str", "cosine", {"simstring", "measure"}, "simstring-measure", 's', "SimString measure"},
         {"simstring_threshold", 0.2, {"simstring", "threshold"}, "simstring-threshold", 'T', "SimString threshold"},
+        {"index_romaji_mecab_options", "", {"index", "romaji", "mecab_options"}, "index-romaji-mecab-options", 0, "MeCab options for romaji indexer"},
+        {"index_romaji_mecab_feature_pos", 7, {"index", "romaji", "mecab_feature_pos"}, "index-romaji-mecab-feature-pos", 0, "Position of pronunciation in feature for romaji indexer"},
+        {"index_romaji_mecab_pronunciation_of_marks", "", {"index", "romaji", "mecab_pronunciation_of_marks"}, "index-romaji-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"ed_simstring_ngram_unit", -1, {"edit_distance", "simstring_ngram_unit"}, "ed-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"ed_simstring_threshold", -1, {"edit_distance", "simstring_threshold"}, "ed-simstring-threshold", 0, "SimString threshold for edit distance"},
         {"ed_max_reranking_num", -1, {"edit_distance", "max_reranking_num"}, "ed-max-reranking-num", 0, "max number of reranking texts for edit distance"},
@@ -189,6 +192,8 @@ int main(int argc, char* argv[])
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"svr_simstring_ngram_unit", -1, {"svr", "simstring_ngram_unit"}, "svr-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
+        {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
         {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
@@ -209,6 +214,8 @@ int main(int argc, char* argv[])
         double resembla_threshold = pm.get<double>("resembla_threshold");
         auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
 
+        pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
+
         if(pm.get<int>("ed_simstring_ngram_unit") == -1){
             pm["ed_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
         }
@@ -223,6 +230,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<int>("km_simstring_ngram_unit") == -1){
             pm["km_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("svr_simstring_ngram_unit") == -1){
+            pm["svr_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
         }
 
         if(pm.get<double>("ed_simstring_threshold") == -1){
@@ -239,6 +249,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("svr_simstring_threshold") == -1){
+            pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
 
         if(pm.get<int>("ed_max_reranking_num") == -1){
@@ -337,6 +350,7 @@ int main(int argc, char* argv[])
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "config"));
+        std::cerr << "configuration finished" << std::endl;
 
         // load test data and create index for each measure
         TestData test_data;
@@ -345,6 +359,12 @@ int main(int argc, char* argv[])
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
             switch(resembla_measure){
                 case svr: {
+                    RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
+                            pm.get<int>("index_romaji_mecab_feature_pos"),
+                            pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+                    test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("svr_simstring_ngram_unit"), indexer);
+
+                    /*
                     auto features = load_features(pm.get<std::string>("svr_features_path"));
                     if(features.empty()){
                         throw std::runtime_error("no feature");
@@ -373,6 +393,7 @@ int main(int argc, char* argv[])
                         }
                     }
                     test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("simstring_ngram_unit"), extractor);
+                    */
                     break;
                 }
                 case edit_distance: {
@@ -431,10 +452,12 @@ int main(int argc, char* argv[])
             throw std::invalid_argument("no data for evaluation");
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "index"));
+        std::cerr << "indexing finished" << std::endl;
 
         // initialize Resembla with created indexes
         auto resembla = construct_resembla(corpus_path, pm);
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "load"));
+        std::cerr << "construction finished" << std::endl;
 
         // execute evaluation
         std::vector<std::vector<ResemblaInterface::output_type>> answers;
@@ -444,6 +467,7 @@ int main(int argc, char* argv[])
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "answer"));
+        std::cerr << "answering finished" << std::endl;
 
         // output results
         auto it = std::begin(answers);
