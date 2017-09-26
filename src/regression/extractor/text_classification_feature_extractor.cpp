@@ -64,7 +64,7 @@ Feature::text_type TextClassificationFeatureExtractor::operator()(const string_t
 
 std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_type& text) const
 {
-    std::unordered_map<int, int> bow;
+    BoW bow;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
         const auto text_string = cast_string<std::string>(text);
