@@ -58,6 +58,9 @@
         "ensemble_weight": 0.2
     },
     "svr": {
+        "simstring_ngram_unit": 3,
+        "simstring_threshold": 0.4,
+        "max_candidate": 100,
         "features_path": "../../../example/regression/features.kw.tsv",
         "patterns_home": "../../../example/regression/patterns",
         "model_path": "../../../example/regression/model.kw"
