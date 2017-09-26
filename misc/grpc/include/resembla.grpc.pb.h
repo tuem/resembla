@@ -32,46 +32,34 @@ class ResemblaService final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
-    std::unique_ptr< ::grpc::ClientReaderInterface< ::resembla::server::ResemblaResponse>> find(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request) {
-      return std::unique_ptr< ::grpc::ClientReaderInterface< ::resembla::server::ResemblaResponse>>(findRaw(context, request));
+    virtual ::grpc::Status find(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::resembla::server::ResemblaResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::resembla::server::ResemblaResponse>> Asyncfind(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::resembla::server::ResemblaResponse>>(AsyncfindRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::resembla::server::ResemblaResponse>> Asyncfind(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::resembla::server::ResemblaResponse>>(AsyncfindRaw(context, request, cq, tag));
-    }
-    std::unique_ptr< ::grpc::ClientReaderInterface< ::resembla::server::ResemblaResponse>> eval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request) {
-      return std::unique_ptr< ::grpc::ClientReaderInterface< ::resembla::server::ResemblaResponse>>(evalRaw(context, request));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::resembla::server::ResemblaResponse>> Asynceval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::resembla::server::ResemblaResponse>>(AsyncevalRaw(context, request, cq, tag));
+    virtual ::grpc::Status eval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::resembla::server::ResemblaResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::resembla::server::ResemblaResponse>> Asynceval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::resembla::server::ResemblaResponse>>(AsyncevalRaw(context, request, cq));
     }
   private:
-    virtual ::grpc::ClientReaderInterface< ::resembla::server::ResemblaResponse>* findRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request) = 0;
-    virtual ::grpc::ClientAsyncReaderInterface< ::resembla::server::ResemblaResponse>* AsyncfindRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
-    virtual ::grpc::ClientReaderInterface< ::resembla::server::ResemblaResponse>* evalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request) = 0;
-    virtual ::grpc::ClientAsyncReaderInterface< ::resembla::server::ResemblaResponse>* AsyncevalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::resembla::server::ResemblaResponse>* AsyncfindRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::resembla::server::ResemblaResponse>* AsyncevalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
     Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel);
-    std::unique_ptr< ::grpc::ClientReader< ::resembla::server::ResemblaResponse>> find(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request) {
-      return std::unique_ptr< ::grpc::ClientReader< ::resembla::server::ResemblaResponse>>(findRaw(context, request));
+    ::grpc::Status find(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::resembla::server::ResemblaResponse* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::resembla::server::ResemblaResponse>> Asyncfind(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::resembla::server::ResemblaResponse>>(AsyncfindRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>> Asyncfind(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>>(AsyncfindRaw(context, request, cq, tag));
-    }
-    std::unique_ptr< ::grpc::ClientReader< ::resembla::server::ResemblaResponse>> eval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request) {
-      return std::unique_ptr< ::grpc::ClientReader< ::resembla::server::ResemblaResponse>>(evalRaw(context, request));
-    }
-    std::unique_ptr< ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>> Asynceval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>>(AsyncevalRaw(context, request, cq, tag));
+    ::grpc::Status eval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::resembla::server::ResemblaResponse* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::resembla::server::ResemblaResponse>> Asynceval(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::resembla::server::ResemblaResponse>>(AsyncevalRaw(context, request, cq));
     }
 
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
-    ::grpc::ClientReader< ::resembla::server::ResemblaResponse>* findRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request) override;
-    ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>* AsyncfindRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
-    ::grpc::ClientReader< ::resembla::server::ResemblaResponse>* evalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request) override;
-    ::grpc::ClientAsyncReader< ::resembla::server::ResemblaResponse>* AsyncevalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncResponseReader< ::resembla::server::ResemblaResponse>* AsyncfindRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::resembla::server::ResemblaResponse>* AsyncevalRaw(::grpc::ClientContext* context, const ::resembla::server::ResemblaOnDemandRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::RpcMethod rpcmethod_find_;
     const ::grpc::RpcMethod rpcmethod_eval_;
   };
@@ -81,8 +69,8 @@ class ResemblaService final {
    public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer);
-    virtual ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer);
+    virtual ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::resembla::server::ResemblaResponse* response);
+    virtual ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::resembla::server::ResemblaResponse* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_find : public BaseClass {
@@ -96,12 +84,12 @@ class ResemblaService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) final override {
+    ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::resembla::server::ResemblaResponse* response) final override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void Requestfind(::grpc::ServerContext* context, ::resembla::server::ResemblaRequest* request, ::grpc::ServerAsyncWriter< ::resembla::server::ResemblaResponse>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncServerStreaming(0, context, request, writer, new_call_cq, notification_cq, tag);
+    void Requestfind(::grpc::ServerContext* context, ::resembla::server::ResemblaRequest* request, ::grpc::ServerAsyncResponseWriter< ::resembla::server::ResemblaResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -116,12 +104,12 @@ class ResemblaService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) final override {
+    ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::resembla::server::ResemblaResponse* response) final override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void Requesteval(::grpc::ServerContext* context, ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerAsyncWriter< ::resembla::server::ResemblaResponse>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncServerStreaming(1, context, request, writer, new_call_cq, notification_cq, tag);
+    void Requesteval(::grpc::ServerContext* context, ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerAsyncResponseWriter< ::resembla::server::ResemblaResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   typedef WithAsyncMethod_find<WithAsyncMethod_eval<Service > > AsyncService;
@@ -137,7 +125,7 @@ class ResemblaService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) final override {
+    ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::resembla::server::ResemblaResponse* response) final override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -154,54 +142,54 @@ class ResemblaService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) final override {
+    ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::resembla::server::ResemblaResponse* response) final override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
   };
-  typedef Service StreamedUnaryService;
   template <class BaseClass>
-  class WithSplitStreamingMethod_find : public BaseClass {
+  class WithStreamedUnaryMethod_find : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
-    WithSplitStreamingMethod_find() {
+    WithStreamedUnaryMethod_find() {
       ::grpc::Service::MarkMethodStreamed(0,
-        new ::grpc::SplitServerStreamingHandler< ::resembla::server::ResemblaRequest, ::resembla::server::ResemblaResponse>(std::bind(&WithSplitStreamingMethod_find<BaseClass>::Streamedfind, this, std::placeholders::_1, std::placeholders::_2)));
+        new ::grpc::StreamedUnaryHandler< ::resembla::server::ResemblaRequest, ::resembla::server::ResemblaResponse>(std::bind(&WithStreamedUnaryMethod_find<BaseClass>::Streamedfind, this, std::placeholders::_1, std::placeholders::_2)));
     }
-    ~WithSplitStreamingMethod_find() override {
+    ~WithStreamedUnaryMethod_find() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) final override {
+    ::grpc::Status find(::grpc::ServerContext* context, const ::resembla::server::ResemblaRequest* request, ::resembla::server::ResemblaResponse* response) final override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    // replace default version of method with split streamed
-    virtual ::grpc::Status Streamedfind(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::resembla::server::ResemblaRequest,::resembla::server::ResemblaResponse>* server_split_streamer) = 0;
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status Streamedfind(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::resembla::server::ResemblaRequest,::resembla::server::ResemblaResponse>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
-  class WithSplitStreamingMethod_eval : public BaseClass {
+  class WithStreamedUnaryMethod_eval : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
-    WithSplitStreamingMethod_eval() {
+    WithStreamedUnaryMethod_eval() {
       ::grpc::Service::MarkMethodStreamed(1,
-        new ::grpc::SplitServerStreamingHandler< ::resembla::server::ResemblaOnDemandRequest, ::resembla::server::ResemblaResponse>(std::bind(&WithSplitStreamingMethod_eval<BaseClass>::Streamedeval, this, std::placeholders::_1, std::placeholders::_2)));
+        new ::grpc::StreamedUnaryHandler< ::resembla::server::ResemblaOnDemandRequest, ::resembla::server::ResemblaResponse>(std::bind(&WithStreamedUnaryMethod_eval<BaseClass>::Streamedeval, this, std::placeholders::_1, std::placeholders::_2)));
     }
-    ~WithSplitStreamingMethod_eval() override {
+    ~WithStreamedUnaryMethod_eval() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::grpc::ServerWriter< ::resembla::server::ResemblaResponse>* writer) final override {
+    ::grpc::Status eval(::grpc::ServerContext* context, const ::resembla::server::ResemblaOnDemandRequest* request, ::resembla::server::ResemblaResponse* response) final override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    // replace default version of method with split streamed
-    virtual ::grpc::Status Streamedeval(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::resembla::server::ResemblaOnDemandRequest,::resembla::server::ResemblaResponse>* server_split_streamer) = 0;
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status Streamedeval(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::resembla::server::ResemblaOnDemandRequest,::resembla::server::ResemblaResponse>* server_unary_streamer) = 0;
   };
-  typedef WithSplitStreamingMethod_find<WithSplitStreamingMethod_eval<Service > > SplitStreamedService;
-  typedef WithSplitStreamingMethod_find<WithSplitStreamingMethod_eval<Service > > StreamedService;
+  typedef WithStreamedUnaryMethod_find<WithStreamedUnaryMethod_eval<Service > > StreamedUnaryService;
+  typedef Service SplitStreamedService;
+  typedef WithStreamedUnaryMethod_find<WithStreamedUnaryMethod_eval<Service > > StreamedService;
 };
 
 }  // namespace server

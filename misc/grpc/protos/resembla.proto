@@ -12,11 +12,14 @@ message ResemblaOnDemandRequest {
 }
 
 message ResemblaResponse {
-  string text = 1;
-  float score = 2;
+  message Result {
+    string text = 1;
+    float score = 2;
+  }
+  repeated Result results = 1;
 }
 
 service ResemblaService {
-  rpc find (ResemblaRequest) returns (stream ResemblaResponse) {}
-  rpc eval (ResemblaOnDemandRequest) returns (stream ResemblaResponse) {}
+  rpc find (ResemblaRequest) returns (ResemblaResponse) {}
+  rpc eval (ResemblaOnDemandRequest) returns (ResemblaResponse) {}
 }

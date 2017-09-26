@@ -23,6 +23,8 @@ class ResemblaRequestDefaultTypeInternal : public ::google::protobuf::internal::
 } _ResemblaRequest_default_instance_;
 class ResemblaOnDemandRequestDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ResemblaOnDemandRequest> {
 } _ResemblaOnDemandRequest_default_instance_;
+class ResemblaResponse_ResultDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ResemblaResponse_Result> {
+} _ResemblaResponse_Result_default_instance_;
 class ResemblaResponseDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ResemblaResponse> {
 } _ResemblaResponse_default_instance_;
 
@@ -31,7 +33,7 @@ namespace protobuf_resembla_2eproto {
 
 namespace {
 
-::google::protobuf::Metadata file_level_metadata[3];
+::google::protobuf::Metadata file_level_metadata[4];
 
 }  // namespace
 
@@ -48,22 +50,29 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaOnDemandRequest, query_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaOnDemandRequest, candidates_),
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, text_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, score_),
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, text_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, score_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse, results_),
 };
 
 static const ::google::protobuf::internal::MigrationSchema schemas[] = {
   { 0, -1, sizeof(ResemblaRequest)},
   { 5, -1, sizeof(ResemblaOnDemandRequest)},
-  { 11, -1, sizeof(ResemblaResponse)},
+  { 11, -1, sizeof(ResemblaResponse_Result)},
+  { 17, -1, sizeof(ResemblaResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaRequest_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaOnDemandRequest_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaResponse_Result_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_ResemblaResponse_default_instance_),
 };
 
@@ -85,7 +94,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 3);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 4);
 }
 
 }  // namespace
@@ -95,8 +104,10 @@ void TableStruct::Shutdown() {
   delete file_level_metadata[0].reflection;
   _ResemblaOnDemandRequest_default_instance_.Shutdown();
   delete file_level_metadata[1].reflection;
-  _ResemblaResponse_default_instance_.Shutdown();
+  _ResemblaResponse_Result_default_instance_.Shutdown();
   delete file_level_metadata[2].reflection;
+  _ResemblaResponse_default_instance_.Shutdown();
+  delete file_level_metadata[3].reflection;
 }
 
 void TableStruct::InitDefaultsImpl() {
@@ -105,6 +116,7 @@ void TableStruct::InitDefaultsImpl() {
   ::google::protobuf::internal::InitProtobufDefaults();
   _ResemblaRequest_default_instance_.DefaultConstruct();
   _ResemblaOnDemandRequest_default_instance_.DefaultConstruct();
+  _ResemblaResponse_Result_default_instance_.DefaultConstruct();
   _ResemblaResponse_default_instance_.DefaultConstruct();
 }
 
@@ -118,16 +130,18 @@ void AddDescriptorsImpl() {
       "\n\016resembla.proto\022\017resembla.server\" \n\017Res"
       "emblaRequest\022\r\n\005query\030\001 \001(\t\"<\n\027ResemblaO"
       "nDemandRequest\022\r\n\005query\030\001 \001(\t\022\022\n\ncandida"
-      "tes\030\002 \003(\t\"/\n\020ResemblaResponse\022\014\n\004text\030\001 "
-      "\001(\t\022\r\n\005score\030\002 \001(\0022\273\001\n\017ResemblaService\022O"
-      "\n\004find\022 .resembla.server.ResemblaRequest"
-      "\032!.resembla.server.ResemblaResponse\"\0000\001\022"
-      "W\n\004eval\022(.resembla.server.ResemblaOnDema"
-      "ndRequest\032!.resembla.server.ResemblaResp"
-      "onse\"\0000\001b\006proto3"
+      "tes\030\002 \003(\t\"t\n\020ResemblaResponse\0229\n\007results"
+      "\030\001 \003(\0132(.resembla.server.ResemblaRespons"
+      "e.Result\032%\n\006Result\022\014\n\004text\030\001 \001(\t\022\r\n\005scor"
+      "e\030\002 \001(\0022\267\001\n\017ResemblaService\022M\n\004find\022 .re"
+      "sembla.server.ResemblaRequest\032!.resembla"
+      ".server.ResemblaResponse\"\000\022U\n\004eval\022(.res"
+      "embla.server.ResemblaOnDemandRequest\032!.r"
+      "esembla.server.ResemblaResponse\"\000b\006proto"
+      "3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 376);
+      descriptor, 441);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "resembla.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -816,19 +830,19 @@ ResemblaOnDemandRequest::mutable_candidates() {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ResemblaResponse::kTextFieldNumber;
-const int ResemblaResponse::kScoreFieldNumber;
+const int ResemblaResponse_Result::kTextFieldNumber;
+const int ResemblaResponse_Result::kScoreFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
-ResemblaResponse::ResemblaResponse()
+ResemblaResponse_Result::ResemblaResponse_Result()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
     protobuf_resembla_2eproto::InitDefaults();
   }
   SharedCtor();
-  // @@protoc_insertion_point(constructor:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(constructor:resembla.server.ResemblaResponse.Result)
 }
-ResemblaResponse::ResemblaResponse(const ResemblaResponse& from)
+ResemblaResponse_Result::ResemblaResponse_Result(const ResemblaResponse_Result& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
       _cached_size_(0) {
@@ -838,58 +852,58 @@ ResemblaResponse::ResemblaResponse(const ResemblaResponse& from)
     text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
   }
   score_ = from.score_;
-  // @@protoc_insertion_point(copy_constructor:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(copy_constructor:resembla.server.ResemblaResponse.Result)
 }
 
-void ResemblaResponse::SharedCtor() {
+void ResemblaResponse_Result::SharedCtor() {
   text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   score_ = 0;
   _cached_size_ = 0;
 }
 
-ResemblaResponse::~ResemblaResponse() {
-  // @@protoc_insertion_point(destructor:resembla.server.ResemblaResponse)
+ResemblaResponse_Result::~ResemblaResponse_Result() {
+  // @@protoc_insertion_point(destructor:resembla.server.ResemblaResponse.Result)
   SharedDtor();
 }
 
-void ResemblaResponse::SharedDtor() {
+void ResemblaResponse_Result::SharedDtor() {
   text_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
-void ResemblaResponse::SetCachedSize(int size) const {
+void ResemblaResponse_Result::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* ResemblaResponse::descriptor() {
+const ::google::protobuf::Descriptor* ResemblaResponse_Result::descriptor() {
   protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
   return protobuf_resembla_2eproto::file_level_metadata[2].descriptor;
 }
 
-const ResemblaResponse& ResemblaResponse::default_instance() {
+const ResemblaResponse_Result& ResemblaResponse_Result::default_instance() {
   protobuf_resembla_2eproto::InitDefaults();
   return *internal_default_instance();
 }
 
-ResemblaResponse* ResemblaResponse::New(::google::protobuf::Arena* arena) const {
-  ResemblaResponse* n = new ResemblaResponse;
+ResemblaResponse_Result* ResemblaResponse_Result::New(::google::protobuf::Arena* arena) const {
+  ResemblaResponse_Result* n = new ResemblaResponse_Result;
   if (arena != NULL) {
     arena->Own(n);
   }
   return n;
 }
 
-void ResemblaResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:resembla.server.ResemblaResponse)
+void ResemblaResponse_Result::Clear() {
+// @@protoc_insertion_point(message_clear_start:resembla.server.ResemblaResponse.Result)
   text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   score_ = 0;
 }
 
-bool ResemblaResponse::MergePartialFromCodedStream(
+bool ResemblaResponse_Result::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(parse_start:resembla.server.ResemblaResponse.Result)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
@@ -903,7 +917,7 @@ bool ResemblaResponse::MergePartialFromCodedStream(
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
             this->text().data(), this->text().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "resembla.server.ResemblaResponse.text"));
+            "resembla.server.ResemblaResponse.Result.text"));
         } else {
           goto handle_unusual;
         }
@@ -936,23 +950,23 @@ bool ResemblaResponse::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(parse_success:resembla.server.ResemblaResponse.Result)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(parse_failure:resembla.server.ResemblaResponse.Result)
   return false;
 #undef DO_
 }
 
-void ResemblaResponse::SerializeWithCachedSizes(
+void ResemblaResponse_Result::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(serialize_start:resembla.server.ResemblaResponse.Result)
   // string text = 1;
   if (this->text().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->text().data(), this->text().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "resembla.server.ResemblaResponse.text");
+      "resembla.server.ResemblaResponse.Result.text");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->text(), output);
   }
@@ -962,19 +976,19 @@ void ResemblaResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->score(), output);
   }
 
-  // @@protoc_insertion_point(serialize_end:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(serialize_end:resembla.server.ResemblaResponse.Result)
 }
 
-::google::protobuf::uint8* ResemblaResponse::InternalSerializeWithCachedSizesToArray(
+::google::protobuf::uint8* ResemblaResponse_Result::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic;  // Unused
-  // @@protoc_insertion_point(serialize_to_array_start:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(serialize_to_array_start:resembla.server.ResemblaResponse.Result)
   // string text = 1;
   if (this->text().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->text().data(), this->text().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "resembla.server.ResemblaResponse.text");
+      "resembla.server.ResemblaResponse.Result.text");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->text(), target);
@@ -985,12 +999,12 @@ void ResemblaResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->score(), target);
   }
 
-  // @@protoc_insertion_point(serialize_to_array_end:resembla.server.ResemblaResponse)
+  // @@protoc_insertion_point(serialize_to_array_end:resembla.server.ResemblaResponse.Result)
   return target;
 }
 
-size_t ResemblaResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:resembla.server.ResemblaResponse)
+size_t ResemblaResponse_Result::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:resembla.server.ResemblaResponse.Result)
   size_t total_size = 0;
 
   // string text = 1;
@@ -1003,6 +1017,294 @@ size_t ResemblaResponse::ByteSizeLong() const {
   // float score = 2;
   if (this->score() != 0) {
     total_size += 1 + 4;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ResemblaResponse_Result::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:resembla.server.ResemblaResponse.Result)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ResemblaResponse_Result* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const ResemblaResponse_Result>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:resembla.server.ResemblaResponse.Result)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:resembla.server.ResemblaResponse.Result)
+    MergeFrom(*source);
+  }
+}
+
+void ResemblaResponse_Result::MergeFrom(const ResemblaResponse_Result& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:resembla.server.ResemblaResponse.Result)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.text().size() > 0) {
+
+    text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
+  }
+  if (from.score() != 0) {
+    set_score(from.score());
+  }
+}
+
+void ResemblaResponse_Result::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:resembla.server.ResemblaResponse.Result)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ResemblaResponse_Result::CopyFrom(const ResemblaResponse_Result& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:resembla.server.ResemblaResponse.Result)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ResemblaResponse_Result::IsInitialized() const {
+  return true;
+}
+
+void ResemblaResponse_Result::Swap(ResemblaResponse_Result* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void ResemblaResponse_Result::InternalSwap(ResemblaResponse_Result* other) {
+  text_.Swap(&other->text_);
+  std::swap(score_, other->score_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata ResemblaResponse_Result::GetMetadata() const {
+  protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_resembla_2eproto::file_level_metadata[2];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// ResemblaResponse_Result
+
+// string text = 1;
+void ResemblaResponse_Result::clear_text() {
+  text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& ResemblaResponse_Result::text() const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.Result.text)
+  return text_.GetNoArena();
+}
+void ResemblaResponse_Result::set_text(const ::std::string& value) {
+  
+  text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.Result.text)
+}
+#if LANG_CXX11
+void ResemblaResponse_Result::set_text(::std::string&& value) {
+  
+  text_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:resembla.server.ResemblaResponse.Result.text)
+}
+#endif
+void ResemblaResponse_Result::set_text(const char* value) {
+  
+  text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaResponse.Result.text)
+}
+void ResemblaResponse_Result::set_text(const char* value, size_t size) {
+  
+  text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaResponse.Result.text)
+}
+::std::string* ResemblaResponse_Result::mutable_text() {
+  
+  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaResponse.Result.text)
+  return text_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* ResemblaResponse_Result::release_text() {
+  // @@protoc_insertion_point(field_release:resembla.server.ResemblaResponse.Result.text)
+  
+  return text_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void ResemblaResponse_Result::set_allocated_text(::std::string* text) {
+  if (text != NULL) {
+    
+  } else {
+    
+  }
+  text_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), text);
+  // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.Result.text)
+}
+
+// float score = 2;
+void ResemblaResponse_Result::clear_score() {
+  score_ = 0;
+}
+float ResemblaResponse_Result::score() const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.Result.score)
+  return score_;
+}
+void ResemblaResponse_Result::set_score(float value) {
+  
+  score_ = value;
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.Result.score)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int ResemblaResponse::kResultsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+ResemblaResponse::ResemblaResponse()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_resembla_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:resembla.server.ResemblaResponse)
+}
+ResemblaResponse::ResemblaResponse(const ResemblaResponse& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      results_(from.results_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:resembla.server.ResemblaResponse)
+}
+
+void ResemblaResponse::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+ResemblaResponse::~ResemblaResponse() {
+  // @@protoc_insertion_point(destructor:resembla.server.ResemblaResponse)
+  SharedDtor();
+}
+
+void ResemblaResponse::SharedDtor() {
+}
+
+void ResemblaResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ResemblaResponse::descriptor() {
+  protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_resembla_2eproto::file_level_metadata[3].descriptor;
+}
+
+const ResemblaResponse& ResemblaResponse::default_instance() {
+  protobuf_resembla_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+ResemblaResponse* ResemblaResponse::New(::google::protobuf::Arena* arena) const {
+  ResemblaResponse* n = new ResemblaResponse;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void ResemblaResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:resembla.server.ResemblaResponse)
+  results_.Clear();
+}
+
+bool ResemblaResponse::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:resembla.server.ResemblaResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .resembla.server.ResemblaResponse.Result results = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(input->IncrementRecursionDepth());
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+                input, add_results()));
+        } else {
+          goto handle_unusual;
+        }
+        input->UnsafeDecrementRecursionDepth();
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:resembla.server.ResemblaResponse)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:resembla.server.ResemblaResponse)
+  return false;
+#undef DO_
+}
+
+void ResemblaResponse::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:resembla.server.ResemblaResponse)
+  // repeated .resembla.server.ResemblaResponse.Result results = 1;
+  for (unsigned int i = 0, n = this->results_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->results(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:resembla.server.ResemblaResponse)
+}
+
+::google::protobuf::uint8* ResemblaResponse::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:resembla.server.ResemblaResponse)
+  // repeated .resembla.server.ResemblaResponse.Result results = 1;
+  for (unsigned int i = 0, n = this->results_size(); i < n; i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        1, this->results(i), false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:resembla.server.ResemblaResponse)
+  return target;
+}
+
+size_t ResemblaResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:resembla.server.ResemblaResponse)
+  size_t total_size = 0;
+
+  // repeated .resembla.server.ResemblaResponse.Result results = 1;
+  {
+    unsigned int count = this->results_size();
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->results(i));
+    }
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -1031,13 +1333,7 @@ void ResemblaResponse::MergeFrom(const ResemblaResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:resembla.server.ResemblaResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.text().size() > 0) {
-
-    text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
-  }
-  if (from.score() != 0) {
-    set_score(from.score());
-  }
+  results_.MergeFrom(from.results_);
 }
 
 void ResemblaResponse::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1063,83 +1359,46 @@ void ResemblaResponse::Swap(ResemblaResponse* other) {
   InternalSwap(other);
 }
 void ResemblaResponse::InternalSwap(ResemblaResponse* other) {
-  text_.Swap(&other->text_);
-  std::swap(score_, other->score_);
+  results_.UnsafeArenaSwap(&other->results_);
   std::swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata ResemblaResponse::GetMetadata() const {
   protobuf_resembla_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_resembla_2eproto::file_level_metadata[2];
+  return protobuf_resembla_2eproto::file_level_metadata[3];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // ResemblaResponse
 
-// string text = 1;
-void ResemblaResponse::clear_text() {
-  text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+// repeated .resembla.server.ResemblaResponse.Result results = 1;
+int ResemblaResponse::results_size() const {
+  return results_.size();
 }
-const ::std::string& ResemblaResponse::text() const {
-  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.text)
-  return text_.GetNoArena();
+void ResemblaResponse::clear_results() {
+  results_.Clear();
 }
-void ResemblaResponse::set_text(const ::std::string& value) {
-  
-  text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.text)
+const ::resembla::server::ResemblaResponse_Result& ResemblaResponse::results(int index) const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.results)
+  return results_.Get(index);
 }
-#if LANG_CXX11
-void ResemblaResponse::set_text(::std::string&& value) {
-  
-  text_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:resembla.server.ResemblaResponse.text)
+::resembla::server::ResemblaResponse_Result* ResemblaResponse::mutable_results(int index) {
+  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaResponse.results)
+  return results_.Mutable(index);
 }
-#endif
-void ResemblaResponse::set_text(const char* value) {
-  
-  text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:resembla.server.ResemblaResponse.text)
+::resembla::server::ResemblaResponse_Result* ResemblaResponse::add_results() {
+  // @@protoc_insertion_point(field_add:resembla.server.ResemblaResponse.results)
+  return results_.Add();
 }
-void ResemblaResponse::set_text(const char* value, size_t size) {
-  
-  text_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:resembla.server.ResemblaResponse.text)
+::google::protobuf::RepeatedPtrField< ::resembla::server::ResemblaResponse_Result >*
+ResemblaResponse::mutable_results() {
+  // @@protoc_insertion_point(field_mutable_list:resembla.server.ResemblaResponse.results)
+  return &results_;
 }
-::std::string* ResemblaResponse::mutable_text() {
-  
-  // @@protoc_insertion_point(field_mutable:resembla.server.ResemblaResponse.text)
-  return text_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-::std::string* ResemblaResponse::release_text() {
-  // @@protoc_insertion_point(field_release:resembla.server.ResemblaResponse.text)
-  
-  return text_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-void ResemblaResponse::set_allocated_text(::std::string* text) {
-  if (text != NULL) {
-    
-  } else {
-    
-  }
-  text_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), text);
-  // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.text)
-}
-
-// float score = 2;
-void ResemblaResponse::clear_score() {
-  score_ = 0;
-}
-float ResemblaResponse::score() const {
-  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.score)
-  return score_;
-}
-void ResemblaResponse::set_score(float value) {
-  
-  score_ = value;
-  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.score)
+const ::google::protobuf::RepeatedPtrField< ::resembla::server::ResemblaResponse_Result >&
+ResemblaResponse::results() const {
+  // @@protoc_insertion_point(field_list:resembla.server.ResemblaResponse.results)
+  return results_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
