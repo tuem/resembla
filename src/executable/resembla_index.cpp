@@ -54,9 +54,9 @@ limitations under the License.
 
 using namespace resembla;
 
-template<typename Preprocessor>
+template<typename Indexer, typename Preprocessor>
 void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
-        int n, Preprocessor preprocess, size_t text_col, size_t features_col,
+        int n, Indexer indexer, Preprocessor preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
     constexpr auto delimiter = column_delimiter<typename string_type::value_type>();
@@ -82,7 +82,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
 
         auto original = columns[text_col - 1];
         auto normalized = normalize != nullptr ? (*normalize)(original) : original;
-        auto indexed = preprocess.index(normalized);
+        auto indexed = indexer.index(normalized);
 
         if(features_col > 0 && features_col - 1 < columns.size()){
             original += delimiter + columns[features_col - 1];
@@ -119,6 +119,9 @@ int main(int argc, char* argv[])
 
     paramset::definitions defs = {
         {"simstring_ngram_unit", 2, {"simstring", "ngram_unit"}, "simstring-ngram-unit", 'N', "Unit of N-gram for SimString"},
+        {"index_romaji_mecab_options", "", {"index", "romaji", "mecab_options"}, "index-romaji-mecab-options", 0, "MeCab options for romaji indexer"},
+        {"index_romaji_mecab_feature_pos", 7, {"index", "romaji", "mecab_feature_pos"}, "index-romaji-mecab-feature-pos", 0, "Position of pronunciation in feature for romaji indexer"},
+        {"index_romaji_mecab_pronunciation_of_marks", "", {"index", "romaji", "mecab_pronunciation_of_marks"}, "index-romaji-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"resembla_measure", STR(weighted_word_edit_distance), {"resembla", "measure"}, "measure", 'm', "measure for scoring"},
         {"ed_simstring_ngram_unit", -1, {"edit_distance", "simstring_ngram_unit"}, "ed-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"wwed_simstring_ngram_unit", -1, {"weighted_word_edit_distance", "simstring_ngram_unit"}, "wwed-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
@@ -149,6 +152,7 @@ int main(int argc, char* argv[])
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_mismatch_cost_path", "", {"weighted_romaji_edit_distance", "mismatch_cost_path"}, "wred-mismatch-cost-path", 0, "costs to replace similar letters for weighted romaji edit distance"},
         {"km_simstring_ngram_unit", -1, {"keyword_match", "simstring_ngram_unit"}, "km-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
+        {"svr_simstring_ngram_unit", -1, {"svr", "simstring_ngram_unit"}, "svr-simstring-ngram-unit", 0, "Unit of N-gram for romaji notation of input text"},
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"corpus_path", "", {"common", "corpus_path"}},
@@ -184,6 +188,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<int>("km_simstring_ngram_unit") == -1){
             pm["km_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("svr_simstring_ngram_unit") == -1){
+            pm["svr_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
         }
         auto resembla_measures = split_to_resembla_measures(pm.get<std::string>("resembla_measure"));
 
@@ -236,6 +243,7 @@ int main(int argc, char* argv[])
                 }
                 else if(resembla_measure == svr){
                     std::cerr << "  measure=" << STR(svr) << std::endl;
+                    std::cerr << "    simstring_ngram_unit=" << pm.get<int>("svr_simstring_ngram_unit") << std::endl;
                     std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                     std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
                 }
@@ -257,8 +265,8 @@ int main(int argc, char* argv[])
 
             if(resembla_measure == edit_distance){
                 AsIsSequenceBuilder<string_type> builder;
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), builder,
-                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"),
+                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
                 WeightedSequenceBuilder<WordSequenceBuilder, WordWeight> builder(
@@ -266,8 +274,8 @@ int main(int argc, char* argv[])
                     WordWeight(pm.get<double>("wwed_base_weight"),
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"), builder,
-                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"),
+                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
                 WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>> builder(
@@ -276,7 +284,7 @@ int main(int argc, char* argv[])
                     LetterWeight<string_type>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
                         pm.get<std::string>("wped_letter_weight_path")));
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("wped_simstring_ngram_unit"),
-                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
                 WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight> builder(
@@ -286,14 +294,18 @@ int main(int argc, char* argv[])
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
-                        builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
+                KeywordMatchPreprocessor<string_type> preprocess;
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("km_simstring_ngram_unit"),
-                        KeywordMatchPreprocessor<string_type>(),
-                        pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        preprocess, preprocess, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == svr){
+                RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
+                        pm.get<int>("index_romaji_mecab_feature_pos"),
+                        pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+
                 auto features = load_features(pm.get<std::string>("svr_features_path"));
                 if(features.empty()){
                     throw std::runtime_error("no feature");
@@ -322,7 +334,7 @@ int main(int argc, char* argv[])
                     }
                 }
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("simstring_ngram_unit"),
-                        extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        indexer, extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
             std::cerr << "database saved to " << db_path << std::endl;

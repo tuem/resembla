@@ -13,7 +13,7 @@ def main(queries)
   stub = Resembla::Server::ResemblaService::Stub.new('localhost:50051', :this_channel_is_insecure)
   queries.each do |query|
     puts 'query: ' + query
-    stub.find(Resembla::Server::ResemblaRequest.new(query: query)).each do |response|
+    stub.find(Resembla::Server::ResemblaRequest.new(query: query)).results.each do |response|
       puts '  text: ' + response.text
     end
   end

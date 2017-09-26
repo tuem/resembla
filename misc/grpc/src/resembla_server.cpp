@@ -32,7 +32,6 @@ using namespace resembla;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::ServerWriter;
 using grpc::Status;
 
 class ResemblaServiceImpl: public server::ResemblaService::Service
@@ -48,28 +47,30 @@ public:
         resembla(resembla), max_response(max_response), threshold(threshold)
     {}
 
-    Status find(ServerContext*, const server::ResemblaRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
+    Status find(ServerContext*, const server::ResemblaRequest* request, server::ResemblaResponse* response) override
     {
+        size_t j = 0;
         for(const auto& r: resembla->find(cast_string<string_type>(request->query()), threshold, max_response)){
-            server::ResemblaResponse response;
-            response.set_text(cast_string<std::string>(r.text));
-            response.set_score(static_cast<float>(r.score));
-            writer->Write(response);
+            response->add_results();
+            auto* result = response->mutable_results(j++);
+            result->set_text(cast_string<std::string>(r.text));
+            result->set_score(static_cast<float>(r.score));
         }
         return Status::OK;
     }
 
-    Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
+    Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, server::ResemblaResponse* response) override
     {
         std::vector<string_type> candidates;
         for(const auto& c: request->candidates()){
             candidates.push_back(cast_string<string_type>(c));
         }
+        size_t j = 0;
         for(const auto& r: resembla->eval(cast_string<string_type>(request->query()), candidates, threshold, max_response)){
-            server::ResemblaResponse response;
-            response.set_text(cast_string<std::string>(r.text));
-            response.set_score(static_cast<float>(r.score));
-            writer->Write(response);
+            response->add_results();
+            auto* result = response->mutable_results(j++);
+            result->set_text(cast_string<std::string>(r.text));
+            result->set_score(static_cast<float>(r.score));
         }
         return Status::OK;
     }
@@ -104,6 +105,9 @@ int main(int argc, char** argv) {
         {"resembla_max_reranking_num", 1000, {"resembla", "max_reranking_num"}, "max-reranking-num", 'r', "max number of reranking texts in Resembla"},
         {"simstring_measure_str", "cosine", {"simstring", "measure"}, "simstring-measure", 's', "SimString measure"},
         {"simstring_threshold", 0.2, {"simstring", "threshold"}, "simstring-threshold", 'T', "SimString threshold"},
+        {"index_romaji_mecab_options", "", {"index", "romaji", "mecab_options"}, "index-romaji-mecab-options", 0, "MeCab options for romaji indexer"},
+        {"index_romaji_mecab_feature_pos", 7, {"index", "romaji", "mecab_feature_pos"}, "index-romaji-mecab-feature-pos", 0, "Position of pronunciation in feature for romaji indexer"},
+        {"index_romaji_mecab_pronunciation_of_marks", "", {"index", "romaji", "mecab_pronunciation_of_marks"}, "index-romaji-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"ed_simstring_threshold", -1, {"edit_distance", "simstring_threshold"}, "ed-simstring-threshold", 0, "SimString threshold for edit distance"},
         {"ed_max_reranking_num", -1, {"edit_distance", "max_reranking_num"}, "ed-max-reranking-num", 0, "max number of reranking texts for edit distance"},
         {"ed_ensemble_weight", 0.5, {"edit_distance", "ensemble_weight"}, "ed-ensemble-weight", 0, "weight coefficient for edit distance in ensemble mode"},
@@ -145,6 +149,7 @@ int main(int argc, char** argv) {
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
         {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
@@ -170,6 +175,8 @@ int main(int argc, char** argv) {
 
         std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
 
+        pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
+
         if(pm.get<double>("ed_simstring_threshold") == -1){
             pm["ed_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
@@ -184,6 +191,9 @@ int main(int argc, char** argv) {
         }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("svr_simstring_threshold") == -1){
+            pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
 
         if(pm.get<int>("ed_max_reranking_num") == -1){
@@ -284,6 +294,7 @@ int main(int argc, char** argv) {
                 }
                 else if(measure == svr){
                     std::cerr << "  SVR:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("svr_simstring_threshold") << std::endl;
                     std::cerr << "    max_candidate=" << pm.get<int>("svr_max_candidate") << std::endl;
                     std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                     std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;

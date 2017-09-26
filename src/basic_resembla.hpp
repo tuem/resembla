@@ -32,6 +32,7 @@ limitations under the License.
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "eliminator.hpp"
 #include "reranker.hpp"
 
 namespace resembla {
@@ -93,15 +94,20 @@ public:
 
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
     {
+        string_type search_query = preprocess->index(query);
+
         // search from N-gram index
         std::vector<string_type> simstring_result;
         {
             std::lock_guard<std::mutex> lock(mutex_simstring);
-            string_type search_query = preprocess->index(query);
             db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
-            if(simstring_result.empty()){
-                return {};
-            }
+        }
+        if(simstring_result.empty()){
+            return {};
+        }
+        else if(simstring_result.size() > max_reranking_num){
+            Eliminator<string_type> eliminate(search_query);
+            eliminate(simstring_result, max_reranking_num);
         }
 
         std::vector<string_type> candidate_texts;
@@ -111,10 +117,8 @@ public:
             }
             const auto& j = inverse.at(i);
             std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
-            if(candidate_texts.size() == max_reranking_num){
-                break;
-            }
         }
+
         return eval(query, candidate_texts, threshold, max_response);
     }
 

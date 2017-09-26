@@ -10,7 +10,7 @@
     },
     "resembla": {
         "measure": "edit_distance,weighted_word_edit_distance",
-        "max_reranking_num": 1000,
+        "max_reranking_num": 100,
         "max_response": 10,
         "threshold": 0.3
     },
