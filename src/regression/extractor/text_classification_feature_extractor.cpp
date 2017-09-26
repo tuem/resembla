@@ -64,10 +64,10 @@ Feature::text_type TextClassificationFeatureExtractor::operator()(const string_t
 
 std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_type& text) const
 {
+    const auto text_string = cast_string<std::string>(text);
     BoW bow;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
-        const auto text_string = cast_string<std::string>(text);
         for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
             // skip BOS/EOS nodes
             if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
