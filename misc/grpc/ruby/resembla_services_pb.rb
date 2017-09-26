@@ -15,8 +15,8 @@ module Resembla
         self.unmarshal_class_method = :decode
         self.service_name = 'resembla.server.ResemblaService'
 
-        rpc :find, ResemblaRequest, stream(ResemblaResponse)
-        rpc :eval, ResemblaOnDemandRequest, stream(ResemblaResponse)
+        rpc :find, ResemblaRequest, ResemblaResponse
+        rpc :eval, ResemblaOnDemandRequest, ResemblaResponse
       end
 
       Stub = Service.rpc_stub_class
