@@ -20,7 +20,6 @@ limitations under the License.
 #include "text_classification_feature_extractor.hpp"
 
 #include <fstream>
-#include <sstream>
 #include <vector>
 
 namespace resembla {
@@ -57,9 +56,7 @@ Feature::text_type TextClassificationFeatureExtractor::operator()(const string_t
         std::lock_guard<std::mutex> lock(mutex_model);
         s = svm_predict(model, &nodes[0]);
     }
-    std::stringstream ss;
-    ss << s;
-    return ss.str();
+    return Feature::toText(s);
 }
 
 std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_type& text) const
