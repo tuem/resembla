@@ -1,6 +1,7 @@
 # Resembla: Word-based Japanese similar sentence search library
 
 ## Features
+- Candidate elimination using N-gram index and bit-parallel edit distance computation
 - Word, kana and romaji-based edit distance variables and their ensemble
 - Support vector regression with linguistic features
 
@@ -8,6 +9,7 @@
 - [MeCab](http://taku910.github.io/mecab/)
 - [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvm/)
 - [ICU](http://site.icu-project.org/)
+- C++11 compiler
 
 ### Other included libraries
 - [Catch](https://github.com/philsquared/Catch)
