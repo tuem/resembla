@@ -79,31 +79,32 @@ public:
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        // calculate similarity using all measures
-        std::unordered_map<string_type, double> aggregated;
-        for(auto p: resemblas){
-            for(auto r: p.first->eval(query, targets, 0.0, 0)){
-                if(aggregated.find(r.text) == std::end(aggregated)){
-                    aggregated[r.text] = 0.0;
+        std::unordered_map<string_type, std::vector<double>> work;
+        for(const auto& child: children){
+            for(const auto& r: child->eval(query, candidates, 0.0, 0)){
+                auto p = work.insert(std::make_pair(r.text, r.score));
+                if(!p.second){
+                    p.first += r.score;
                 }
-                aggregated.at(r.text) += p.second * r.score * r.score;
             }
         }
 
-        // sort combined result
-        std::vector<output_type> response;
-        for(auto r: aggregated){
-            double score = sqrt(r.second / total_weight);
+        std::vector<output_type> results;
+        for(const auto& p: work){
+            double score = score_func(weights, p.second);
             if(score >= threshold){
-                response.push_back({r.first, measure_name, score});
+                results.push_back({p.first, measure_name, score});
             }
         }
-        std::sort(std::begin(response), std::end(response));
 
-        // return at most max_response responses
         if(max_response != 0 && response.size() > max_response){
-            response.erase(std::begin(response) + max_response, std::end(response));
+            std::partial_sort(results.begin(), results.begin() + max_response, results.end());
+            results.erase(results.begin() + max_response, results.end());
         }
+        else{
+            std::sort(results.begin(), results.end());
+        }
+
         return response;
     }
 
