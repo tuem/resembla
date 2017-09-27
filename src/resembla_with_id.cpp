@@ -46,7 +46,8 @@ std::vector<ResemblaWithId::output_type> ResemblaWithId::eval(const string_type&
 {
     std::vector<output_type> results;
     for(auto raw_result: resembla->eval(query, targets, threshold, max_response)){
-        results.push_back({raw_result, ids.at(raw_result.text)});
+        auto i = ids.find(raw_result.text);
+        results.push_back({raw_result, i != ids.end() ? i->second : id_type{0}});
     }
     return results;
 }
