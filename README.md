@@ -40,10 +40,16 @@ cd /var/tmp/resembla/misc/mecab_dic/mecab-unidic-neologd/
 ./install-mecab-unidic-neologd.sh
 ```
 
-- run sample program
+- run with example files
 ```sh
+./resembla_index -c ../../example/conf/name.json
+./resembla_cli -c ../../example/conf/name.json
+# input some names like 'タケダ'
+./resembla_index -c ../../example/conf/address.json
+./resembla_cli -c ../../example/conf/address.json
+# input some addresses like '京都北区'
 # on src/executable
-./resembla_index -c ../../example/conf/address.tsv
-./resembla_cli -c ../../example/conf/address.tsv
-# input some text like '京都北区'
+./resembla_index -c ../../example/conf/apple.json
+./resembla_cli -c ../../example/conf/apple.json
+# input some sentences like 'りんごおいしくねえ'
 ```
