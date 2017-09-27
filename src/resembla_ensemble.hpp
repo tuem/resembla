@@ -51,6 +51,7 @@ public:
     void append(const std::shared_ptr<ResemblaInterface> resembla, double weight = 1.0)
     {
         children.push_back(std::make_pair(resembla, weight));
+        weights.push_back(weight);
         total_weight += weight;
     }
 
@@ -80,11 +81,11 @@ public:
             double threshold = 0.0, size_t max_response = 0) const
     {
         std::unordered_map<string_type, std::vector<double>> work;
-        for(const auto& child: children){
-            for(const auto& r: child->eval(query, candidates, 0.0, 0)){
-                auto p = work.insert(std::make_pair(r.text, r.score));
+        for(const auto& resembla: children){
+            for(const auto& r: resembla->eval(query, candidates, 0.0, 0)){
+                auto p = work.insert(std::make_pair(r.text, {r.score}));
                 if(!p.second){
-                    p.first += r.score;
+                    p.first.push_back(r.score);
                 }
             }
         }
@@ -109,21 +110,14 @@ public:
     }
 
 protected:
-    struct Child
-    {
-        std::string name;
-        std::shared_ptr<ResemblaInterface> resembla;
-        double weight;
-    };
-
     // name to be used in response
     const std::string measure_name;
 
     const size_t max_candidate;
 
+    std::vector<std::shared_ptr<ResemblaInterface>> children;
+    std::vector<double> weights;
     double total_weight;
-
-    std::vector<Child> children;
 };
 
 }
