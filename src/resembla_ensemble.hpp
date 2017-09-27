@@ -38,14 +38,14 @@ template<typename Indexer, typename ScoreFunction>
 class ResemblaEnsemble: public ResemblaInterface
 {
 public:
-    ResemblaEnsemble(const std::string& db_path, const std::string& index_path,
-            std::shared_ptr<Indexer> indexer, std::shared_ptr<ScoreFunction> score,
-            const std::string& measure_name, const size_t max_candidate = 0):
-        indexer(indexer), score(score),
-        measure_name(measure_name), max_candidate(max_candidate),
-        total_weight(0.0)
+    ResemblaEnsemble(const std::string& measure_name,
+            const std::string& simstring_db_path, const std::string& index_path,
+            std::shared_ptr<Indexer> indexer, const size_t max_candidate = 0,
+            std::shared_ptr<ScoreFunction> score_func):
+        measure_name(measure_name), indexer(indexer), max_candidate(max_candidate),
+        total_weight(0.0), score_func(score_func)
     {
-        load(db_path, index_path);
+        load(simstring_db_path, index_path);
     }
 
     void append(const std::shared_ptr<ResemblaInterface> resembla, double weight = 1.0)
@@ -92,7 +92,7 @@ public:
 
         std::vector<output_type> results;
         for(const auto& p: work){
-            double score = score_func(weights, p.second);
+            double score = (*score_func)(weights, p.second);
             if(score >= threshold){
                 results.push_back({p.first, measure_name, score});
             }
@@ -110,14 +110,56 @@ public:
     }
 
 protected:
-    // name to be used in response
     const std::string measure_name;
 
+    mutable simstring::reader db;
+    std::unordered_map<string_type, std::vector<string_type>> inverse;
+
+    const int simstring_measure;
+    const double simstring_threshold;
     const size_t max_candidate;
+
+    const std::shared_ptr<Indexer> indexer;
 
     std::vector<std::shared_ptr<ResemblaInterface>> children;
     std::vector<double> weights;
     double total_weight;
+
+    const std::shared_ptr<ScoreFunction> score_func;
+
+    void load(const std::string& simstring_db_path, const std::string& index_path)
+    {
+        db.open(simstring_db_path);
+
+        std::ifstream ifs(inverse_path);
+        if(ifs.fail()){
+            throw std::runtime_error("input file is not available: " + inverse_path);
+        }
+
+        while(ifs.good()){
+            std::string line;
+            std::getline(ifs, line);
+            if(ifs.eof()){
+                break;
+            }
+            else if(line.empty()){
+                continue;
+            }
+
+            auto columns = split(line, column_delimiter<>());
+            if(columns.size() < 2){
+                continue;
+            }
+
+            const auto& indexed = cast_string<string_type>(columns[0]);
+            const auto& original = cast_string<string_type>(columns[1]);
+
+            const auto p = inverse.insert(std::make_pair(indexed, original));
+            if(!p.second){
+                p.first.push_back(original);
+            }
+        }
+    }
 };
 
 }

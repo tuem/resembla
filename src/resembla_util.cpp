@@ -337,8 +337,12 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
             base_resembla = basic_resemblas[0].first;
         }
         else{
-            std::shared_ptr<ResemblaEnsemble> resembla_ensemble =
-                std::make_shared<ResemblaEnsemble>(resembla_measure_all, pm.get<double>("resembla_max_reranking_num"));
+            auto indexer = std::make_shared<RomajiSequenceBuilder>((pm.get<std::string>("index_romaji_mecab_options"),
+                    pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
+
+            std::shared_ptr<ResemblaEnsemble<RomajiSequenceBuilder, WeightedL2Norm> resembla_ensemble =
+                std::make_shared<ResemblaEnsemble>(resembla_measure_all,
+                        indexer, WeightedL2Norm(), pm.get<double>("resembla_max_reranking_num"));
             for(auto p: basic_resemblas){
                 if(p.second > 0){
                     resembla_ensemble->append(p.first, p.second);
