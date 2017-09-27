@@ -1,5 +1,9 @@
 # Resembla: Word-based Japanese similar sentence search library
 
+## Features
+- Word, kana and romaji-based edit distance variables and their ensemble
+- Support vector regression with linguistic features
+
 ## Requirements
 - [MeCab](http://taku910.github.io/mecab/)
 - [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvm/)
