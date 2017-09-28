@@ -22,6 +22,11 @@
         "simstring_threshold": 0.1,
         "ensemble_weight": 0.01
     },
+    "ensemble": {
+        "simstring_ngram_unit": 1,
+        "simstring_threshold": 0.25,
+        "max_candidate": 100
+    },
     "weighted_pronunciation_edit_distance": {
         "simstring_ngram_unit": 1,
         "simstring_threshold": 0.3,
