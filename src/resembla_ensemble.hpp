@@ -73,7 +73,17 @@ public:
             eliminate(simstring_result, max_candidate, true);
         }
 
-        return eval(query, simstring_result, threshold, max_response);
+        // load original texts
+        std::vector<string_type> candidates;
+        for(const auto& i: simstring_result){
+            if(i.empty()){
+                continue;
+            }
+            const auto& j = inverse.at(i);
+            std::copy(std::begin(j), std::end(j), std::back_inserter(candidates));
+        }
+
+        return eval(query, candidates, threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
