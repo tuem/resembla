@@ -24,17 +24,19 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename value_type>
+template<typename value_type = double>
 class WeightedL2Norm
 {
 public:
     value_type operator()(const std::vector<value_type>& weights, const std::vector<value_type>& values) const
     {
+        value_type total_weight = 0;
         value_type v{0};
         for(size_t i = 0; i < weights.size(); ++i){
+            total_weight += weights[i];
             v += weights[i] * values[i] * values[i];
         }
-        return static_cast<value_type>(sqrt(v));
+        return static_cast<value_type>(sqrt(v) / total_weight);
     }
 };
 

@@ -40,19 +40,18 @@ class ResemblaEnsemble: public ResemblaInterface
 public:
     ResemblaEnsemble(const std::string& measure_name,
             const std::string& simstring_db_path, const std::string& index_path,
-            std::shared_ptr<Indexer> indexer, const size_t max_candidate = 0,
-            std::shared_ptr<ScoreFunction> score_func):
-        measure_name(measure_name), indexer(indexer), max_candidate(max_candidate),
-        total_weight(0.0), score_func(score_func)
+            const int simstring_measure, const double simstring_threshold, const size_t max_candidate,
+            std::shared_ptr<Indexer> indexer, std::shared_ptr<ScoreFunction> score_func):
+        measure_name(measure_name), simstring_measure(simstring_measure), simstring_threshold(simstring_threshold),
+        max_candidate(max_candidate), indexer(indexer), score_func(score_func)
     {
         load(simstring_db_path, index_path);
     }
 
     void append(const std::shared_ptr<ResemblaInterface> resembla, double weight = 1.0)
     {
-        children.push_back(std::make_pair(resembla, weight));
+        children.push_back(resembla);
         weights.push_back(weight);
-        total_weight += weight;
     }
 
     std::vector<output_type> find(const string_type& query,
@@ -83,9 +82,9 @@ public:
         std::unordered_map<string_type, std::vector<double>> work;
         for(const auto& resembla: children){
             for(const auto& r: resembla->eval(query, candidates, 0.0, 0)){
-                auto p = work.insert(std::make_pair(r.text, {r.score}));
+                auto p = work.insert(std::pair<string_type, std::vector<double>>(r.text, {r.score}));
                 if(!p.second){
-                    p.first.push_back(r.score);
+                    p.first->second.push_back(r.score);
                 }
             }
         }
@@ -98,7 +97,7 @@ public:
             }
         }
 
-        if(max_response != 0 && response.size() > max_response){
+        if(max_response != 0 && results.size() > max_response){
             std::partial_sort(results.begin(), results.begin() + max_response, results.end());
             results.erase(results.begin() + max_response, results.end());
         }
@@ -106,13 +105,14 @@ public:
             std::sort(results.begin(), results.end());
         }
 
-        return response;
+        return results;
     }
 
 protected:
     const std::string measure_name;
 
     mutable simstring::reader db;
+    mutable std::mutex mutex_simstring;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
     const int simstring_measure;
@@ -123,7 +123,6 @@ protected:
 
     std::vector<std::shared_ptr<ResemblaInterface>> children;
     std::vector<double> weights;
-    double total_weight;
 
     const std::shared_ptr<ScoreFunction> score_func;
 
@@ -131,9 +130,9 @@ protected:
     {
         db.open(simstring_db_path);
 
-        std::ifstream ifs(inverse_path);
+        std::ifstream ifs(index_path);
         if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + inverse_path);
+            throw std::runtime_error("input file is not available: " + index_path);
         }
 
         while(ifs.good()){
@@ -154,9 +153,9 @@ protected:
             const auto& indexed = cast_string<string_type>(columns[0]);
             const auto& original = cast_string<string_type>(columns[1]);
 
-            const auto p = inverse.insert(std::make_pair(indexed, original));
+            auto p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
             if(!p.second){
-                p.first.push_back(original);
+                p.first->second.push_back(original);
             }
         }
     }
