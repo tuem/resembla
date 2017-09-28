@@ -83,8 +83,10 @@ int main(int argc, char* argv[])
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"ensemble_simstring_threshold", -1, {"ensemble", "simstring_threshold"}, "ensemble-simstring-threshold", 0, "SimString threshold for ensemble"},
+        {"ensemble_max_candidate", 100, {"ensemble", "max_candidate"}, "ensemble-max-candidate", 0, "max number of candidates for ensemble method"},
         {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
-        {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
+        {"svr_max_candidate", 100, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
@@ -125,6 +127,9 @@ int main(int argc, char* argv[])
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
+        if(pm.get<double>("ensemble_simstring_threshold") == -1){
+            pm["ensemble_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
         if(pm.get<double>("svr_simstring_threshold") == -1){
             pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
@@ -146,7 +151,23 @@ int main(int argc, char* argv[])
         if(pm.get<int>("km_max_reranking_num") == -1){
             pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
-        auto measures = split_to_resembla_measures(pm["resembla_measure"]);
+
+        auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int ensemble_count = 0;
+        for(auto resembla_measure: resembla_measures){
+            switch(resembla_measure){
+                case edit_distance:
+                case weighted_word_edit_distance:
+                case weighted_pronunciation_edit_distance:
+                case weighted_romaji_edit_distance:
+                case keyword_match:
+                    ++ensemble_count;
+                    break;
+                default:
+                    break;
+            }
+        }
+        bool use_ensemble = ensemble_count > 1;
 
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
@@ -170,7 +191,12 @@ int main(int argc, char* argv[])
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
             std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
-            for(const auto& measure: measures){
+            if(use_ensemble){
+                std::cerr << "  Ensemble:" << std::endl;
+                std::cerr << "    simstring_threshold=" << pm.get<double>("ensemble_simstring_threshold") << std::endl;
+                std::cerr << "    max_candidate=" << pm.get<int>("ensemble_max_candidate") << std::endl;
+            }
+            for(const auto& measure: resembla_measures){
                 if(measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                     std::cerr << "  Edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << pm.get<double>("ed_simstring_threshold") << std::endl;

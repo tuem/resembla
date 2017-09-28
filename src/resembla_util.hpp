@@ -26,7 +26,6 @@ limitations under the License.
 #include <paramset.hpp>
 
 #include "basic_resembla.hpp"
-#include "resembla_ensemble.hpp"
 
 #include "measure/romaji_sequence_builder.hpp"
 #include "regression/aggregator/feature_aggregator.hpp"
@@ -50,6 +49,7 @@ enum measure: int
     weighted_pronunciation_edit_distance,
     weighted_romaji_edit_distance,
     keyword_match,
+    ensemble,
     svr
 };
 

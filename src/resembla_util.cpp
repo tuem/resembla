@@ -44,6 +44,9 @@ limitations under the License.
 #include "measure/keyword_match_preprocessor.hpp"
 #include "measure/keyword_matcher.hpp"
 
+#include "resembla_ensemble.hpp"
+#include "measure/weighted_l2_norm.hpp"
+
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
 #include "regression/extractor/date_period_feature_extractor.hpp"
@@ -104,6 +107,9 @@ std::string db_path_from_resembla_measure(const std::string& corpus_path, const 
     else if(resembla_measure == keyword_match){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword_match);
     }
+    else if(resembla_measure == ensemble){
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(ensemble);
+    }
     else if(resembla_measure == svr){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(svr);
     }
@@ -128,6 +134,9 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
     }
     else if(resembla_measure == keyword_match){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword_match);
+    }
+    else if(resembla_measure == ensemble){
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(ensemble);
     }
     else if(resembla_measure == svr){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(svr);
@@ -320,6 +329,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
                     std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true);
                 break;
+            case ensemble:
+                break;
         }
     }
     if(basic_resemblas.size() == 0 && keyword_resembla == nullptr){
@@ -337,13 +348,22 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
             base_resembla = basic_resemblas[0].first;
         }
         else{
-            std::shared_ptr<ResemblaEnsemble> resembla_ensemble =
-                std::make_shared<ResemblaEnsemble>(resembla_measure_all, pm.get<double>("resembla_max_reranking_num"));
+            auto indexer = std::make_shared<RomajiSequenceBuilder>((pm.get<std::string>("index_romaji_mecab_options"),
+                    pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
+            auto db_path = db_path_from_resembla_measure(corpus_path, ensemble);
+            auto inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
+
+            std::shared_ptr<ResemblaEnsemble<RomajiSequenceBuilder, WeightedL2Norm<>>> resembla_ensemble =
+                std::make_shared<ResemblaEnsemble<RomajiSequenceBuilder, WeightedL2Norm<>>>(resembla_measure_all,
+                        db_path, inverse_path, pm.get<int>("simstring_measure"), pm.get<double>("ensemble_simstring_threshold"),
+                        pm.get<double>("ensemble_max_candidate"), indexer, std::make_shared<WeightedL2Norm<>>());
+
             for(auto p: basic_resemblas){
                 if(p.second > 0){
                     resembla_ensemble->append(p.first, p.second);
                 }
             }
+
             base_resembla = resembla_ensemble;
         }
     }
