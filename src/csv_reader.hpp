@@ -28,7 +28,7 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename String>
+template<typename string_type>
 class CsvReader
 {
 public:
@@ -83,7 +83,7 @@ public:
             return *this;
         }
 
-        value_type operator*() const
+        const value_type& operator*() const
         {
             return columns;
         }
@@ -97,12 +97,12 @@ public:
         std::vector<string_type> columns;
     };
 
-    iterator begin()
+    iterator begin() const
     {
         return iterator(file_path, min_columns, delimiter);
     }
 
-    iterator end()
+    iterator end() const
     {
         return iterator();
     }
