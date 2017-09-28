@@ -192,6 +192,9 @@ int main(int argc, char* argv[])
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"ensemble_simstring_ngram_unit", -1, {"ensemble", "simstring_ngram_unit"}, "ensemble-simstring-ngram-unit", 0, "Unit of N-gram for romaji notation of input text"},
+        {"ensemble_simstring_threshold", -1, {"ensemble", "simstring_threshold"}, "ensemble-simstring-threshold", 0, "SimString threshold for ensemble"},
+        {"ensemble_max_candidate", 100, {"ensemble", "max_candidate"}, "ensemble-max-candidate", 0, "max number of candidates for ensemble method"},
         {"svr_simstring_ngram_unit", -1, {"svr", "simstring_ngram_unit"}, "svr-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
         {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
@@ -213,6 +216,21 @@ int main(int argc, char* argv[])
         int resembla_max_response = pm.get<int>("resembla_max_response");
         double resembla_threshold = pm.get<double>("resembla_threshold");
         auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int ensemble_count = 0;
+        for(auto resembla_measure: resembla_measures){
+            switch(resembla_measure){
+                case edit_distance:
+                case weighted_word_edit_distance:
+                case weighted_pronunciation_edit_distance:
+                case weighted_romaji_edit_distance:
+                case keyword_match:
+                    ++ensemble_count;
+                    break;
+                default:
+                    break;
+            }
+        }
+        bool use_ensemble = ensemble_count > 1;
 
         pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
@@ -230,6 +248,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<int>("km_simstring_ngram_unit") == -1){
             pm["km_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("ensemble_simstring_ngram_unit") == -1){
+            pm["ensemble_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
         }
         if(pm.get<int>("svr_simstring_ngram_unit") == -1){
             pm["svr_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
@@ -249,6 +270,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("ensemble_simstring_threshold") == -1){
+            pm["ensemble_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
         if(pm.get<double>("svr_simstring_threshold") == -1){
             pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
@@ -366,36 +390,6 @@ int main(int argc, char* argv[])
                             pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
                     test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("svr_simstring_ngram_unit"), indexer);
 
-                    /*
-                    auto features = load_features(pm.get<std::string>("svr_features_path"));
-                    if(features.empty()){
-                        throw std::runtime_error("no feature");
-                    }
-                    const auto& base_feature = features[0][0];
-
-                    FeatureExtractor extractor;
-                    for(const auto& feature: features){
-                        const auto& name = feature[0];
-                        if(name == base_feature){
-                            continue;
-                        }
-
-                        const auto& feature_extractor_type = feature[1];
-                        if(feature_extractor_type == "re"){
-                            extractor.append(name, std::make_shared<RegexFeatureExtractor>(pm.get<std::string>("svr_patterns_home") + "/" + name + ".tsv"));
-                        }
-                        else if(feature_extractor_type == "date_period"){
-                            extractor.append(name, std::make_shared<DatePeriodFeatureExtractor>());
-                        }
-                        else if(feature_extractor_type == "time_period"){
-                            extractor.append(name, std::make_shared<TimePeriodFeatureExtractor>());
-                        }
-                        else if(feature_extractor_type != "-"){
-                            throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
-                        }
-                    }
-                    test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("simstring_ngram_unit"), extractor);
-                    */
                     break;
                 }
                 case edit_distance: {
@@ -450,6 +444,18 @@ int main(int argc, char* argv[])
                     break;
             }
         }
+
+        if(use_ensemble){
+        std::cerr << "ensemble" << std::endl;
+            std::string db_path = db_path_from_resembla_measure(corpus_path, ensemble);
+            std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
+
+            RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
+                    pm.get<int>("index_romaji_mecab_feature_pos"),
+                    pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+            test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ensemble_simstring_ngram_unit"), indexer);
+        }
+
         if(test_data.empty()){
             throw std::invalid_argument("no data for evaluation");
         }
