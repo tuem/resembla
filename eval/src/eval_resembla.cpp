@@ -305,6 +305,12 @@ int main(int argc, char* argv[])
         std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
         std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
         std::cerr << "    max_response=" << pm.get<int>("resembla_max_response") << std::endl;
+        if(use_ensemble){
+            std::cerr << "  measure=" << STR(ensemble) << std::endl;
+            std::cerr << "    simstring_ngram_unit=" << pm.get<int>("ensemble_simstring_ngram_unit") << std::endl;
+            std::cerr << "    simstring_threshold=" << pm.get<int>("ensemble_simstring_threshold") << std::endl;
+            std::cerr << "    max_candidate=" << pm.get<int>("ensemble_max_candidate") << std::endl;
+        }
         for(const auto& resembla_measure: resembla_measures){
             if(resembla_measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                 std::cerr << "  Edit distance:" << std::endl;
@@ -376,7 +382,6 @@ int main(int argc, char* argv[])
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "config"));
-        std::cerr << "configuration finished" << std::endl;
 
         // load test data and create index for each measure
         TestData test_data;
@@ -446,7 +451,6 @@ int main(int argc, char* argv[])
         }
 
         if(use_ensemble){
-        std::cerr << "ensemble" << std::endl;
             std::string db_path = db_path_from_resembla_measure(corpus_path, ensemble);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
@@ -460,12 +464,10 @@ int main(int argc, char* argv[])
             throw std::invalid_argument("no data for evaluation");
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "index"));
-        std::cerr << "indexing finished" << std::endl;
 
         // initialize Resembla with created indexes
         auto resembla = construct_resembla(corpus_path, pm);
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "load"));
-        std::cerr << "construction finished" << std::endl;
 
         // execute evaluation
         std::vector<std::vector<ResemblaInterface::output_type>> answers;
@@ -475,7 +477,6 @@ int main(int argc, char* argv[])
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "answer"));
-        std::cerr << "answering finished" << std::endl;
 
         // output results
         auto it = std::begin(answers);
