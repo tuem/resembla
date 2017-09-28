@@ -151,7 +151,23 @@ int main(int argc, char* argv[])
         if(pm.get<int>("km_max_reranking_num") == -1){
             pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
-        auto measures = split_to_resembla_measures(pm["resembla_measure"]);
+
+        auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int ensemble_count = 0;
+        for(auto resembla_measure: resembla_measures){
+            switch(resembla_measure){
+                case edit_distance:
+                case weighted_word_edit_distance:
+                case weighted_pronunciation_edit_distance:
+                case weighted_romaji_edit_distance:
+                case keyword_match:
+                    ++ensemble_count;
+                    break;
+                default:
+                    break;
+            }
+        }
+        bool use_ensemble = ensemble_count > 1;
 
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
@@ -175,7 +191,12 @@ int main(int argc, char* argv[])
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
             std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
-            for(const auto& measure: measures){
+            if(use_ensemble){
+                std::cerr << "  Ensemble:" << std::endl;
+                std::cerr << "    simstring_threshold=" << pm.get<double>("ensemble_simstring_threshold") << std::endl;
+                std::cerr << "    max_candidate=" << pm.get<int>("ensemble_max_candidate") << std::endl;
+            }
+            for(const auto& measure: resembla_measures){
                 if(measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                     std::cerr << "  Edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << pm.get<double>("ed_simstring_threshold") << std::endl;
