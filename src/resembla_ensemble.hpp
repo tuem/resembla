@@ -123,10 +123,11 @@ protected:
 
     mutable simstring::reader db;
     mutable std::mutex mutex_simstring;
-    std::unordered_map<string_type, std::vector<string_type>> inverse;
-
     const int simstring_measure;
     const double simstring_threshold;
+
+    std::unordered_map<string_type, std::vector<string_type>> inverse;
+
     const size_t max_candidate;
 
     const std::shared_ptr<Indexer> indexer;
