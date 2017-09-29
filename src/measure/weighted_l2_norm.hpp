@@ -20,6 +20,7 @@ limitations under the License.
 #ifndef RESEMBLA_WEIGHTED_L2_NORM_HPP
 #define RESEMBLA_WEIGHTED_L2_NORM_HPP
 
+#include <cmath>
 #include <vector>
 
 namespace resembla {
@@ -35,7 +36,7 @@ public:
             total_weight += weights[i];
             norm += weights[i] * values[i] * values[i];
         }
-        return static_cast<value_type>(sqrt(norm) / total_weight);
+        return static_cast<value_type>(std::sqrt(norm) / total_weight);
     }
 };
 

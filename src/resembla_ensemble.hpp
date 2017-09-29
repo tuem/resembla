@@ -20,7 +20,6 @@ limitations under the License.
 #ifndef RESEMBLA_RESEMBLA_ENSEMBLE_HPP
 #define RESEMBLA_RESEMBLA_ENSEMBLE_HPP
 
-#include <math.h>
 #include <string>
 #include <vector>
 #include <memory>
