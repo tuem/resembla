@@ -39,7 +39,6 @@ public:
         string_type text;
         std::vector<string_type> keywords;
     };
-    using output_type = output_type;
 
     KeywordMatchPreprocessor()
     {
