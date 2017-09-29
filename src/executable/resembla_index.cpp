@@ -59,7 +59,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         int n, std::shared_ptr<Indexer> indexer, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
-    auto delimiter = column_delimiter<string_type::value_type>();
+    constexpr auto delimiter = column_delimiter<string_type::value_type>();
     std::unordered_map<string_type, std::set<string_type>> inserted;
 
     simstring::ngram_generator gen(n, false);
