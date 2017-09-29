@@ -110,6 +110,21 @@ constexpr wchar_t value_delimiter()
     return L',';
 }
 
+template<typename char_type = char>
+constexpr char_type comment_prefix();
+
+template<>
+constexpr char comment_prefix()
+{
+    return '#';
+}
+
+template<>
+constexpr wchar_t comment_prefix()
+{
+    return L'#';
+}
+
 // split text by delimiter
 template<typename string_type>
 std::vector<string_type> split(const string_type& text, const typename string_type::value_type delimiter)
