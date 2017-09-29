@@ -24,14 +24,15 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include <unordered_map>
-#include <fstream>
 
 #include <simstring/simstring.h>
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "csv_reader.hpp"
 #include "eliminator.hpp"
 #include "reranker.hpp"
+
 #include "regression/feature.hpp"
 #include "regression/extractor/feature_extractor.hpp"
 
@@ -151,35 +152,13 @@ protected:
 
     void load(const std::string& inverse_path)
     {
-        std::ifstream ifs(inverse_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + inverse_path);
-        }
-
-        while(ifs.good()){
-            std::string line;
-            std::getline(ifs, line);
-            if(ifs.eof()){
-                break;
-            }
-            else if(line.empty()){
-                continue;
-            }
-
-            auto columns = split(line, column_delimiter<>());
-            if(columns.size() < 2){
-                continue;
-            }
-
+        for(const auto& columns: CsvReader<std::string>(inverse_path, 2)){
             const auto& indexed = cast_string<string_type>(columns[0]);
             const auto& original = cast_string<string_type>(columns[1]);
 
-            const auto& i = inverse.find(indexed);
-            if(i == std::end(inverse)){
-                inverse[indexed] = {original};
-            }
-            else{
-                i->second.push_back(original);
+            auto p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
+            if(!p.second){
+                p.first->second.push_back(original);
             }
 
             if(columns.size() > 2){

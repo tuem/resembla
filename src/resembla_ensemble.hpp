@@ -30,6 +30,7 @@ limitations under the License.
 #include <simstring/simstring.h>
 
 #include "resembla_interface.hpp"
+#include "csv_reader.hpp"
 #include "eliminator.hpp"
 
 namespace resembla {
@@ -141,28 +142,9 @@ protected:
     {
         db.open(simstring_db_path);
 
-        std::ifstream ifs(index_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + index_path);
-        }
-
-        while(ifs.good()){
-            std::string line;
-            std::getline(ifs, line);
-            if(ifs.eof()){
-                break;
-            }
-            else if(line.empty()){
-                continue;
-            }
-
-            auto columns = split(line, column_delimiter<>());
-            if(columns.size() < 2){
-                continue;
-            }
-
-            const auto& indexed = cast_string<string_type>(columns[0]);
-            const auto& original = cast_string<string_type>(columns[1]);
+        for(const auto& columns: CsvReader<string_type>(index_path, 2)){
+            const auto& indexed = columns[0];
+            const auto& original = columns[1];
 
             auto p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
             if(!p.second){

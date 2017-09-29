@@ -19,8 +19,9 @@ limitations under the License.
 
 #include "romaji_mismatch_cost.hpp"
 
-#include <fstream>
 #include <algorithm>
+
+#include "../csv_reader.hpp"
 
 namespace resembla {
 
@@ -52,22 +53,8 @@ RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar
 RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost):
     case_mismatch_cost(case_mismatch_cost)
 {
-    std::basic_ifstream<string_type::value_type> ifs(letter_similarity_file_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + letter_similarity_file_path);
-    }
-    while(ifs.good()){
-        string_type line;
-        std::getline(ifs, line);
-        if(ifs.eof() || line.length() == 0){
-            break;
-        }
-
-        auto columns = split(line, column_delimiter<string_type::value_type>());
-        if(columns.size() < 2){
-            throw std::runtime_error("invalid line in " + letter_similarity_file_path + ": " + cast_string<std::string>(line));
-        }
-        auto letters= columns[0];
+    for(const auto& columns: CsvReader<>(letter_similarity_file_path, 2)){
+        auto letters = cast_string<string_type>(columns[0]);
         auto cost = std::stod(columns[1]);
 
         std::sort(std::begin(letters), std::end(letters));

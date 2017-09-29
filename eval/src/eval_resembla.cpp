@@ -30,6 +30,7 @@ limitations under the License.
 #include <paramset.hpp>
 
 #include "resembla_util.hpp"
+#include "csv_reader.hpp"
 
 #include "measure/asis_sequence_builder.hpp"
 #include "measure/word_sequence_builder.hpp"
@@ -52,77 +53,64 @@ limitations under the License.
 using namespace resembla;
 
 // list of {true_text, list of {input_text, freq}}
-using TestData = std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, int>>>>;
+using TestData = std::vector<std::pair<string_type, std::vector<std::pair<string_type, int>>>>;
 
-const string_type DELIMITER = L"\t";
-const string_type WORD_FREQ_SEPARATOR = L"/";
+constexpr auto DELIMITER = column_delimiter<string_type::value_type>();
+constexpr char WORD_FREQ_SEPARATOR = '/';
+constexpr char NONE[] = "NONE";
 
 // generates SimString index and test data
 template<typename Preprocessor>
 TestData prepare_data(std::string test_data_path, std::string db_path, std::string inverse_path,
         int simstring_ngram_unit, Preprocessor preprocess)
 {
-    simstring::ngram_generator gen(simstring_ngram_unit, false);
-    simstring::writer_base<std::wstring> dbw(gen, db_path);
-    std::unordered_map<std::wstring, std::unordered_set<std::wstring>> inverse;
-
+    std::unordered_map<string_type, std::unordered_set<string_type>> inverse;
     TestData test_data;
+
+    simstring::ngram_generator gen(simstring_ngram_unit, false);
+    simstring::writer_base<string_type> dbw(gen, db_path);
     bool first = true;
-    std::wifstream wifs(test_data_path);
-    while(wifs.good()){
-        // format: {true}\t{input0}/{freq0}\t{input1}\t{freq1}...
-        std::wstring line;
-        std::getline(wifs, line);
+    for(const auto& columns: CsvReader<>(test_data_path, 1, DELIMITER)){
+        // skip header
         if(first){
             first = false;
             continue;
         }
-        if(wifs.eof() || line.length() == 0){
-            break;
+
+        // format: {true}\t{input0}/{freq0}\t{input1}\t{freq1}...
+        const auto original = cast_string<string_type>(columns[0]);
+        auto indexed = preprocess.index(original);
+        if(inverse.count(indexed) == 0){
+            dbw.insert(indexed);
+            inverse[indexed] = {original};
         }
-        size_t start = 0;
-        bool first = true;
-        while(start < line.size()){
-            size_t end = line.find(DELIMITER, start);
-            if(first){
-                std::wstring original(line, start, end == std::wstring::npos ? line.size() : end - start);
-                auto s = preprocess.index(original);
-                if(inverse.count(s) == 0){
-                    dbw.insert(s);
-                    inverse[s] = {original};
-                }
-                else{
-                    inverse[s].insert(original);
-                }
-                test_data.push_back(std::make_pair(original, std::vector<std::pair<std::wstring, int>>()));
-                first = false;
-            }
-            else{
-                std::wstring s;
-                int f = 0;
-                size_t sep = line.find(WORD_FREQ_SEPARATOR, start);
-                if(sep != std::wstring::npos && (end == std::wstring::npos || sep < end)){
-                    s = std::wstring(line, start, sep - start);
-                    f = std::stoi(std::wstring(line, sep + 1, end == std::wstring::npos ? line.size() : end - start));
-                }
-                else{
-                    s = std::wstring(line, start, end == std::wstring::npos ? line.size() : end - start);
-                }
-                test_data.back().second.push_back(std::make_pair(s, f));
+        else{
+            inverse[indexed].insert(original);
+        }
+        test_data.push_back(std::make_pair(original, std::vector<std::pair<string_type, int>>()));
+
+        for(size_t i = 1; i < columns.size(); ++i){
+            auto values = split(columns[i], WORD_FREQ_SEPARATOR);
+            auto text = cast_string<string_type>(values[0]);
+            if(text.empty()){
+                continue;
             }
 
-            if(end == std::wstring::npos){
-                break;
+            int freq = 0;
+            if(values.size() > 1){
+                freq = std::stoi(values[1]);
             }
-            start = end + 1;
+
+            test_data.back().second.push_back(std::make_pair(text, freq));
         }
     }
     dbw.close();
-    std::wofstream wofs;
-    wofs.open(inverse_path);
+
+    std::basic_ofstream<string_type::value_type> ofs;
+    ofs.open(inverse_path);
     for(auto p: inverse){
         for(auto original: p.second){
-            wofs << p.first << L'\t' << original << std::endl;
+            ofs << p.first << DELIMITER << original << std::endl;
         }
     }
     return test_data;
@@ -399,7 +387,7 @@ int main(int argc, char* argv[])
                 }
                 case edit_distance: {
                     if(pm.get<double>("ed_ensemble_weight") > 0){
-                        AsIsSequenceBuilder<std::wstring> builder;
+                        AsIsSequenceBuilder<string_type> builder;
                         test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), builder);
                     }
                     break;
@@ -496,7 +484,7 @@ int main(int argc, char* argv[])
 
                 auto response = *it++;
 
-                std::wstring best = !response.empty() ? response[0].text : L"NONE";
+                auto best = !response.empty() ? response[0].text : cast_string<string_type>(std::string(NONE));
                 double score_best = !response.empty() ? response[0].score : -1;
                 auto p = std::find_if(response.begin(), response.end(),
                         [original](ResemblaInterface::output_type& r) -> bool {return original == r.text;});

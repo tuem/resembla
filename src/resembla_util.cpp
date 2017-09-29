@@ -392,26 +392,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
 
 std::vector<std::vector<std::string>> load_features(const std::string file_path)
 {
-    std::ifstream ifs(file_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + file_path);
-    }
-
     std::vector<std::vector<std::string>> features;
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof()){
-            break;
-        }
-        else if(line.compare(0, 1, "#") == 0 || line.empty()){
-            continue;
-        }
-
-        auto values = split(line, column_delimiter<>());
-        if(values.size() == 3){
-            features.push_back(values);
-        }
+    for(const auto& columns: CsvReader<>(file_path, 3)){
+        features.push_back(columns);
     }
     return features;
 }

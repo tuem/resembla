@@ -19,8 +19,9 @@ limitations under the License.
 
 #include "resembla_with_id.hpp"
 
-#include <fstream>
 #include <algorithm>
+
+#include "csv_reader.hpp"
 
 namespace resembla {
 
@@ -54,34 +55,21 @@ std::vector<ResemblaWithId::output_type> ResemblaWithId::eval(const string_type&
 
 void ResemblaWithId::loadCorpus(const std::string& corpus_path, size_t id_col, size_t text_col)
 {
-    id_type max_id = 0;
-    std::ifstream ifs(corpus_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + corpus_path);
-    }
+    id_type max_id{0};
+    for(const auto& columns: CsvReader<string_type>(corpus_path, text_col)){
+        const auto& text = cast_string<string_type>(columns[text_col - 1]);
 
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof() || line.length() == 0){
-            break;
-        }
-
-        auto columns = split(line, column_delimiter<>());
-        if(text_col - 1 < columns.size()){
-            auto text = cast_string<string_type>(columns[text_col - 1]);
-            auto i = ids.find(text);
-            if(i == std::end(ids)){
-                id_type id;
-                if(id_col == 0 || id_col > columns.size()){
-                    id = ++max_id;
-                }
-                else{
-                    id = std::stoi(columns[id_col - 1]);
-                    max_id = std::max(id, max_id);
-                }
-                ids[text] = id;
+        auto i = ids.find(text);
+        if(i == std::end(ids)){
+            id_type id;
+            if(id_col == 0 || id_col > columns.size()){
+                id = ++max_id;
             }
+            else{
+                id = std::stoi(columns[id_col - 1]);
+                max_id = std::max(id, max_id);
+            }
+            ids[text] = id;
         }
     }
 }
