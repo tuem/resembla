@@ -21,7 +21,6 @@ limitations under the License.
 #define RESEMBLA_BASIC_RESEMBLA_HPP
 
 #include <string>
-#include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <memory>
