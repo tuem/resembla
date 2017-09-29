@@ -53,10 +53,11 @@ limitations under the License.
 using namespace resembla;
 
 // list of {true_text, list of {input_text, freq}}
-using TestData = std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, int>>>>;
+using TestData = std::vector<std::pair<string_type, std::vector<std::pair<string_type, int>>>>;
 
-constexpr auto delimiter = column_delimiter<string_type::value_type>();
+constexpr auto DELIMITER = column_delimiter<string_type::value_type>();
 constexpr char WORD_FREQ_SEPARATOR = '/';
+constexpr char NONE[] = "NONE";
 
 // generates SimString index and test data
 template<typename Preprocessor>
@@ -69,7 +70,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
     simstring::ngram_generator gen(simstring_ngram_unit, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
     bool first = true;
-    for(const auto& columns: CsvReader<std::string>(test_data_path, 1, delimiter)){
+    for(const auto& columns: CsvReader<>(test_data_path, 1, DELIMITER)){
         // skip header
         if(first){
             first = false;
@@ -86,7 +87,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
         else{
             inverse[indexed].insert(original);
         }
-        test_data.push_back(std::make_pair(original, std::vector<std::pair<std::wstring, int>>()));
+        test_data.push_back(std::make_pair(original, std::vector<std::pair<string_type, int>>()));
 
         for(size_t i = 1; i < columns.size(); ++i){
             auto values = split(columns[i], WORD_FREQ_SEPARATOR);
@@ -109,7 +110,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
     ofs.open(inverse_path);
     for(auto p: inverse){
         for(auto original: p.second){
-            ofs << p.first << delimiter << original << std::endl;
+            ofs << p.first << DELIMITER << original << std::endl;
         }
     }
     return test_data;
@@ -386,7 +387,7 @@ int main(int argc, char* argv[])
                 }
                 case edit_distance: {
                     if(pm.get<double>("ed_ensemble_weight") > 0){
-                        AsIsSequenceBuilder<std::wstring> builder;
+                        AsIsSequenceBuilder<string_type> builder;
                         test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), builder);
                     }
                     break;
@@ -468,12 +469,12 @@ int main(int argc, char* argv[])
         // output results
         auto it = std::begin(answers);
         std::wcout <<
-            "freq" << delimiter <<
-            "input" << delimiter <<
-            "pred" << delimiter <<
-            "true" << delimiter <<
-            "score" << delimiter <<
-            "score_of_correct_answer" << delimiter <<
+            "freq" << DELIMITER <<
+            "input" << DELIMITER <<
+            "pred" << DELIMITER <<
+            "true" << DELIMITER <<
+            "score" << DELIMITER <<
+            "score_of_correct_answer" << DELIMITER <<
             "rank_of_correct_answer" << std::endl;
         for(const auto& d: test_data){
             const auto& original = d.first;
@@ -483,7 +484,7 @@ int main(int argc, char* argv[])
 
                 auto response = *it++;
 
-                std::wstring best = !response.empty() ? response[0].text : L"NONE";
+                auto best = !response.empty() ? response[0].text : cast_string<string_type>(std::string(NONE));
                 double score_best = !response.empty() ? response[0].score : -1;
                 auto p = std::find_if(response.begin(), response.end(),
                         [original](ResemblaInterface::output_type& r) -> bool {return original == r.text;});
@@ -491,12 +492,12 @@ int main(int argc, char* argv[])
                 double score_correct = rank_correct != -1 ? response[rank_correct - 1].score : -1;
 
                 std::wcout <<
-                    freq << delimiter <<
-                    query << delimiter <<
-                    best << delimiter <<
-                    original << delimiter <<
-                    score_best << delimiter <<
-                    score_correct << delimiter <<
+                    freq << DELIMITER <<
+                    query << DELIMITER <<
+                    best << DELIMITER <<
+                    original << DELIMITER <<
+                    score_best << DELIMITER <<
+                    score_correct << DELIMITER <<
                     rank_correct << std::endl;
             }
         }
