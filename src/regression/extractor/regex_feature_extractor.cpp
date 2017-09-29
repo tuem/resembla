@@ -19,7 +19,6 @@ limitations under the License.
 
 #include "regex_feature_extractor.hpp"
 
-#include <fstream>
 #include <iostream>
 
 #include "../../csv_reader.hpp"
