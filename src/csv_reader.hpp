@@ -55,39 +55,36 @@ public:
             if(ifs.fail()){
                 throw std::runtime_error("input file is not available: " + file_path);
             }
-            eof = ifs.eof();
-            if(!eof){
+            if((available = !ifs.eof())){
                 this->operator++();
             }
         }
 
-        iterator(): eof(true){}
+        iterator(): available(false){}
 
         bool operator!=(const iterator& i) const
         {
-            return !eof || !i.eof;
+            return available || i.available;
         }
 
         iterator& operator++()
         {
-            std::string line;
-            std::getline(ifs, line);
-            if(ifs.eof()){
-                eof = true;
-                columns.clear();
+            std::string raw_line;
+            std::getline(ifs, raw_line);
+            if(!(available = !ifs.eof())){
                 return *this;
             }
 
-            if(line.empty()){
+            if(raw_line.empty()){
                 return this->operator++();
             }
 
-            string_type _line = cast_string<string_type>(line);
-            if(!comment_str.empty() && _line.compare(0, 1, comment_str) == 0){
+            auto line = cast_string<string_type>(raw_line);
+            if(!comment_str.empty() && line.compare(0, 1, comment_str) == 0){
                 return this->operator++();
             }
 
-            columns = split(_line, delimiter);
+            columns = split(line, delimiter);
             if(columns.size() < min_columns){
                 return this->operator++();
             }
@@ -106,7 +103,7 @@ public:
         symbol_type delimiter;
         string_type comment_str;
 
-        bool eof;
+        bool available;
         std::vector<string_type> columns;
     };
 
