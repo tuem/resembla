@@ -32,6 +32,7 @@ limitations under the License.
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "csv_reader.hpp"
 #include "eliminator.hpp"
 #include "reranker.hpp"
 
@@ -53,40 +54,24 @@ public:
         reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
         db.open(db_path);
-        std::basic_ifstream<string_type::value_type> ifs(inverse_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + inverse_path);
-        }
-        while(ifs.good()){
-            string_type line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
 
-            auto columns = split(line, column_delimiter<string_type::value_type>());
-            if(columns.size() < 2){
-                throw std::runtime_error("too few columns, corpus=" + inverse_path + ", line=" + cast_string<std::string>(line));
-            }
+        for(const auto& columns: CsvReader<string_type>(inverse_path, 2)){
             const auto& indexed = columns[0];
             const auto& original = columns[1];
 
-            const auto& i = inverse.find(indexed);
-            if(i == std::end(inverse)){
-                inverse[indexed] = {original};
-            }
-            else{
-                inverse.at(indexed).push_back(original);
+            const auto& p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
+            if(!p.second){
+                p.first->second.push_back(original);
             }
 
             if(preprocess_corpus){
-                if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() && !columns[preprocessed_data_col - 1].empty()){
+                if(preprocessed_data_col > 0 && !columns[preprocessed_data_col - 1].empty()){
                     nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[preprocessed_data_col - 1]));
                     typename Preprocessor::output_type preprocessed = j;
-                    preprocessed_corpus[columns[1]] = std::make_pair(columns[1], preprocessed);
+                    preprocessed_corpus[original] = std::make_pair(original, preprocessed);
                 }
                 else{
-                    preprocessed_corpus[columns[1]] = std::make_pair(columns[1], (*preprocess)(original, true));
+                    preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
                 }
             }
         }
