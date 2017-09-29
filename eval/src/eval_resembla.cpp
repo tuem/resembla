@@ -55,15 +55,14 @@ using namespace resembla;
 // list of {true_text, list of {input_text, freq}}
 using TestData = std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, int>>>>;
 
-const string_type DELIMITER = L"\t";
-const char WORD_FREQ_SEPARATOR = '/';
+constexpr auto delimiter = column_delimiter<string_type::value_type>();
+constexpr char WORD_FREQ_SEPARATOR = '/';
 
 // generates SimString index and test data
 template<typename Preprocessor>
 TestData prepare_data(std::string test_data_path, std::string db_path, std::string inverse_path,
         int simstring_ngram_unit, Preprocessor preprocess)
 {
-    constexpr auto delimiter = column_delimiter<string_type::value_type>();
     std::unordered_map<string_type, std::unordered_set<string_type>> inverse;
     TestData test_data;
 
@@ -106,11 +105,11 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
     }
     dbw.close();
 
-    std::wofstream wofs;
-    wofs.open(inverse_path);
+    std::basic_ofstream<string_type::value_type> ofs;
+    ofs.open(inverse_path);
     for(auto p: inverse){
         for(auto original: p.second){
-            wofs << p.first << '\t' << original << std::endl;
+            ofs << p.first << delimiter << original << std::endl;
         }
     }
     return test_data;
@@ -469,12 +468,12 @@ int main(int argc, char* argv[])
         // output results
         auto it = std::begin(answers);
         std::wcout <<
-            "freq" << DELIMITER <<
-            "input" << DELIMITER <<
-            "pred" << DELIMITER <<
-            "true" << DELIMITER <<
-            "score" << DELIMITER <<
-            "score_of_correct_answer" << DELIMITER <<
+            "freq" << delimiter <<
+            "input" << delimiter <<
+            "pred" << delimiter <<
+            "true" << delimiter <<
+            "score" << delimiter <<
+            "score_of_correct_answer" << delimiter <<
             "rank_of_correct_answer" << std::endl;
         for(const auto& d: test_data){
             const auto& original = d.first;
@@ -492,12 +491,12 @@ int main(int argc, char* argv[])
                 double score_correct = rank_correct != -1 ? response[rank_correct - 1].score : -1;
 
                 std::wcout <<
-                    freq << DELIMITER <<
-                    query << DELIMITER <<
-                    best << DELIMITER <<
-                    original << DELIMITER <<
-                    score_best << DELIMITER <<
-                    score_correct << DELIMITER <<
+                    freq << delimiter <<
+                    query << delimiter <<
+                    best << delimiter <<
+                    original << delimiter <<
+                    score_best << delimiter <<
+                    score_correct << delimiter <<
                     rank_correct << std::endl;
             }
         }
