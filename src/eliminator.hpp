@@ -23,6 +23,8 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <iostream>
 
 #include "string_util.hpp"
 
