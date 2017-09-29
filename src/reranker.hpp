@@ -20,10 +20,14 @@ limitations under the License.
 #ifndef RESEMBLA_RERANKER_HPP
 #define RESEMBLA_RERANKER_HPP
 
-#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <string>
+
+#ifdef DEBUG
+#include "string_util.hpp"
+#include <iostream>
+#endif
 
 namespace resembla {
 
