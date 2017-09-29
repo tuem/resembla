@@ -59,27 +59,12 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         int n, std::shared_ptr<Indexer> indexer, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
-    constexpr auto delimiter = column_delimiter<typename string_type::value_type>();
+    auto delimiter = column_delimiter<string_type::value_type>();
+    std::unordered_map<string_type, std::set<string_type>> inserted;
+
     simstring::ngram_generator gen(n, false);
     simstring::writer_base<string_type> dbw(gen, db_path);
-    std::unordered_map<string_type, std::set<string_type>> inserted;
-    std::basic_ifstream<string_type::value_type> ifs(corpus_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + corpus_path);
-    }
-
-    while(ifs.good()){
-        string_type line;
-        std::getline(ifs, line);
-        if(ifs.eof() || line.length() == 0){
-            break;
-        }
-
-        auto columns = split(line, delimiter);
-        if(text_col > columns.size()){
-            continue;
-        }
-
+    for(const auto& columns: CsvReader<string_type>(corpus_path, text_col, delimiter)){
         auto original = columns[text_col - 1];
         auto normalized = normalize != nullptr ? (*normalize)(original) : original;
         auto indexed = indexer->index(normalized);
@@ -97,6 +82,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
         }
     }
     dbw.close();
+
     std::basic_ofstream<string_type::value_type> ofs;
     ofs.open(inverse_path);
     for(auto p: inserted){
