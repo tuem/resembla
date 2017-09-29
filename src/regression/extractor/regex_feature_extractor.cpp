@@ -22,6 +22,8 @@ limitations under the License.
 #include <fstream>
 #include <iostream>
 
+#include "../../csv_reader.hpp"
+
 namespace resembla {
 
 RegexFeatureExtractor::RegexFeatureExtractor(const std::initializer_list<std::pair<Feature::real_type, std::string>>& patterns)
@@ -49,22 +51,9 @@ Feature::real_type RegexFeatureExtractor::match(const string_type& text) const
 
 std::vector<std::pair<double, std::string>> RegexFeatureExtractor::load(const std::string file_path)
 {
-    std::ifstream ifs(file_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + file_path);
-    }
-
     std::vector<std::pair<double, std::string>> patterns;
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof() || line.length() == 0){
-            break;
-        }
-        size_t i = line.find(column_delimiter<>());
-        if(i != std::string::npos){
-            patterns.push_back(std::make_pair(std::stod(line.substr(0, i)), line.substr(i + 1)));
-        }
+    for(const auto& columns: CsvReader<>(file_path, 2)){
+        patterns.push_back(std::make_pair(std::stod(columns[0]), columns[1]));
     }
     return patterns;
 }
