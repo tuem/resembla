@@ -21,11 +21,11 @@ limitations under the License.
 #define RESEMBLA_LETTER_WEIGHT_HPP
 
 #include <string>
-#include <fstream>
 #include <exception>
 #include <unordered_map>
 
 #include "../string_util.hpp"
+#include "../csv_reader.hpp"
 
 namespace resembla {
 
@@ -42,27 +42,12 @@ struct LetterWeight
             return;
         }
 
-        std::basic_ifstream<value_type> ifs(letter_weight_file_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + letter_weight_file_path);
-        }
-
-        while(ifs.good()){
-            string_type line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
-
-            auto columns = split(line, column_delimiter<value_type>());
-            if(columns.size() < 2){
-                throw std::runtime_error("invalid line in " + letter_weight_file_path + ": " + cast_string<std::string>(line));
-            }
-
-            auto letters= columns[0];
+        for(const auto& columns: CsvReader<>(letter_weight_file_path, 2)){
+            auto letters = cast_string<string_type>(columns[0]);
             auto weight = std::stod(columns[1]);
-            for(size_t i = 0; i < letters.size(); ++i){
-                letter_weights[letters[i]] = weight;
+
+            for(auto c: letters){
+                letter_weights[c] = weight;
             }
         }
     }
