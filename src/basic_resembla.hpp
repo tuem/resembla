@@ -46,10 +46,10 @@ class BasicResembla: public ResemblaInterface
 {
 public:
     BasicResembla(const std::string& db_path, const std::string& inverse_path,
-            const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
+            int simstring_measure, double simstring_threshold, size_t max_candidate,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
-        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
+        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_candidate(max_candidate),
         reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
         db.open(db_path);
@@ -89,9 +89,9 @@ public:
         if(simstring_result.empty()){
             return {};
         }
-        else if(simstring_result.size() > max_reranking_num){
+        else if(simstring_result.size() > max_candidate){
             Eliminator<string_type> eliminate(search_query);
-            eliminate(simstring_result, max_reranking_num);
+            eliminate(simstring_result, max_candidate);
         }
 
         std::vector<string_type> candidate_texts;
@@ -138,11 +138,12 @@ protected:
     using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
 
     mutable simstring::reader db;
+    mutable std::mutex mutex_simstring;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
     const int simstring_measure;
     const double simstring_threshold;
-    const size_t max_reranking_num;
+    const size_t max_candidate;
     const Reranker<string_type> reranker;
 
     const std::shared_ptr<Preprocessor> preprocess;
@@ -150,8 +151,6 @@ protected:
 
     const bool preprocess_corpus;
     std::unordered_map<string_type, WorkData> preprocessed_corpus;
-
-    mutable std::mutex mutex_simstring;
 };
 
 }

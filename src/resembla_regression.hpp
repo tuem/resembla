@@ -44,7 +44,7 @@ class ResemblaRegression: public ResemblaInterface
 public:
     ResemblaRegression(
             const std::string& db_path, const std::string& inverse_path,
-            const int simstring_measure, const double simstring_threshold, const size_t max_candidate,
+            int simstring_measure, double simstring_threshold, size_t max_candidate,
             std::shared_ptr<Indexer> indexer, std::shared_ptr<FeatureExtractor> feature_extractor,
             std::shared_ptr<ScoreFunction> score_func):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_candidate(max_candidate),
@@ -54,7 +54,7 @@ public:
         load(inverse_path);
     }
 
-    void append(const std::string name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary = true)
+    void append(const std::string& name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary = true)
     {
         resemblas[name] = resembla;
         if(is_primary && primary_resembla_name.empty()){
