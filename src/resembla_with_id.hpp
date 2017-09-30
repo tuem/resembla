@@ -26,7 +26,6 @@ limitations under the License.
 #include <unordered_map>
 
 #include "resembla_interface.hpp"
-#include "regression/feature.hpp"
 
 namespace resembla {
 
@@ -47,8 +46,8 @@ public:
     ResemblaWithId(const std::shared_ptr<ResemblaInterface> resembla,
             std::string corpus_path, size_t id_col = 1, size_t text_col = 2);
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0,
-            size_t max_response = 0) const;
+    std::vector<output_type> find(const string_type& query,
+            double threshold = 0.0, size_t max_response = 0) const;
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
             double threshold = 0.0, size_t max_response = 0) const;
 
