@@ -33,7 +33,8 @@ DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
 SRC_DIR = ../src
 
-RESEMBLA_COMMON_SRCS = $(SRC_DIR)/string_util.cpp $(SRC_DIR)/symbol_normalizer.cpp $(SRC_DIR)/resembla_util.cpp $(SRC_DIR)/string_normalizer.cpp $(SRC_DIR)/resembla_interface.cpp $(SRC_DIR)/resembla_response.cpp
+RESEMBLA_COMMON_SRCS = $(SRC_DIR)/string_util.cpp $(SRC_DIR)/symbol_normalizer.cpp $(SRC_DIR)/resembla_util.cpp $(SRC_DIR)/string_normalizer.cpp
+#RESEMBLA_COMMON_SRCS = $(SRC_DIR)/string_util.cpp $(SRC_DIR)/symbol_normalizer.cpp $(SRC_DIR)/resembla_util.cpp $(SRC_DIR)/string_normalizer.cpp $(SRC_DIR)/resembla_interface.cpp $(SRC_DIR)/resembla_response.cpp
 RESEMBLA_COMMON_OBJS = $(patsubst %.cpp,%.o,$(RESEMBLA_COMMON_SRCS))
 RESEMBLA_COMMON_OBJ_FILENAMES = $(patsubst $(SRC_DIR)/%,%,$(RESEMBLA_COMMON_OBJS))
 
