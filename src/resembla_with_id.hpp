@@ -24,16 +24,17 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <algorithm>
 
 #include "resembla_interface.hpp"
+#include "csv_reader.hpp"
 
 namespace resembla {
 
+template<typename id_type = long long>
 class ResemblaWithId
 {
 public:
-    using id_type = int;
-
     struct output_type: public ResemblaInterface::output_type
     {
         id_type id;
@@ -44,18 +45,52 @@ public:
     };
 
     ResemblaWithId(const std::shared_ptr<ResemblaInterface> resembla,
-            std::string corpus_path, size_t id_col = 1, size_t text_col = 2);
+            std::string corpus_path, size_t id_col = 1, size_t text_col = 2):
+        resembla(resembla)
+    {
+        id_type max_id{0};
+        for(const auto& columns: CsvReader<string_type>(corpus_path, text_col)){
+            const auto& text = cast_string<string_type>(columns[text_col - 1]);
+
+            auto i = ids.find(text);
+            if(i == std::end(ids)){
+                id_type id;
+                if(id_col == 0 || id_col > columns.size()){
+                    id = ++max_id;
+                }
+                else{
+                    id = std::stoi(columns[id_col - 1]);
+                    max_id = std::max(id, max_id);
+                }
+                ids[text] = id;
+            }
+        }
+    }
 
     std::vector<output_type> find(const string_type& query,
-            double threshold = 0.0, size_t max_response = 0) const;
+            double threshold = 0.0, size_t max_response = 0) const
+    {
+        std::vector<output_type> results;
+        for(auto raw_result: resembla->find(query, threshold, max_response)){
+            results.push_back({raw_result, ids.at(raw_result.text)});
+        }
+        return results;
+    }
+
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
-            double threshold = 0.0, size_t max_response = 0) const;
+            double threshold = 0.0, size_t max_response = 0) const
+    {
+        std::vector<output_type> results;
+        for(auto raw_result: resembla->eval(query, targets, threshold, max_response)){
+            auto i = ids.find(raw_result.text);
+            results.push_back({raw_result, i != ids.end() ? i->second : id_type{0}});
+        }
+        return results;
+    }
 
 protected:
     std::shared_ptr<ResemblaInterface> resembla;
     std::unordered_map<string_type, id_type> ids;
-
-    void loadCorpus(const std::string& corpus_path, size_t id_col, size_t text_col);
 };
 
 }

@@ -272,11 +272,11 @@ int main(int argc, char* argv[])
                 pm.get<bool>("icu_to_lower"));
         }
         auto resembla = construct_resembla(corpus_path, pm);
-        std::shared_ptr<ResemblaWithId> resembla_with_id;
+        std::shared_ptr<ResemblaWithId<>> resembla_with_id;
         if(pm.get<int>("id_col") != 0){
             size_t id_col = pm.get<int>("id_col");
             size_t text_col = pm.get<int>("text_col");
-            resembla_with_id = std::make_shared<ResemblaWithId>(resembla, corpus_path, id_col, text_col);
+            resembla_with_id = std::make_shared<ResemblaWithId<>>(resembla, corpus_path, id_col, text_col);
         }
         while(true){
             std::string raw_input;
@@ -305,7 +305,7 @@ int main(int argc, char* argv[])
             }
 
             if(resembla_with_id != nullptr){
-                std::vector<ResemblaWithId::output_type> result = ondemand ?
+                std::vector<ResemblaWithId<>::output_type> result = ondemand ?
                     resembla_with_id->eval(cast_string<string_type>(input), candidates, threshold, max_response) :
                     resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
