@@ -17,12 +17,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_UNIFORM_COST_HPP
-#define RESEMBLA_UNIFORM_COST_HPP
+#ifndef RESEMBLA_FIXED_COST_HPP
+#define RESEMBLA_FIXED_COST_HPP
 
 namespace resembla {
 
-struct UniformCost
+struct FixedCost
 {
     template<typename value_type>
     double operator()(const value_type a, const value_type b) const

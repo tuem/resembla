@@ -23,11 +23,11 @@ limitations under the License.
 #include <string>
 #include <vector>
 
-#include "uniform_cost.hpp"
+#include "fixed_cost.hpp"
 
 namespace resembla {
 
-template<typename CostFunction = UniformCost>
+template<typename CostFunction = FixedCost>
 struct WeightedEditDistance
 {
     const std::string name;
