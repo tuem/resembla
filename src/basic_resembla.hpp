@@ -64,7 +64,8 @@ public:
             }
 
             if(preprocess_corpus){
-                if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() && !columns[preprocessed_data_col - 1].empty()){
+                if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
+                        !columns[preprocessed_data_col - 1].empty()){
                     nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[preprocessed_data_col - 1]));
                     typename Preprocessor::output_type preprocessed = j;
                     preprocessed_corpus[original] = std::make_pair(original, preprocessed);
@@ -128,7 +129,8 @@ public:
         // execute reranking
         WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, threshold, max_response)){
+        for(const auto& r: reranker.rerank(input_data, candidates.begin(), candidates.end(),
+                *score_func, threshold, max_response)){
             response.push_back({r.first, score_func->name, r.second});
         }
         return response;
