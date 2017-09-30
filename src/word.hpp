@@ -20,13 +20,11 @@ limitations under the License.
 #ifndef RESEMBLA_WORD_HPP
 #define RESEMBLA_WORD_HPP
 
-#include <string>
 #include <vector>
-
-#include "string_util.hpp"
 
 namespace resembla {
 
+template<typename string_type>
 struct Word
 {
     string_type surface;

@@ -24,7 +24,7 @@ namespace resembla {
 WordWeight::WordWeight(double base_weight, double delete_insert_ratio, double noun_coefficient, double verb_coefficient, double adj_coefficient):
     base_weight(base_weight), delete_insert_ratio(delete_insert_ratio), noun_coefficient(noun_coefficient), verb_coefficient(verb_coefficient), adj_coefficient(adj_coefficient) {}
 
-double WordWeight::operator()(const Word& word, bool is_original, size_t, size_t) const
+double WordWeight::operator()(const Word<string_type>& word, bool is_original, size_t, size_t) const
 {
     double weight = base_weight;
 

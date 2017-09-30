@@ -46,8 +46,8 @@ void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<Sequenc
 }
 */
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o);
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o);
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>::token_type& o);
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>::token_type& o);
 
 void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>::token_type& o);
 void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>::token_type& o);

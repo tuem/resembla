@@ -21,12 +21,13 @@ limitations under the License.
 #define RESEMBLA_WORD_MISMATCH_COST_HPP
 
 #include "../word.hpp"
+#include "../string_util.hpp"
 
 namespace resembla {
 
 struct WordMismatchCost
 {
-    double operator()(const Word& reference, const Word& target) const;
+    double operator()(const Word<string_type>& reference, const Word<string_type>& target) const;
 };
 
 }
