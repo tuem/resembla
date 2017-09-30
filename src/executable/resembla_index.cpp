@@ -285,8 +285,8 @@ int main(int argc, char* argv[])
                         builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
-                auto builder = std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>>(
-                    WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
+                auto builder = std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>>(
+                    WordSequenceBuilder<string_type>(pm.get<std::string>("wwed_mecab_options")),
                     WordWeight(pm.get<double>("wwed_base_weight"),
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
