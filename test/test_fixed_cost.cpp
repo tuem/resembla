@@ -17,34 +17,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/*
 #include <string>
 #include <iostream>
+*/
 
 #include "Catch/catch.hpp"
 
 #include "string_util.hpp"
 
-#include "measure/uniform_cost.hpp"
+#include "measure/fixed_cost.hpp"
 
 using namespace resembla;
 
-void test_cost_match_func(const wchar_t a, const wchar_t b, double c)
+void test_uniform_cost(const wchar_t a, const wchar_t b, double c)
 {
     init_locale();
-    UniformCost cost;
+    FixedCost cost;
     CHECK(cost(a, b) == c);
 }
 
-TEST_CASE( "check char_match_cost with same symbols", "[language]" ) {
-    test_cost_match_func(L'a', L'a', 0L);
-    test_cost_match_func(L'ア', L'ア', 0L);
-    test_cost_match_func(L'あ', L'あ', 0L);
-    test_cost_match_func(L'亜', L'亜', 0L);
+TEST_CASE( "check UniformCost with same symbols", "[language]" ) {
+    test_uniform_cost(L'a', L'a', 0L);
+    test_uniform_cost(L'ア', L'ア', 0L);
+    test_uniform_cost(L'あ', L'あ', 0L);
+    test_uniform_cost(L'亜', L'亜', 0L);
 }
 
-TEST_CASE( "check char_match_cost with different symbols", "[language]" ) {
-    test_cost_match_func(L'b', L'c', 1L);
-    test_cost_match_func(L'イ', L'ウ', 1L);
-    test_cost_match_func(L'い', L'う', 1L);
-    test_cost_match_func(L'偉', L'兎', 1L);
+TEST_CASE( "check UniformCost with different symbols", "[language]" ) {
+    test_uniform_cost(L'b', L'c', 1L);
+    test_uniform_cost(L'イ', L'ウ', 1L);
+    test_uniform_cost(L'い', L'う', 1L);
+    test_uniform_cost(L'偉', L'兎', 1L);
 }
