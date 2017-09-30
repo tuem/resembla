@@ -24,9 +24,11 @@ limitations under the License.
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <iostream>
 
-#include "string_util.hpp"
+#ifdef DEBUG
+    #include <iostream>
+    #include "string_util.hpp"
+#endif
 
 namespace resembla {
 
@@ -38,11 +40,6 @@ struct Eliminator
     using distance_type = int;
 
     Eliminator(const string_type& pattern = string_type())
-    {
-        init(pattern);
-    }
-
-    void init(const string_type& pattern)
     {
         this->pattern = pattern;
         if(pattern.empty()){
@@ -216,7 +213,7 @@ protected:
         c_max = PM.back().first;
     }
 
-    distance_type distance_sp(const string_type & text)
+    distance_type distance_sp(const string_type& text)
     {
         auto& w = work.front();
         w.reset();
