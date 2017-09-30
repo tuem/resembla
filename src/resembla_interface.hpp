@@ -23,13 +23,14 @@ limitations under the License.
 #include <vector>
 
 #include "resembla_response.hpp"
+#include "string_util.hpp"
 
 namespace resembla {
 
 class ResemblaInterface
 {
 public:
-    using output_type = ResemblaResponse;
+    using output_type = ResemblaResponse<string_type>;
 
     virtual ~ResemblaInterface() = default;
     virtual std::vector<output_type> find(const string_type& input,

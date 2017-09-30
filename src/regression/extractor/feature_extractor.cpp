@@ -67,7 +67,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
 }
 
 FeatureExtractor::output_type FeatureExtractor::operator()(
-        const resembla::ResemblaResponse& data, const output_type& given_features) const
+        const resembla::ResemblaInterface::output_type& data, const output_type& given_features) const
 {
     output_type features(given_features);
     // TODO: remove this code. FeatureExtractor should accept multiple base similarities

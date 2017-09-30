@@ -22,17 +22,19 @@ limitations under the License.
 
 #include <string>
 
-#include "string_util.hpp"
-
 namespace resembla {
 
+template<typename string_type>
 struct ResemblaResponse
 {
     string_type text;
     std::string measure;
     double score;
 
-    bool operator<(const ResemblaResponse& a) const;
+    bool operator<(const ResemblaResponse& r) const
+    {
+        return score > r.score;
+    }
 };
 
 }
