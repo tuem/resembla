@@ -27,6 +27,7 @@ limitations under the License.
 #include <mecab.h>
 
 #include "../word.hpp"
+#include "../string_util.hpp"
 
 namespace resembla {
 
