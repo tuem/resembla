@@ -108,7 +108,13 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
+        std::string corpus_path = pm["corpus_path"];
+        if(pm.rest.size() > 0){
+            corpus_path = pm.rest.front().as<std::string>();
+        }
+        if(corpus_path.empty()){
+            throw std::invalid_argument("no corpus file specified");
+        }
 
         pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
