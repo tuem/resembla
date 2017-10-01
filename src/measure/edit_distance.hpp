@@ -49,7 +49,6 @@ struct EditDistance
             D[i] = D[i - 1] + 1.0;
         }
 
-        //for(size_t j = 0; j < b.size(); ++j){
         for(const auto c: b){
             double prev = D[0];
             D[0] += 1.0;
