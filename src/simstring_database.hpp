@@ -29,6 +29,7 @@ limitations under the License.
 
 #include <simstring/simstring.h>
 
+#include "csv_reader.hpp"
 #include "eliminator.hpp"
 
 namespace resembla {
