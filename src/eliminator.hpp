@@ -26,18 +26,21 @@ limitations under the License.
 #include <algorithm>
 
 #ifdef DEBUG
-    #include <iostream>
-    #include "string_util.hpp"
+#include <iostream>
+#include "string_util.hpp"
 #endif
 
 namespace resembla {
 
-template<typename string_type, typename bitvector_type = uint64_t>
+template<
+    typename string_type = std::string,
+    typename bitvector_type = uint64_t,
+    typename distance_type = long long
+>
 struct Eliminator
 {
     using size_type = typename string_type::size_type;
     using symbol_type = typename string_type::value_type;
-    using distance_type = int;
 
     Eliminator(const string_type& pattern = string_type())
     {
