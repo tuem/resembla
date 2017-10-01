@@ -47,7 +47,7 @@ struct EditDistance
         }
 
         for(const auto c: b){
-            double prev = D[0];
+            auto prev = D[0];
             D[0] += 1.0;
             for(size_t i = 1; i < a.size() + 1; ++i){
                 auto del = D[i - 1] + 1.0;
