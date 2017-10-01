@@ -46,6 +46,7 @@ struct EditDistance
             D[i] = D[i - 1] + 1.0;
         }
 
+        // compute edit distance
         for(const auto c: b){
             auto prev = D[0];
             D[0] += 1.0;
