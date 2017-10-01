@@ -180,11 +180,12 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
 }
 
 std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
-construct_resembla_regression(std::string db_path, std::string inverse_path, paramset::manager& pm,
-        const std::shared_ptr<ResemblaInterface> resembla)
+construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
+        const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla)
 {
-    auto indexer = std::make_shared<RomajiSequenceBuilder>((pm.get<std::string>("index_romaji_mecab_options"),
-            pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
+    auto indexer = std::make_shared<RomajiSequenceBuilder>(pm.get<std::string>("index_romaji_mecab_options"),
+            pm.get<int>("index_romaji_mecab_feature_pos"),
+            pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
 
     auto features = load_features(pm.get<std::string>("svr_features_path"));
     if(features.empty()){
@@ -250,9 +251,9 @@ construct_resembla_regression(std::string db_path, std::string inverse_path, par
     return resembla_regression;
 }
 
-std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
+std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_path, const paramset::manager& pm)
 {
-    std::string resembla_measure_all = pm["resembla_measure"];
+    auto resembla_measure_all = pm.get<std::string>("resembla_measure");
 
     std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> basic_resemblas;
     std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
@@ -392,7 +393,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     return resembla;
 }
 
-std::vector<std::vector<std::string>> load_features(const std::string file_path)
+std::vector<std::vector<std::string>> load_features(const std::string& file_path)
 {
     std::vector<std::vector<std::string>> features;
     for(const auto& columns: CsvReader<>(file_path, 3)){

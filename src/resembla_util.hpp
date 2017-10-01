@@ -70,7 +70,8 @@ template<
     typename Preprocessor,
     typename ScoreFunction
 >
-std::shared_ptr<ResemblaInterface> construct_basic_resembla(const std::string& db_path, const std::string& inverse_path,
+std::shared_ptr<ResemblaInterface> construct_basic_resembla(
+        const std::string& db_path, const std::string& inverse_path,
         int simstring_measure, double simstring_threshold, int max_reranking_num,
         std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
         bool preprocess_corpus = true)
@@ -81,13 +82,13 @@ std::shared_ptr<ResemblaInterface> construct_basic_resembla(const std::string& d
 }
 
 std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
-construct_resembla_regression(std::string db_path, std::string inverse_path, paramset::manager& pm,
-        const std::shared_ptr<ResemblaInterface> resembla);
+construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
+        const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 
 // utility function to construct Resembla instance
-std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm);
+std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_path, const paramset::manager& pm);
 
-std::vector<std::vector<std::string>> load_features(const std::string file_path);
+std::vector<std::vector<std::string>> load_features(const std::string& file_path);
 
 }
 #endif
