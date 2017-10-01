@@ -47,7 +47,6 @@ dest_type cast_string(const src_type& src)
     return desc;
 }
 
-// TODO: use constexpr
 template<typename char_type = char>
 constexpr char_type column_delimiter();
 // TODO: implement by a generic template function like this:
