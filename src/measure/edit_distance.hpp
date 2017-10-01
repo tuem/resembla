@@ -25,9 +25,6 @@ limitations under the License.
 
 #include "fixed_cost.hpp"
 
-#include <iostream>
-#include "../string_util.hpp"
-
 namespace resembla {
 
 template<typename CostFunction = FixedCost>
