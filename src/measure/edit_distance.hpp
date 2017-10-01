@@ -25,6 +25,9 @@ limitations under the License.
 
 #include "fixed_cost.hpp"
 
+#include <iostream>
+#include "../string_util.hpp"
+
 namespace resembla {
 
 template<typename CostFunction = FixedCost>
@@ -33,33 +36,33 @@ struct EditDistance
     const std::string name;
     CostFunction cost_func;
 
-    EditDistance(const std::string name = "edit", CostFunction cost_func = CostFunction()): name(name), cost_func(cost_func) {}
+    EditDistance(const std::string name = "edit", CostFunction cost_func = CostFunction()):
+        name(name), cost_func(cost_func) {}
 
     template<typename sequence_type>
     double operator()(const sequence_type& a, const sequence_type& b) const
     {
         // prepare work table
-        std::vector<std::vector<double>> D(a.size() + 1, std::vector<double>(b.size() + 1));
-        D[0][0] = 0;
+        std::vector<double> D(a.size() + 1);
+        D[0] = 0;
         for(size_t i = 1; i < a.size() + 1; ++i){
-            D[i][0] = D[i - 1][0] + 1.0;
+            D[i] = D[i - 1] + 1.0;
         }
-        for(size_t j = 1; j < b.size() + 1; ++j){
-            D[0][j] = D[0][j - 1] + 1.0;
-        }
-        double total_cost = D[a.size()][0] + D[0][b.size()];
 
-        // compute edit distance
-        for(size_t i = 1; i < a.size() + 1; ++i){
-            for(size_t j = 1; j < b.size() + 1; ++j){
-                double d_delete = D[i - 1][j] + 1;
-                double d_insert = D[i][j - 1] + 1;
-                double d_replace = D[i - 1][j - 1] + 2.0 * cost_func(a[i - 1], b[j - 1]);
-                D[i][j] = std::min({d_delete, d_insert, d_replace});
+        //for(size_t j = 0; j < b.size(); ++j){
+        for(const auto c: b){
+            double prev = D[0];
+            D[0] += 1.0;
+            for(size_t i = 1; i < a.size() + 1; ++i){
+                auto del = D[i - 1] + 1.0;
+                auto ins = D[i] + 1.0;
+                auto rep = prev + 2.0 * cost_func(a[i - 1], c);
+                prev = D[i];
+                D[i] = std::min({del, ins, rep});
             }
         }
     
-        return 1.0 - D[a.size()][b.size()] / total_cost;
+        return 1.0 - D.back() / (a.size() + b.size());
     }
 };
 
