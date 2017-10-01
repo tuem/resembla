@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Resembla: Word-based Japanese similar sentence search library
+# Resembla
 # https://github.com/tuem/resembla
 #
 # Copyright 2017 Takashi Uemura
