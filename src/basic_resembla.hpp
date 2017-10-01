@@ -37,11 +37,7 @@ limitations under the License.
 
 namespace resembla {
 
-// Resembla with a fixed pair of preprocessor and score function
-template<
-    typename Preprocessor,
-    typename ScoreFunction
->
+template<typename Preprocessor, typename ScoreFunction>
 class BasicResembla: public ResemblaInterface
 {
 public:
@@ -49,8 +45,9 @@ public:
             int simstring_measure, double simstring_threshold, size_t max_candidate,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
-        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_candidate(max_candidate),
-        reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
+        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold),
+        max_candidate(max_candidate), reranker(),
+        preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
     {
         db.open(db_path);
 
@@ -66,7 +63,8 @@ public:
             if(preprocess_corpus){
                 if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
                         !columns[preprocessed_data_col - 1].empty()){
-                    nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[preprocessed_data_col - 1]));
+                    nlohmann::json j = nlohmann::json::parse(
+                            cast_string<std::string>(columns[preprocessed_data_col - 1]));
                     typename Preprocessor::output_type preprocessed = j;
                     preprocessed_corpus[original] = std::make_pair(original, preprocessed);
                 }
@@ -77,7 +75,8 @@ public:
         }
     }
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
+    std::vector<output_type> find(const string_type& query,
+            double threshold = 0.0, size_t max_response = 0) const
     {
         string_type search_query = preprocess->index(query);
 
@@ -85,7 +84,8 @@ public:
         std::vector<string_type> simstring_result;
         {
             std::lock_guard<std::mutex> lock(mutex_simstring);
-            db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
+            db.retrieve(search_query, simstring_measure, simstring_threshold,
+                    std::back_inserter(simstring_result));
         }
         if(simstring_result.empty()){
             return {};
@@ -107,29 +107,29 @@ public:
         return eval(query, candidate_texts, threshold, max_response);
     }
 
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
             double threshold = 0.0, size_t max_response = 0) const
     {
         // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
-        std::vector<WorkData> candidates;
-        for(const auto& t: targets){
+        std::vector<WorkData> work;
+        for(const auto& t: candidates){
             if(preprocess_corpus){
                 const auto i = preprocessed_corpus.find(t);
                 if(i != std::end(preprocessed_corpus)){
-                    candidates.push_back(i->second);
+                    work.push_back(i->second);
                     continue;
                 }
             }
             auto tabpos = t.find(column_delimiter<string_type::value_type>());
-            candidates.push_back(std::make_pair(
+            work.push_back(std::make_pair(
                 tabpos != string_type::npos ? t.substr(0, tabpos) : t,
                 (*preprocess)(t, true)));
         }
 
         // execute reranking
-        WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
+        auto input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, candidates.begin(), candidates.end(),
+        for(const auto& r: reranker.rerank(input_data, work.begin(), work.end(),
                 *score_func, threshold, max_response)){
             response.push_back({r.first, score_func->name, r.second});
         }
