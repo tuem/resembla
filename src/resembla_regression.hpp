@@ -54,12 +54,9 @@ public:
         load(inverse_path);
     }
 
-    void append(const std::string& name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary = true)
+    void append(const std::string& name, const std::shared_ptr<ResemblaInterface> resembla)
     {
         resemblas[name] = resembla;
-        if(is_primary && primary_resembla_name.empty()){
-            primary_resembla_name = name;
-        }
     }
 
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
@@ -139,7 +136,6 @@ protected:
     const size_t max_candidate;
 
     std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
-    std::string primary_resembla_name;
 
     const std::shared_ptr<Indexer> indexer;
     const std::shared_ptr<FeatureExtractor> preprocess;

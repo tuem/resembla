@@ -247,7 +247,7 @@ construct_resembla_regression(const std::string& db_path, const std::string& inv
                 db_path, inverse_path,
                 pm.get<int>("simstring_measure"), pm.get<double>("svr_simstring_threshold"),
                 pm.get<int>("svr_max_candidate"), indexer, extractor, predictor);
-    resembla_regression->append("base_similarity", resembla, true);
+    resembla_regression->append("base_similarity", resembla);
     return resembla_regression;
 }
 
@@ -382,7 +382,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                 inverse_path_from_resembla_measure(corpus_path, svr),
                 pm, base_resembla);
         if(keyword_resembla != nullptr && base_resembla != keyword_resembla){
-            resembla_regression->append(STR(keyword_match), keyword_resembla, false);
+            resembla_regression->append(STR(keyword_match), keyword_resembla);
         }
         resembla = resembla_regression;
     }
