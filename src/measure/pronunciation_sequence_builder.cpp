@@ -24,7 +24,8 @@ limitations under the License.
 
 namespace resembla {
 
-const std::unordered_map<PronunciationSequenceBuilder::token_type, string_type> PronunciationSequenceBuilder::KANA_MAP = {
+const std::unordered_map<PronunciationSequenceBuilder::token_type, string_type>
+        PronunciationSequenceBuilder::KANA_MAP = {
     {L'ぁ', L"ァ"},
     {L'あ', L"ア"},
     {L'ぃ', L"ィ"},
@@ -236,17 +237,17 @@ string_type PronunciationSequenceBuilder::estimatePronunciation(const string_typ
 }
 
 PronunciationSequenceBuilder::PronunciationSequenceBuilder(
-        const std::string mecab_options, const size_t mecab_feature_pos,
-        const std::string mecab_pronunciation_of_marks):
+        const std::string& mecab_options, size_t mecab_feature_pos,
+        const std::string& mecab_pronunciation_of_marks):
     tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
     mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
 
 PronunciationSequenceBuilder::PronunciationSequenceBuilder(const PronunciationSequenceBuilder& obj):
     tagger(obj.tagger), mecab_feature_pos(obj.mecab_feature_pos),
-    mecab_pronunciation_of_marks(obj.mecab_pronunciation_of_marks), mutex_tagger()
-{}
+    mecab_pronunciation_of_marks(obj.mecab_pronunciation_of_marks) {}
 
-PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(const string_type& text, bool is_original) const
+PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(
+        const string_type& text, bool is_original) const
 {
     std::string text_string = cast_string<std::string>(
             is_original ? split(text, column_delimiter<string_type::value_type>())[0] : text);
