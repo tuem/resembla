@@ -17,11 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "symbol_normalizer.hpp"
+
 #include <stdexcept>
 
 #include <unicode/unistr.h>
-
-#include "symbol_normalizer.hpp"
 
 namespace resembla {
 
@@ -40,7 +40,5 @@ SymbolNormalizer::SymbolNormalizer(const std::string& nrm_dir, const std::string
         throw std::runtime_error("failed to initialize normalizer");
     }
 }
-
-SymbolNormalizer::~SymbolNormalizer(){}
 
 }

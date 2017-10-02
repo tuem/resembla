@@ -33,7 +33,8 @@ class SymbolNormalizer
 public:
     SymbolNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
         const std::string& predefined_nrm_name, bool to_lower = false);
-    virtual ~SymbolNormalizer();
+
+    virtual ~SymbolNormalizer() = default;
 
     template<typename string_type>
     string_type operator()(const string_type& input) const
