@@ -39,6 +39,13 @@ struct WeightedEditDistance
     template<typename sequence_type>
     double operator()(const sequence_type& a, const sequence_type& b) const
     {
+        if(a.empty()){
+            return b.empty() ? 1.0 : 0.0;
+        }
+        else if(b.empty()){
+            return 0.0;
+        }
+
         // prepare work table
         std::vector<double> D(a.size() + 1);
         D[0] = 0;
