@@ -87,26 +87,6 @@ RomajiWeight::RomajiWeight(double base_weight, double delete_insert_ratio,
     uppercase_coefficient(uppercase_coefficient), lowercase_coefficient(lowercase_coefficient),
     vowel_coefficient(vowel_coefficient), consonant_coefficient(consonant_coefficient) {}
 
-bool RomajiWeight::isUpper(const value_type c)
-{
-    return L'A' <= c && c <= L'Z';
-}
-
-bool RomajiWeight::isLower(const value_type c)
-{
-    return L'a' <= c && c <= L'z';
-}
-
-bool RomajiWeight::isVowel(const value_type c)
-{
-    return VOWELS.count(c) > 0;
-}
-
-bool RomajiWeight::isConsonant(const value_type c)
-{
-    return CONSONANTS.count(c) > 0;
-}
-
 double RomajiWeight::operator()(const value_type c, bool is_original, size_t, size_t) const
 {
     double weight = base_weight;
@@ -129,6 +109,26 @@ double RomajiWeight::operator()(const value_type c, bool is_original, size_t, si
     }
 
     return weight;
+}
+
+bool RomajiWeight::isUpper(const value_type c)
+{
+    return L'A' <= c && c <= L'Z';
+}
+
+bool RomajiWeight::isLower(const value_type c)
+{
+    return L'a' <= c && c <= L'z';
+}
+
+bool RomajiWeight::isVowel(const value_type c)
+{
+    return VOWELS.count(c) > 0;
+}
+
+bool RomajiWeight::isConsonant(const value_type c)
+{
+    return CONSONANTS.count(c) > 0;
 }
 
 }
