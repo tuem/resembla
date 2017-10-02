@@ -195,6 +195,7 @@ int main(int argc, char* argv[])
         if(pm.get<int>("svr_simstring_ngram_unit") == -1){
             pm["svr_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
         }
+
         auto resembla_measures = split_to_resembla_measures(pm.get<std::string>("resembla_measure"));
         int ensemble_count = 0;
         for(auto resembla_measure: resembla_measures){

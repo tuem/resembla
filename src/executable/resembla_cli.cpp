@@ -19,9 +19,13 @@ limitations under the License.
 
 #include <iostream>
 #include <string>
+#include <memory>
+#include <vector>
+#include <stdexcept>
 
-#include "paramset.hpp"
+#include <paramset.hpp>
 
+#include "string_util.hpp"
 #include "string_normalizer.hpp"
 
 #include "resembla_util.hpp"
