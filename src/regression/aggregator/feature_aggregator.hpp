@@ -22,7 +22,6 @@ limitations under the License.
 
 #include <unordered_map>
 #include <memory>
-#include <initializer_list>
 
 #include "../feature.hpp"
 #include "../../string_util.hpp"
