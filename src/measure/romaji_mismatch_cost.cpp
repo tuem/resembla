@@ -42,15 +42,8 @@ const std::unordered_set<string_type> RomajiMismatchCost::DEFAULT_SIMILAR_LETTER
     L"-o",
 };
 
-RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar_letter_cost): 
-    case_mismatch_cost(case_mismatch_cost)
-{
-    for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
-        letter_similarities[p] = similar_letter_cost;
-    }
-}
-
-RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost):
+RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path,
+        double case_mismatch_cost):
     case_mismatch_cost(case_mismatch_cost)
 {
     for(const auto& columns: CsvReader<>(letter_similarity_file_path, 2)){
@@ -60,20 +53,18 @@ RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file
         std::sort(std::begin(letters), std::end(letters));
         for(size_t i = 0; i < letters.size(); ++i){
             string_type p(1, letters[i]);
-            for(size_t j = i + 1; i < letters.size(); ++i){
+            for(size_t j = i + 1; j < letters.size(); ++j){
                 letter_similarities[p + letters[j]] = cost;
             }
         }
     }
 }
 
-RomajiMismatchCost::value_type RomajiMismatchCost::toLower(value_type a) const
+RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar_letter_cost):
+    case_mismatch_cost(case_mismatch_cost)
 {
-    if(L'A' <= a && a <= L'Z'){
-        return a + (L'a' - L'A');
-    }
-    else{
-        return a;
+    for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
+        letter_similarities[p] = similar_letter_cost;
     }
 }
 
@@ -108,6 +99,16 @@ double RomajiMismatchCost::operator()(const value_type a, const value_type b) co
     }
 
     return result;
+}
+
+RomajiMismatchCost::value_type RomajiMismatchCost::toLower(value_type a) const
+{
+    if(L'A' <= a && a <= L'Z'){
+        return a + (L'a' - L'A');
+    }
+    else{
+        return a;
+    }
 }
 
 }

@@ -32,17 +32,19 @@ struct RomajiMismatchCost
 {
     using value_type = string_type::value_type;
 
+    RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L);
+    // DEPRECATED
+    RomajiMismatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
+
+    double operator()(const value_type reference, const value_type target) const;
+
+protected:
     static const std::unordered_set<string_type> DEFAULT_SIMILAR_LETTER_PAIRS;
 
     std::unordered_map<string_type, double> letter_similarities;
     const double case_mismatch_cost;
 
-    RomajiMismatchCost(double case_mismatch_cost = 1L, double similar_letter_cost = 1L);
-    RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost = 1L);
-
     value_type toLower(value_type a) const;
-
-    double operator()(const value_type reference, const value_type target) const;
 };
 
 }
