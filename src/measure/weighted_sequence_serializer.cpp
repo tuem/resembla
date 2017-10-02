@@ -22,7 +22,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 
-#include "string_util.hpp"
+#include "../string_util.hpp"
 
 namespace resembla {
 
