@@ -21,6 +21,7 @@ limitations under the License.
 #define RESEMBLA_SYMBOL_NORMALIZER_HPP
 
 #include <string>
+#include <stdexcept>
 
 #include <unicode/normalizer2.h>
 
