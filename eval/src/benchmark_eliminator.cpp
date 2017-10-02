@@ -26,6 +26,7 @@ limitations under the License.
 #include <paramset.hpp>
 
 #include "eliminator.hpp"
+#include "string_util.hpp"
 
 using namespace resembla;
 

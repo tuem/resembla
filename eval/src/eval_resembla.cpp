@@ -200,7 +200,14 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
+        std::string corpus_path = pm["corpus_path"];
+        if(pm.rest.size() > 0){
+            corpus_path = pm.rest.front().as<std::string>();
+        }
+        if(corpus_path.empty()){
+            throw std::invalid_argument("no corpus file specified");
+        }
+
         int resembla_max_response = pm.get<int>("resembla_max_response");
         double resembla_threshold = pm.get<double>("resembla_threshold");
         auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
@@ -394,8 +401,8 @@ int main(int argc, char* argv[])
                 }
                 case weighted_word_edit_distance: {
                     if(pm.get<double>("wwed_ensemble_weight") > 0){
-                        WeightedSequenceBuilder<WordSequenceBuilder, WordWeight> builder(
-                            WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
+                        WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight> builder(
+                            WordSequenceBuilder<string_type>(pm.get<std::string>("wwed_mecab_options")),
                             WordWeight(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
