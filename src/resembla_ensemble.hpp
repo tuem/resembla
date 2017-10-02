@@ -123,19 +123,17 @@ protected:
 
     mutable simstring::reader db;
     mutable std::mutex mutex_simstring;
-    const int simstring_measure;
-    const double simstring_threshold;
-
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
+    const int simstring_measure;
+    const double simstring_threshold;
     const size_t max_candidate;
 
     const std::shared_ptr<Indexer> indexer;
+    const std::shared_ptr<ScoreFunction> score_func;
 
     std::vector<std::shared_ptr<ResemblaInterface>> children;
     std::vector<double> weights;
-
-    const std::shared_ptr<ScoreFunction> score_func;
 
     void load(const std::string& simstring_db_path, const std::string& index_path)
     {

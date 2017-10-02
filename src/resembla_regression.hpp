@@ -48,7 +48,7 @@ public:
             std::shared_ptr<Indexer> indexer, std::shared_ptr<FeatureExtractor> feature_extractor,
             std::shared_ptr<ScoreFunction> score_func):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_candidate(max_candidate),
-        indexer(indexer), preprocess(feature_extractor), score_func(score_func), reranker()
+        reranker(), indexer(indexer), preprocess(feature_extractor), score_func(score_func)
     {
         db.open(db_path);
         load(inverse_path);
@@ -129,22 +129,21 @@ protected:
     using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
 
     mutable simstring::reader db;
+    mutable std::mutex mutex_simstring;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
     const int simstring_measure;
     const double simstring_threshold;
     const size_t max_candidate;
-
-    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
+    const Reranker<string_type> reranker;
 
     const std::shared_ptr<Indexer> indexer;
     const std::shared_ptr<FeatureExtractor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
-    const Reranker<string_type> reranker;
+
+    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
 
     std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
-
-    mutable std::mutex mutex_simstring;
 
     void load(const std::string& inverse_path)
     {
