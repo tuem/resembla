@@ -19,9 +19,12 @@ limitations under the License.
 
 #include "regex_feature_extractor.hpp"
 
-#include <iostream>
-
 #include "../../csv_reader.hpp"
+
+#ifdef DEBUG
+#include <iostream>
+#include "../../string_util.hpp"
+#endif
 
 namespace resembla {
 
@@ -30,7 +33,7 @@ RegexFeatureExtractor::RegexFeatureExtractor(const std::initializer_list<std::pa
     construct(patterns);
 }
 
-RegexFeatureExtractor::RegexFeatureExtractor(const std::string file_path)
+RegexFeatureExtractor::RegexFeatureExtractor(const std::string& file_path)
 {
     construct(load(file_path));
 }
@@ -48,7 +51,7 @@ Feature::real_type RegexFeatureExtractor::match(const string_type& text) const
     return 0.0;
 }
 
-std::vector<std::pair<double, std::string>> RegexFeatureExtractor::load(const std::string file_path)
+std::vector<std::pair<double, std::string>> RegexFeatureExtractor::load(const std::string& file_path)
 {
     std::vector<std::pair<double, std::string>> patterns;
     for(const auto& columns: CsvReader<>(file_path, 2)){
