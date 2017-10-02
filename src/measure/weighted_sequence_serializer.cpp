@@ -22,6 +22,8 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+#include "string_util.hpp"
+
 namespace resembla {
 
 void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>::token_type& o)
