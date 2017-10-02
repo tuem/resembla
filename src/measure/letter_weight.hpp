@@ -21,7 +21,6 @@ limitations under the License.
 #define RESEMBLA_LETTER_WEIGHT_HPP
 
 #include <string>
-#include <exception>
 #include <unordered_map>
 
 #include "../string_util.hpp"
@@ -35,7 +34,8 @@ struct LetterWeight
 {
     using value_type = typename string_type::value_type;
 
-    LetterWeight(double base_weight, double delete_insert_ratio, const std::string& letter_weight_file_path):
+    LetterWeight(double base_weight, double delete_insert_ratio,
+            const std::string& letter_weight_file_path):
         base_weight(base_weight), delete_insert_ratio(delete_insert_ratio)
     {
         if(letter_weight_file_path.empty()){
@@ -52,7 +52,8 @@ struct LetterWeight
         }
     }
 
-    double operator()(const value_type c, bool is_original = false, size_t total = -1, size_t position = -1) const
+    double operator()(const value_type c, bool is_original = false,
+            size_t total = -1, size_t position = -1) const
     {
         (void)total;
         (void)position;
