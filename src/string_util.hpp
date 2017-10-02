@@ -47,6 +47,12 @@ dest_type cast_string(const src_type& src)
     return desc;
 }
 
+template<typename dest_type>
+dest_type cast_string(const char* src)
+{
+    return cast_string<dest_type>(std::string(src));
+}
+
 template<typename char_type = char>
 constexpr char_type column_delimiter();
 // TODO: implement by a generic template function like this:
