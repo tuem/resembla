@@ -25,7 +25,6 @@ limitations under the License.
 
 #include <paramset.hpp>
 
-#include "string_util.hpp"
 #include "string_normalizer.hpp"
 
 #include "resembla_util.hpp"

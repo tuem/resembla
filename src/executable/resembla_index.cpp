@@ -25,13 +25,11 @@ limitations under the License.
 #include <memory>
 #include <stdexcept>
 
-#include <paramset.hpp>
-
 #include <simstring/simstring.h>
 #include <json.hpp>
+#include <paramset.hpp>
 
 #include "string_normalizer.hpp"
-
 #include "resembla_util.hpp"
 
 #include "measure/asis_sequence_builder.hpp"
