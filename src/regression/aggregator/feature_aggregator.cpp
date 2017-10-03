@@ -19,7 +19,9 @@ limitations under the License.
 
 #include "feature_aggregator.hpp"
 
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 namespace resembla {
 
