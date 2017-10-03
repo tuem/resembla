@@ -42,13 +42,14 @@ cd /var/tmp/resembla/misc/mecab_dic/mecab-unidic-neologd/
 
 - run with example files
 ```sh
+# on src/executable
 ./resembla_index -c ../../example/conf/name.json
 ./resembla_cli -c ../../example/conf/name.json
 # input some names like 'タケダ'
 ./resembla_index -c ../../example/conf/address.json
 ./resembla_cli -c ../../example/conf/address.json
 # input some addresses like '京都北区'
-# on src/executable
+# you may need to run install-unidic.sh or edit configuration file
 ./resembla_index -c ../../example/conf/apple.json
 ./resembla_cli -c ../../example/conf/apple.json
 # input some sentences like 'りんごおいしくねえ'
