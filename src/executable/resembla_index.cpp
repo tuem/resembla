@@ -64,8 +64,8 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     simstring::writer_base<string_type> dbw(gen, db_path);
     for(const auto& columns: CsvReader<string_type>(corpus_path, text_col, delimiter)){
         auto original = columns[text_col - 1];
-        auto normalized = normalize != nullptr ? (*normalize)(original) : original;
-        auto indexed = indexer->index(normalized);
+        const auto& normalized = normalize != nullptr ? (*normalize)(original) : original;
+        const auto& indexed = indexer->index(normalized);
 
         if(features_col > 0 && features_col - 1 < columns.size()){
             original += delimiter + columns[features_col - 1];
