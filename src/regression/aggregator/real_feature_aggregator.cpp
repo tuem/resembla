@@ -19,8 +19,12 @@ limitations under the License.
 
 #include "real_feature_aggregator.hpp"
 
+#include <cmath>
 #include <algorithm>
+
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 namespace resembla {
 
