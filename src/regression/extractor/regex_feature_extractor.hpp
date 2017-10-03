@@ -26,6 +26,7 @@ limitations under the License.
 #include <initializer_list>
 
 #include "feature_extractor.hpp"
+#include "../../string_util.hpp"
 
 namespace resembla {
 

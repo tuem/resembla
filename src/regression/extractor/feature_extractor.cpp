@@ -19,13 +19,15 @@ limitations under the License.
 
 #include "feature_extractor.hpp"
 
-#include <iostream>
-
 #include "../../string_util.hpp"
+
+#ifdef DEBUG
+#include <iostream>
+#endif
 
 namespace resembla {
 
-FeatureExtractor::FeatureExtractor(const std::string base_similarity_key): 
+FeatureExtractor::FeatureExtractor(const std::string& base_similarity_key): 
     base_similarity_key(base_similarity_key)
 {}
 
