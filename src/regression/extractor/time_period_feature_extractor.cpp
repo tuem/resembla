@@ -27,11 +27,11 @@ namespace resembla {
 
 Feature::text_type TimePeriodFeatureExtractor::operator()(const string_type&) const
 {
-   time_t t = std::time(nullptr);
-   struct tm* stm = std::localtime(&t); 
+   auto t = std::time(nullptr);
+   auto* lt = std::localtime(&t);
    std::stringstream ss;
    ss.imbue(std::locale("C"));
-   ss << std::setw(4) << std::setfill('0') << (stm->tm_hour * 100 + stm->tm_min);
+   ss << std::setw(4) << std::setfill('0') << (lt->tm_hour * 100 + lt->tm_min);
    return ss.str();
 }
 

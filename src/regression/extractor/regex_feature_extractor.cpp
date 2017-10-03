@@ -23,7 +23,6 @@ limitations under the License.
 
 #ifdef DEBUG
 #include <iostream>
-#include "../../string_util.hpp"
 #endif
 
 namespace resembla {
