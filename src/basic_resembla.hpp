@@ -24,10 +24,7 @@ limitations under the License.
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include <stdexcept>
-#include <mutex>
 
-#include <simstring/simstring.h>
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
@@ -37,20 +34,17 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename Preprocessor, typename ScoreFunction>
+template<typename Database, typename Preprocessor, typename ScoreFunction>
 class BasicResembla: public ResemblaInterface
 {
 public:
-    BasicResembla(const std::string& db_path, const std::string& inverse_path,
-            int simstring_measure, double simstring_threshold, size_t max_candidate,
+    BasicResembla(std::shared_ptr<Database> database,
             std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+            size_t max_candidate, const std::string& inverse_path,
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
-        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold),
-        max_candidate(max_candidate), reranker(),
-        preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
+        database(database), preprocess(preprocess), score_func(score_func),
+        max_candidate(max_candidate), preprocess_corpus(preprocess_corpus)
     {
-        db.open(db_path);
-
         for(const auto& columns: CsvReader<string_type>(inverse_path, 2)){
             const auto& indexed = columns[0];
             const auto& original = columns[1];
@@ -78,25 +72,9 @@ public:
     std::vector<output_type> find(const string_type& query,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        string_type search_query = preprocess->index(query);
-
-        // search from N-gram index
-        std::vector<string_type> simstring_result;
-        {
-            std::lock_guard<std::mutex> lock(mutex_simstring);
-            db.retrieve(search_query, simstring_measure, simstring_threshold,
-                    std::back_inserter(simstring_result));
-        }
-        if(simstring_result.empty()){
-            return {};
-        }
-        else if(simstring_result.size() > max_candidate){
-            Eliminator<string_type> eliminate(search_query);
-            eliminate(simstring_result, max_candidate);
-        }
-
+        auto database_search_result = database->search(query);
         std::vector<string_type> candidate_texts;
-        for(const auto& i: simstring_result){
+        for(const auto& i: database_search_result){
             if(i.empty()){
                 continue;
             }
@@ -110,7 +88,6 @@ public:
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
         std::vector<WorkData> work;
         for(const auto& t: candidates){
             if(preprocess_corpus){
@@ -139,20 +116,16 @@ public:
 protected:
     using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
 
-    mutable simstring::reader db;
-    mutable std::mutex mutex_simstring;
-    std::unordered_map<string_type, std::vector<string_type>> inverse;
-
-    const int simstring_measure;
-    const double simstring_threshold;
-    const size_t max_candidate;
-    const Reranker<string_type> reranker;
-
+    const std::shared_ptr<Database> database;
     const std::shared_ptr<Preprocessor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
 
-    const bool preprocess_corpus;
+    const Reranker<string_type> reranker;
+    const size_t max_candidate;
+
+    std::unordered_map<string_type, std::vector<string_type>> inverse;
     std::unordered_map<string_type, WorkData> preprocessed_corpus;
+    const bool preprocess_corpus;
 };
 
 }
