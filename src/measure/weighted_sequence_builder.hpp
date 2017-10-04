@@ -52,11 +52,6 @@ public:
         return ws;
     }
 
-    string_type index(const string_type& text) const
-    {
-        return tokenize.index(text);
-    }
-
 protected:
     SequenceTokenizer tokenize;
     WeightFunction weight_func;
