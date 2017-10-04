@@ -69,11 +69,6 @@ public:
         return {raw_text, {}};
     }
 
-    string_type index(const string_type& text) const
-    {
-        return text;
-    }
-
 protected:
 // TODO: use synonym dictionary to improve keyword matching quality
 //    std::vector<std::vector<string_type>> synonyms;
