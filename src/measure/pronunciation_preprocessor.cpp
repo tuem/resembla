@@ -243,10 +243,6 @@ PronunciationPreprocessor::PronunciationPreprocessor(
     tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
     mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
 
-PronunciationPreprocessor::PronunciationPreprocessor(const PronunciationPreprocessor& obj):
-    tagger(obj.tagger), mecab_feature_pos(obj.mecab_feature_pos),
-    mecab_pronunciation_of_marks(obj.mecab_pronunciation_of_marks) {}
-
 PronunciationPreprocessor::output_type PronunciationPreprocessor::operator()(
         const string_type& text, bool is_original) const
 {

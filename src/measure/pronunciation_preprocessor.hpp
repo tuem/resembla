@@ -31,15 +31,14 @@ limitations under the License.
 
 namespace resembla {
 
-class PronunciationPreprocessor
+struct PronunciationPreprocessor
 {
-public:
     using token_type = string_type::value_type;
     using output_type = string_type;
 
     PronunciationPreprocessor(const std::string& mecab_options = "",
             size_t mecab_feature_pos = 7, const std::string& mecab_pronunciation_of_marks = "");
-    PronunciationPreprocessor(const PronunciationPreprocessor& obj);
+    PronunciationPreprocessor(const PronunciationPreprocessor& obj) = default;
     virtual ~PronunciationPreprocessor() = default;
 
     output_type operator()(const string_type& text, bool is_original = false) const;
