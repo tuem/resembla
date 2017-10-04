@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_WORD_SEQUENCE_BUILDER_HPP
-#define RESEMBLA_WORD_SEQUENCE_BUILDER_HPP
+#ifndef RESEMBLA_WORD_PREPROCESSOR_HPP
+#define RESEMBLA_WORD_PREPROCESSOR_HPP
 
 #include <memory>
 #include <string>
@@ -32,17 +32,15 @@ limitations under the License.
 namespace resembla {
 
 template<typename string_type>
-class WordSequenceBuilder final
+class WordPreprocessor final
 {
 public:
     using token_type = Word<string_type>;
     using output_type = std::vector<token_type>;
 
-    WordSequenceBuilder(const std::string mecab_options = "", size_t min_feature_size = 9):
+    WordPreprocessor(const std::string mecab_options = "", size_t min_feature_size = 9):
             tagger(MeCab::createTagger(mecab_options.c_str())), min_feature_size(min_feature_size){}
-
-    WordSequenceBuilder(const WordSequenceBuilder& obj):
-            tagger(obj.tagger), mutex_tagger(), min_feature_size(obj.min_feature_size){}
+    WordPreprocessor(const WordPreprocessor& obj) = default;
 
     // parses to a sequence of words
     output_type operator()(const string_type& text, bool is_original = false) const
@@ -82,12 +80,6 @@ public:
             }
         }
         return s;
-    }
-
-    // returns text as-is
-    string_type index(const string_type& text) const
-    {
-        return text;
     }
 
 protected:
