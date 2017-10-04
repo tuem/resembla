@@ -45,26 +45,22 @@ public:
         database(database), preprocess(preprocess), score_func(score_func),
         max_candidate(max_candidate), preprocess_corpus(preprocess_corpus)
     {
-        for(const auto& columns: CsvReader<string_type>(inverse_path, 2)){
-            const auto& indexed = columns[0];
+        if(!preprocess_corpus){
+            return;
+        }
+
+        for(const auto& columns: CsvReader<string_type>(inverse_path, 3)){
             const auto& original = columns[1];
 
-            const auto& p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
-            if(!p.second){
-                p.first->second.push_back(original);
+            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
+                    !columns[preprocessed_data_col - 1].empty()){
+                nlohmann::json j = nlohmann::json::parse(
+                        cast_string<std::string>(columns[preprocessed_data_col - 1]));
+                typename Preprocessor::output_type preprocessed = j;
+                preprocessed_corpus[original] = std::make_pair(original, preprocessed);
             }
-
-            if(preprocess_corpus){
-                if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
-                        !columns[preprocessed_data_col - 1].empty()){
-                    nlohmann::json j = nlohmann::json::parse(
-                            cast_string<std::string>(columns[preprocessed_data_col - 1]));
-                    typename Preprocessor::output_type preprocessed = j;
-                    preprocessed_corpus[original] = std::make_pair(original, preprocessed);
-                }
-                else{
-                    preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
-                }
+            else{
+                preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
             }
         }
     }
@@ -72,17 +68,7 @@ public:
     std::vector<output_type> find(const string_type& query,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        auto database_search_result = database->search(query);
-        std::vector<string_type> candidate_texts;
-        for(const auto& i: database_search_result){
-            if(i.empty()){
-                continue;
-            }
-            const auto& j = inverse.at(i);
-            std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
-        }
-
-        return eval(query, candidate_texts, threshold, max_response);
+        return eval(query, database->search(query, max_candidate), threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
@@ -123,7 +109,6 @@ protected:
     const Reranker<string_type> reranker;
     const size_t max_candidate;
 
-    std::unordered_map<string_type, std::vector<string_type>> inverse;
     std::unordered_map<string_type, WorkData> preprocessed_corpus;
     const bool preprocess_corpus;
 };

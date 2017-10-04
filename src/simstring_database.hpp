@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <mutex>
 
@@ -37,28 +38,46 @@ class SimStringDatabase
 public:
     using string_type = Indexer::output_type;
 
-    SimStringDatabase(const std::string& db_path, int measure, double threshold,
-            std::shared_ptr<Indexer> index):
+    SimStringDatabase(const std::string& simstring_db_path, int measure, double threshold,
+            std::shared_ptr<Indexer> index, const std::string& inverse_path):
         measure(measure), threshold(threshold), index(index)
     {
-        db.open(db_path);
+        db.open(simstring_db_path);
+        for(const auto& columns: CsvReader<string_type>(inverse_path, 2)){
+            const auto& indexed = columns[0];
+            const auto& original = columns[1];
+
+            const auto& p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
+            if(!p.second){
+                p.first->second.push_back(original);
+            }
+        }
     }
 
     std::vector<string_type> search(const string_type& query, size_t max_output = 0) const
     {
         auto search_query = index(query);
-        std::vector<string_type> result;
+        std::vector<string_type> simstring_result;
         {
             std::lock_guard<std::mutex> lock(mutex_simstring);
             db.retrieve(search_query, measure, threshold,
-                    std::back_inserter(result));
+                    std::back_inserter(simstring_result));
         }
-        if(result.empty()){
+        if(simstring_result.empty()){
             return {};
         }
-        else if(max_output != 0 && result.size() > max_output){
+        else if(max_output != 0 && simstring_result.size() > max_output){
             Eliminator<string_type> eliminate(search_query);
             eliminate(result, max_output);
+        }
+
+        std::vector<string_type> result;
+        for(const auto& i: simstring_result){
+            if(i.empty()){
+                continue;
+            }
+            const auto& j = inverse.at(i);
+            std::copy(std::begin(j), std::end(j), std::back_inserter(result));
         }
 
         return result;
@@ -72,6 +91,10 @@ protected:
     const double threshold;
 
     const std::shared_ptr<Indexer> index;
+
+    // TODO: map<string, set<string>>
+    // set does not contain key string
+    std::unordered_map<string_type, std::vector<string_type>> inverse;
 };
 
 }
