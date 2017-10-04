@@ -19,8 +19,7 @@ limitations under the License.
 
 #include "text_classification_feature_extractor.hpp"
 
-#include <fstream>
-#include <vector>
+#include "../../csv_reader.hpp"
 
 namespace resembla {
 
@@ -29,22 +28,8 @@ TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
     tagger(MeCab::createTagger(mecab_options.c_str())),
     model(svm_load_model(model_path.c_str()))
 {
-    std::ifstream ifs(dict_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + dict_path);
-    }
-
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof()){
-            break;
-        }
-
-        auto i = line.find(column_delimiter<>());
-        if(i != std::string::npos){
-            dictionary[line.substr(0, i)] = std::stoi(line.substr(i + 1));
-        }
+    for(const auto& columns: CsvReader<>(dict_path, 2)){
+        dictionary[columns[0]] = std::stoi(columns[1]);
     }
 }
 
