@@ -43,6 +43,7 @@ public:
         measure(measure), threshold(threshold), index(index)
     {
         db.open(simstring_db_path);
+
         for(const auto& columns: CsvReader<string_type>(inverse_path, 2)){
             const auto& indexed = columns[0];
             const auto& original = columns[1];
@@ -57,6 +58,7 @@ public:
     std::vector<string_type> search(const string_type& query, size_t max_output = 0) const
     {
         auto search_query = index(query);
+
         std::vector<string_type> simstring_result;
         {
             std::lock_guard<std::mutex> lock(mutex_simstring);
@@ -66,7 +68,8 @@ public:
         if(simstring_result.empty()){
             return {};
         }
-        else if(max_output != 0 && simstring_result.size() > max_output){
+
+        if(max_output != 0 && simstring_result.size() > max_output){
             Eliminator<string_type> eliminate(search_query);
             eliminate(result, max_output);
         }
@@ -83,6 +86,8 @@ public:
         return result;
     }
 
+    // TODO: implement database writer
+
 protected:
     mutable simstring::reader db;
     mutable std::mutex mutex_simstring;
@@ -92,8 +97,6 @@ protected:
 
     const std::shared_ptr<Indexer> index;
 
-    // TODO: map<string, set<string>>
-    // set does not contain key string
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 };
 
