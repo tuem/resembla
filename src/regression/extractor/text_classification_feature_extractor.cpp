@@ -72,14 +72,16 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
             }
 
             auto i = dictionary.find(std::string(node->surface, node->surface + node->length));
-            if(i != dictionary.end()){
-                auto j = bow.find(i->second);
-                if(j == bow.end()){
-                    bow[i->second] = 1;
-                }
-                else{
-                    ++j->second;
-                }
+            if(i == dictionary.end()){
+                continue;
+            }
+
+            auto j = bow.find(i->second);
+            if(j == bow.end()){
+                bow[i->second] = 1;
+            }
+            else{
+                ++j->second;
             }
         }
     }
