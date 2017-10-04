@@ -227,7 +227,7 @@ const std::unordered_map<string_type, string_type> RomajiPreprocessor::ROMAJI_MA
 };
 
 RomajiPreprocessor::RomajiPreprocessor(const std::string mecab_options, size_t mecab_feature_pos,
-        const std::string& mecab_pronunciation_of_marks):
+        const std::string& mecab_pronunciation_of_marks, bool keep_case):
     PronunciationPreprocessor(mecab_options, mecab_feature_pos, mecab_pronunciation_of_marks)
 {}
 
@@ -260,6 +260,9 @@ RomajiPreprocessor::output_type RomajiPreprocessor::operator()(const string_type
 
         // put each roman alphabet to output sequence
         for(auto c: p){
+            if(!keep_case && L'A' <= c && c <= L'Z'){
+                c = c - L'A' + L'a';
+            }
             s.push_back(c);
         }
     }

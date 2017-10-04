@@ -24,11 +24,10 @@ limitations under the License.
 
 namespace resembla {
 
-class RomajiPreprocessor: public PronunciationPreprocessor
+struct RomajiPreprocessor: public PronunciationPreprocessor
 {
-public:
     RomajiPreprocessor(const std::string& mecab_options = "", size_t mecab_feature_pos = 7,
-            const std::string& mecab_pronunciation_of_marks = "");
+            const std::string& mecab_pronunciation_of_marks = "", bool keep_case = false);
     virtual ~RomajiPreprocessor() = default;
 
     output_type operator()(const string_type& text, bool is_original = false) const;
