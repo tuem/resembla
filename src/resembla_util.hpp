@@ -27,7 +27,7 @@ limitations under the License.
 
 #include "basic_resembla.hpp"
 
-#include "measure/romaji_sequence_builder.hpp"
+#include "measure/romaji_indexer.hpp"
 #include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/predictor/svr_predictor.hpp"
 #include "composition.hpp"
@@ -66,22 +66,19 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
 std::vector<measure> split_to_resembla_measures(std::string text, char delimiter = ',', bool ignore_unknown_measure = false);
 
 // utility function for creating Resembla instance
-template<
-    typename Preprocessor,
-    typename ScoreFunction
->
+template<typename Database, typename Preprocessor, typename ScoreFunction>
 std::shared_ptr<ResemblaInterface> construct_basic_resembla(
-        const std::string& db_path, const std::string& inverse_path,
-        int simstring_measure, double simstring_threshold, int max_reranking_num,
-        std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+        std::shared_ptr<Database> database, std::shared_ptr<Preprocessor> preprocess,
+        std::shared_ptr<ScoreFunction> score_func,
+        const std::string& inverse_path, size_t max_candidate,
         bool preprocess_corpus = true)
 {
-    return std::make_shared<BasicResembla<Preprocessor, ScoreFunction>>(
-            db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
-            preprocess, score_func, preprocess_corpus);
+    return std::make_shared<BasicResembla<Database, Preprocessor, ScoreFunction>>(
+            database, preprocessor, score_func,
+            inverse_path, max_candidate, preprocess_corpus);
 }
 
-std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
+std::shared_ptr<ResemblaRegression<RomajiIndexer, Composition<FeatureAggregator, SVRPredictor>>>
 construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 
