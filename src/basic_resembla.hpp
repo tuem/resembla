@@ -68,6 +68,10 @@ public:
     std::vector<output_type> find(const string_type& query,
             double threshold = 0.0, size_t max_response = 0) const
     {
+        if(database == nullptr){
+            return {};
+        }
+
         return eval(query, database->search(query, max_candidate), threshold, max_response);
     }
 
