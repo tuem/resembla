@@ -60,9 +60,9 @@ struct EditDistance
             for(size_t i = 1; i < a.size() + 1; ++i){
                 auto del = D[i - 1] + 1.0;
                 auto ins = D[i] + 1.0;
-                auto rep = prev + 2.0 * cost(a[i - 1], c);
+                auto sub = prev + 2.0 * cost(a[i - 1], c);
                 prev = D[i];
-                D[i] = std::min({del, ins, rep});
+                D[i] = std::min({del, ins, sub});
             }
         }
     

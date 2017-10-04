@@ -61,9 +61,9 @@ struct WeightedEditDistance
             for(size_t i = 1; i < a.size() + 1; ++i){
                 auto del = D[i - 1] + a[i - 1].weight;
                 auto ins = D[i] + c.weight;
-                auto rep = prev + (a[i - 1].weight + c.weight) * cost(a[i - 1].token, c.token);
+                auto sub = prev + (a[i - 1].weight + c.weight) * cost(a[i - 1].token, c.token);
                 prev = D[i];
-                D[i] = std::min({del, ins, rep});
+                D[i] = std::min({del, ins, sub});
             }
         }
         max_cost += D.front();
