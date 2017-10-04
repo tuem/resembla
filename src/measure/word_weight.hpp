@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -21,6 +21,7 @@ limitations under the License.
 #define RESEMBLA_WORD_WEIGHT_HPP
 
 #include "../word.hpp"
+#include "../string_util.hpp"
 
 namespace resembla {
 
@@ -32,8 +33,11 @@ struct WordWeight
     const double verb_coefficient;
     const double adj_coefficient;
 
-    WordWeight(double base_weight = 1L, double delete_insert_ratio = 1L, double noun_coefficient = 1L, double verb_coefficient = 1L, double adj_coefficient = 1L);
-    double operator()(const Word& word, bool is_original = false, size_t total = -1, size_t position = -1) const;
+    WordWeight(double base_weight = 1L, double delete_insert_ratio = 1L,
+            double noun_coefficient = 1L, double verb_coefficient = 1L, double adj_coefficient = 1L);
+
+    double operator()(const Word<string_type>& word, bool is_original = false,
+            size_t total = -1, size_t position = -1) const;
 };
 
 }

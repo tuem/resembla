@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -17,13 +17,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "resembla_response.hpp"
+#ifndef RESEMBLA_WEIGHTED_L2_NORM_HPP
+#define RESEMBLA_WEIGHTED_L2_NORM_HPP
+
+#include <cmath>
+#include <vector>
 
 namespace resembla {
 
-bool ResemblaResponse::operator<(const ResemblaResponse& r) const
+template<typename value_type = double>
+class WeightedL2Norm
 {
-    return score > r.score;
-}
+public:
+    value_type operator()(const std::vector<value_type>& weights, const std::vector<value_type>& values) const
+    {
+        value_type total_weight{0}, norm{0};
+        for(size_t i = 0; i < weights.size(); ++i){
+            total_weight += weights[i];
+            norm += weights[i] * values[i] * values[i];
+        }
+        return static_cast<value_type>(std::sqrt(norm) / total_weight);
+    }
+};
 
 }
+#endif

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -28,28 +28,29 @@ struct RomajiWeight
 {
     using value_type = wchar_t;
 
-    double base_weight;
-    double delete_insert_ratio;
+    RomajiWeight(double base_weight = 1L, double delete_insert_ratio = 1L,
+            double uppercase_coefficient = 1L, double lowercase_coefficient = 1L,
+            double vowel_coefficient = 1L, double consonant_coefficient = 1L);
 
-    double uppercase_coefficient;
-    double lowercase_coefficient;
+    double operator()(const value_type c, bool is_original = false, size_t total = -1, size_t position = -1) const;
 
-    double vowel_coefficient;
-    double consonant_coefficient;
+protected:
+    const double base_weight;
+    const double delete_insert_ratio;
+
+    const double uppercase_coefficient;
+    const double lowercase_coefficient;
+
+    const double vowel_coefficient;
+    const double consonant_coefficient;
 
     static const std::unordered_set<value_type> VOWELS;
     static const std::unordered_set<value_type> CONSONANTS;
-
-    RomajiWeight(double base_weight = 1L, double delete_insert_ratio = 1L, 
-            double uppercase_coefficient = 1L, double lowercase_coefficient = 1L, 
-            double vowel_coefficient = 1L, double consonant_coefficient = 1L);
 
     static bool isLower(value_type c);
     static bool isUpper(value_type c);
     static bool isVowel(value_type c);
     static bool isConsonant(value_type c);
-
-    double operator()(const value_type c, bool is_original = false, size_t total = -1, size_t position = -1) const;
 };
 
 }

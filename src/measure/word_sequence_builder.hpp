@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -27,30 +27,76 @@ limitations under the License.
 #include <mecab.h>
 
 #include "../word.hpp"
+#include "../string_util.hpp"
 
 namespace resembla {
 
+template<typename string_type>
 class WordSequenceBuilder final
 {
 public:
-    using token_type = Word;
+    using token_type = Word<string_type>;
     using output_type = std::vector<token_type>;
 
-    WordSequenceBuilder(const std::string mecab_options = "");
-    WordSequenceBuilder(const WordSequenceBuilder& obj);
+    WordSequenceBuilder(const std::string mecab_options = "", size_t min_feature_size = 9):
+            tagger(MeCab::createTagger(mecab_options.c_str())), min_feature_size(min_feature_size){}
+
+    WordSequenceBuilder(const WordSequenceBuilder& obj):
+            tagger(obj.tagger), mutex_tagger(), min_feature_size(obj.min_feature_size){}
 
     // parses to a sequence of words
-    output_type operator()(const string_type& text, bool is_original = false) const;
+    output_type operator()(const string_type& text, bool is_original = false) const
+    {
+        (void)is_original;
+
+        std::string text_string = cast_string<std::string>(text);
+        output_type s;
+        {
+            std::lock_guard<std::mutex> lock(mutex_tagger);
+            for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
+                // skip BOS/EOS nodes
+                if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
+                    continue;
+                }
+
+                // extract surface and features
+                string_type surface = cast_string<string_type>(std::string(node->surface, node->surface + node->length));
+                std::vector<string_type> feature;
+                const char *start = node->feature;
+                for(const char* end = start; *end != '\0'; ++end){
+                    if(*end == ','){
+                        if(start < end){
+                            feature.push_back(cast_string<string_type>(std::string(start, end)));
+                        }
+                        start = end + 1;
+                    }
+                }
+                if(*start != '\0'){
+                    feature.push_back(cast_string<string_type>(std::string(start)));
+                }
+                while(feature.size() < min_feature_size){
+                    feature.push_back(string_type());
+                }
+
+                s.push_back({surface, feature});
+            }
+        }
+        return s;
+    }
 
     // returns text as-is
-    string_type index(const string_type& text) const;
+    string_type index(const string_type& text) const
+    {
+        return text;
+    }
 
 protected:
-    static const int FEATURE_SIZE;
     std::shared_ptr<MeCab::Tagger> tagger;
-
     mutable std::mutex mutex_tagger;
+
+    const size_t min_feature_size;
 };
 
 }
 #endif
+

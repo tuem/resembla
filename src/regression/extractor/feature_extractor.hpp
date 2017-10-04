@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -57,7 +57,7 @@ public:
         const F f;
     };
 
-    FeatureExtractor(const std::string base_similarity_key = "base_similarity");
+    FeatureExtractor(const std::string& base_similarity_key = "base_similarity");
 
     void append(Feature::key_type key, std::shared_ptr<Function> func);
 

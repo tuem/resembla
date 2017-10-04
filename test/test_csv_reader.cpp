@@ -17,18 +17,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_WORD_MISMATCH_COST_HPP
-#define RESEMBLA_WORD_MISMATCH_COST_HPP
+#include <string>
+#include <iostream>
 
-#include "../word.hpp"
-#include "../string_util.hpp"
+#include "Catch/catch.hpp"
 
-namespace resembla {
+#include "csv_reader.hpp"
 
-struct WordMismatchCost
-{
-    double operator()(const Word<string_type>& reference, const Word<string_type>& target) const;
-};
+using namespace resembla;
 
+TEST_CASE( "read csv", "[file]" ) {
+    init_locale();
+
+    std::string file_path = "./3x3.tsv";
+    size_t min_columns = 3;
+
+    std::vector<std::vector<std::wstring>> answer;
+    for(const auto& columns: CsvReader<std::wstring>(file_path, min_columns)){
+        answer.push_back(columns);
+    }
+
+    std::vector<std::vector<std::wstring>> correct = {
+        {L"v00", L"v01", L"v02"},
+        {L"v10", L"v11", L"v12"},
+        {L"v20", L"v21", L"v22"},
+    };
+
+    CHECK(answer == correct);
 }
-#endif

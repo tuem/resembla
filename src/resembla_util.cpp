@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -44,6 +44,9 @@ limitations under the License.
 #include "measure/keyword_match_preprocessor.hpp"
 #include "measure/keyword_matcher.hpp"
 
+#include "resembla_ensemble.hpp"
+#include "measure/weighted_l2_norm.hpp"
+
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
 #include "regression/extractor/date_period_feature_extractor.hpp"
@@ -82,10 +85,12 @@ int simstring_measure_from_string(const std::string& simstring_measure_str)
     }
 }
 
+/*
 std::string read_value_with_rest(paramset::manager& pm, const std::string key, const char* throw_if)
 {
     return read_value_with_rest(pm, key, std::string(throw_if));
 }
+*/
 
 std::string db_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure)
 {
@@ -103,6 +108,9 @@ std::string db_path_from_resembla_measure(const std::string& corpus_path, const 
     }
     else if(resembla_measure == keyword_match){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(keyword_match);
+    }
+    else if(resembla_measure == ensemble){
+        return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(ensemble);
     }
     else if(resembla_measure == svr){
         return corpus_path + SIMSTRING_DB_FILE_COMMON_SUFFIX + STR(svr);
@@ -128,6 +136,9 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
     }
     else if(resembla_measure == keyword_match){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(keyword_match);
+    }
+    else if(resembla_measure == ensemble){
+        return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(ensemble);
     }
     else if(resembla_measure == svr){
         return corpus_path + SIMSTRING_INVERSE_FILE_COMMON_SUFFIX + STR(svr);
@@ -169,11 +180,12 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
 }
 
 std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
-construct_resembla_regression(std::string db_path, std::string inverse_path, paramset::manager& pm,
-        const std::shared_ptr<ResemblaInterface> resembla)
+construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
+        const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla)
 {
-    auto indexer = std::make_shared<RomajiSequenceBuilder>((pm.get<std::string>("index_romaji_mecab_options"),
-            pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
+    auto indexer = std::make_shared<RomajiSequenceBuilder>(pm.get<std::string>("index_romaji_mecab_options"),
+            pm.get<int>("index_romaji_mecab_feature_pos"),
+            pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
 
     auto features = load_features(pm.get<std::string>("svr_features_path"));
     if(features.empty()){
@@ -235,13 +247,13 @@ construct_resembla_regression(std::string db_path, std::string inverse_path, par
                 db_path, inverse_path,
                 pm.get<int>("simstring_measure"), pm.get<double>("svr_simstring_threshold"),
                 pm.get<int>("svr_max_candidate"), indexer, extractor, predictor);
-    resembla_regression->append("base_similarity", resembla, true);
+    resembla_regression->append("base_similarity", resembla);
     return resembla_regression;
 }
 
-std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, paramset::manager& pm)
+std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_path, const paramset::manager& pm)
 {
-    std::string resembla_measure_all = pm["resembla_measure"];
+    auto resembla_measure_all = pm.get<std::string>("resembla_measure");
 
     std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> basic_resemblas;
     std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
@@ -269,8 +281,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     construct_basic_resembla(
                         db_path, inverse_path, pm.get<int>("simstring_measure"),
                         pm.get<double>("wwed_simstring_threshold"), pm.get<int>("wwed_max_reranking_num"),
-                        std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>>(
-                            WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
+                        std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>>(
+                            WordSequenceBuilder<string_type>(pm.get<std::string>("wwed_mecab_options")),
                             WordWeight(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
@@ -320,6 +332,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
                     std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)), true);
                 break;
+            case ensemble:
+                break;
         }
     }
     if(basic_resemblas.size() == 0 && keyword_resembla == nullptr){
@@ -337,13 +351,22 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
             base_resembla = basic_resemblas[0].first;
         }
         else{
-            std::shared_ptr<ResemblaEnsemble> resembla_ensemble =
-                std::make_shared<ResemblaEnsemble>(resembla_measure_all, pm.get<double>("resembla_max_reranking_num"));
+            auto indexer = std::make_shared<RomajiSequenceBuilder>((pm.get<std::string>("index_romaji_mecab_options"),
+                    pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
+            auto db_path = db_path_from_resembla_measure(corpus_path, ensemble);
+            auto inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
+
+            std::shared_ptr<ResemblaEnsemble<RomajiSequenceBuilder, WeightedL2Norm<>>> resembla_ensemble =
+                std::make_shared<ResemblaEnsemble<RomajiSequenceBuilder, WeightedL2Norm<>>>(resembla_measure_all,
+                        db_path, inverse_path, pm.get<int>("simstring_measure"), pm.get<double>("ensemble_simstring_threshold"),
+                        pm.get<double>("ensemble_max_candidate"), indexer, std::make_shared<WeightedL2Norm<>>());
+
             for(auto p: basic_resemblas){
                 if(p.second > 0){
                     resembla_ensemble->append(p.first, p.second);
                 }
             }
+
             base_resembla = resembla_ensemble;
         }
     }
@@ -359,7 +382,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
                 inverse_path_from_resembla_measure(corpus_path, svr),
                 pm, base_resembla);
         if(keyword_resembla != nullptr && base_resembla != keyword_resembla){
-            resembla_regression->append(STR(keyword_match), keyword_resembla, false);
+            resembla_regression->append(STR(keyword_match), keyword_resembla);
         }
         resembla = resembla_regression;
     }
@@ -370,28 +393,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(std::string corpus_path, p
     return resembla;
 }
 
-std::vector<std::vector<std::string>> load_features(const std::string file_path)
+std::vector<std::vector<std::string>> load_features(const std::string& file_path)
 {
-    std::ifstream ifs(file_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + file_path);
-    }
-
     std::vector<std::vector<std::string>> features;
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof()){
-            break;
-        }
-        else if(line.compare(0, 1, "#") == 0 || line.empty()){
-            continue;
-        }
-
-        auto values = split(line, column_delimiter<>());
-        if(values.size() == 3){
-            features.push_back(values);
-        }
+    for(const auto& columns: CsvReader<>(file_path, 3)){
+        features.push_back(columns);
     }
     return features;
 }

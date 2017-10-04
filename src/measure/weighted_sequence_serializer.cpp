@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -22,9 +22,11 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+#include "../string_util.hpp"
+
 namespace resembla {
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o)
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>::token_type& o)
 {
     std::vector<std::string> feature;
     for(const auto& f: o.token.feature){
@@ -33,7 +35,7 @@ void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSeque
     j = nlohmann::json{{"t", {{"s", cast_string<std::string>(o.token.surface)}, {"f", feature}}}, {"w", o.weight}};
 }
 
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o)
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>::token_type& o)
 {
     o.token.surface = cast_string<string_type>(j.at("t").at("s").get<std::string>());
     std::vector<std::string> feature = j.at("t").at("f").get<std::vector<std::string>>();

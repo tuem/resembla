@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -23,12 +23,12 @@ namespace resembla {
 
 const std::string PrejudicedPredictor::DEFAULT_KEY = "base_similarity";
 
-PrejudicedPredictor::PrejudicedPredictor(std::string name, std::string key):
-    name(name), key(key)
+PrejudicedPredictor::PrejudicedPredictor(const std::string& key):
+    name(key), key(key)
 {}
 
-PrejudicedPredictor::PrejudicedPredictor(std::string key):
-    name(key), key(key)
+PrejudicedPredictor::PrejudicedPredictor(const std::string& name, const std::string& key):
+    name(name), key(key)
 {}
 
 PrejudicedPredictor::output_type PrejudicedPredictor::operator()(const input_type& x) const

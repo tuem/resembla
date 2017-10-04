@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -26,6 +26,7 @@ limitations under the License.
 #include <initializer_list>
 
 #include "feature_extractor.hpp"
+#include "../../string_util.hpp"
 
 namespace resembla {
 
@@ -37,7 +38,7 @@ struct RegexFeatureExtractor: public FeatureExtractor::Function
         construct(patterns);
     }
 
-    RegexFeatureExtractor(const std::string file_path);
+    RegexFeatureExtractor(const std::string& file_path);
     RegexFeatureExtractor(const std::initializer_list<std::pair<Feature::real_type, std::string>>& patterns);
 
     Feature::text_type operator()(const string_type& text) const;
@@ -55,7 +56,7 @@ protected:
         }
     }
 
-    std::vector<std::pair<double, std::string>> load(const std::string file_path);
+    std::vector<std::pair<double, std::string>> load(const std::string& file_path);
 
     Feature::real_type match(const string_type& text) const;
 };

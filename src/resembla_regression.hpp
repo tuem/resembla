@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -24,14 +24,15 @@ limitations under the License.
 #include <vector>
 #include <memory>
 #include <unordered_map>
-#include <fstream>
 
 #include <simstring/simstring.h>
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "csv_reader.hpp"
 #include "eliminator.hpp"
 #include "reranker.hpp"
+
 #include "regression/feature.hpp"
 #include "regression/extractor/feature_extractor.hpp"
 
@@ -43,22 +44,19 @@ class ResemblaRegression: public ResemblaInterface
 public:
     ResemblaRegression(
             const std::string& db_path, const std::string& inverse_path,
-            const int simstring_measure, const double simstring_threshold, const size_t max_candidate,
+            int simstring_measure, double simstring_threshold, size_t max_candidate,
             std::shared_ptr<Indexer> indexer, std::shared_ptr<FeatureExtractor> feature_extractor,
             std::shared_ptr<ScoreFunction> score_func):
         simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_candidate(max_candidate),
-        indexer(indexer), preprocess(feature_extractor), score_func(score_func), reranker()
+        reranker(), indexer(indexer), preprocess(feature_extractor), score_func(score_func)
     {
         db.open(db_path);
         load(inverse_path);
     }
 
-    void append(const std::string name, const std::shared_ptr<ResemblaInterface> resembla, bool is_primary = true)
+    void append(const std::string& name, const std::shared_ptr<ResemblaInterface> resembla)
     {
         resemblas[name] = resembla;
-        if(is_primary && primary_resembla_name.empty()){
-            primary_resembla_name = name;
-        }
     }
 
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
@@ -131,55 +129,31 @@ protected:
     using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
 
     mutable simstring::reader db;
+    mutable std::mutex mutex_simstring;
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 
     const int simstring_measure;
     const double simstring_threshold;
     const size_t max_candidate;
-
-    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
-    std::string primary_resembla_name;
+    const Reranker<string_type> reranker;
 
     const std::shared_ptr<Indexer> indexer;
     const std::shared_ptr<FeatureExtractor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
-    const Reranker<string_type> reranker;
+
+    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
 
     std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
 
-    mutable std::mutex mutex_simstring;
-
     void load(const std::string& inverse_path)
     {
-        std::ifstream ifs(inverse_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + inverse_path);
-        }
-
-        while(ifs.good()){
-            std::string line;
-            std::getline(ifs, line);
-            if(ifs.eof()){
-                break;
-            }
-            else if(line.empty()){
-                continue;
-            }
-
-            auto columns = split(line, column_delimiter<>());
-            if(columns.size() < 2){
-                continue;
-            }
-
+        for(const auto& columns: CsvReader<std::string>(inverse_path, 2)){
             const auto& indexed = cast_string<string_type>(columns[0]);
             const auto& original = cast_string<string_type>(columns[1]);
 
-            const auto& i = inverse.find(indexed);
-            if(i == std::end(inverse)){
-                inverse[indexed] = {original};
-            }
-            else{
-                i->second.push_back(original);
+            auto p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
+            if(!p.second){
+                p.first->second.push_back(original);
             }
 
             if(columns.size() > 2){

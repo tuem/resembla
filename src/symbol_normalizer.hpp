@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -21,6 +21,7 @@ limitations under the License.
 #define RESEMBLA_SYMBOL_NORMALIZER_HPP
 
 #include <string>
+#include <stdexcept>
 
 #include <unicode/normalizer2.h>
 
@@ -33,7 +34,8 @@ class SymbolNormalizer
 public:
     SymbolNormalizer(const std::string& nrm_dir, const std::string& nrm_name,
         const std::string& predefined_nrm_name, bool to_lower = false);
-    virtual ~SymbolNormalizer();
+
+    virtual ~SymbolNormalizer() = default;
 
     template<typename string_type>
     string_type operator()(const string_type& input) const

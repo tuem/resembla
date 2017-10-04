@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -21,11 +21,10 @@ limitations under the License.
 #define RESEMBLA_LETTER_WEIGHT_HPP
 
 #include <string>
-#include <fstream>
-#include <exception>
 #include <unordered_map>
 
 #include "../string_util.hpp"
+#include "../csv_reader.hpp"
 
 namespace resembla {
 
@@ -35,39 +34,26 @@ struct LetterWeight
 {
     using value_type = typename string_type::value_type;
 
-    LetterWeight(double base_weight, double delete_insert_ratio, const std::string& letter_weight_file_path):
+    LetterWeight(double base_weight, double delete_insert_ratio,
+            const std::string& letter_weight_file_path):
         base_weight(base_weight), delete_insert_ratio(delete_insert_ratio)
     {
         if(letter_weight_file_path.empty()){
             return;
         }
 
-        std::basic_ifstream<value_type> ifs(letter_weight_file_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + letter_weight_file_path);
-        }
-
-        while(ifs.good()){
-            string_type line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
-
-            auto columns = split(line, column_delimiter<value_type>());
-            if(columns.size() < 2){
-                throw std::runtime_error("invalid line in " + letter_weight_file_path + ": " + cast_string<std::string>(line));
-            }
-
-            auto letters= columns[0];
+        for(const auto& columns: CsvReader<>(letter_weight_file_path, 2)){
+            auto letters = cast_string<string_type>(columns[0]);
             auto weight = std::stod(columns[1]);
-            for(size_t i = 0; i < letters.size(); ++i){
-                letter_weights[letters[i]] = weight;
+
+            for(auto c: letters){
+                letter_weights[c] = weight;
             }
         }
     }
 
-    double operator()(const value_type c, bool is_original = false, size_t total = -1, size_t position = -1) const
+    double operator()(const value_type c, bool is_original = false,
+            size_t total = -1, size_t position = -1) const
     {
         (void)total;
         (void)position;

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -30,6 +30,7 @@ limitations under the License.
 #include <paramset.hpp>
 
 #include "resembla_util.hpp"
+#include "csv_reader.hpp"
 
 #include "measure/asis_sequence_builder.hpp"
 #include "measure/word_sequence_builder.hpp"
@@ -52,77 +53,64 @@ limitations under the License.
 using namespace resembla;
 
 // list of {true_text, list of {input_text, freq}}
-using TestData = std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, int>>>>;
+using TestData = std::vector<std::pair<string_type, std::vector<std::pair<string_type, int>>>>;
 
-const string_type DELIMITER = L"\t";
-const string_type WORD_FREQ_SEPARATOR = L"/";
+constexpr auto DELIMITER = column_delimiter<string_type::value_type>();
+constexpr char WORD_FREQ_SEPARATOR = '/';
+constexpr char NONE[] = "NONE";
 
 // generates SimString index and test data
 template<typename Preprocessor>
 TestData prepare_data(std::string test_data_path, std::string db_path, std::string inverse_path,
         int simstring_ngram_unit, Preprocessor preprocess)
 {
-    simstring::ngram_generator gen(simstring_ngram_unit, false);
-    simstring::writer_base<std::wstring> dbw(gen, db_path);
-    std::unordered_map<std::wstring, std::unordered_set<std::wstring>> inverse;
-
+    std::unordered_map<string_type, std::unordered_set<string_type>> inverse;
     TestData test_data;
+
+    simstring::ngram_generator gen(simstring_ngram_unit, false);
+    simstring::writer_base<string_type> dbw(gen, db_path);
     bool first = true;
-    std::wifstream wifs(test_data_path);
-    while(wifs.good()){
-        // format: {true}\t{input0}/{freq0}\t{input1}\t{freq1}...
-        std::wstring line;
-        std::getline(wifs, line);
+    for(const auto& columns: CsvReader<>(test_data_path, 1, DELIMITER)){
+        // skip header
         if(first){
             first = false;
             continue;
         }
-        if(wifs.eof() || line.length() == 0){
-            break;
+
+        // format: {true}\t{input0}/{freq0}\t{input1}\t{freq1}...
+        const auto original = cast_string<string_type>(columns[0]);
+        auto indexed = preprocess.index(original);
+        if(inverse.count(indexed) == 0){
+            dbw.insert(indexed);
+            inverse[indexed] = {original};
         }
-        size_t start = 0;
-        bool first = true;
-        while(start < line.size()){
-            size_t end = line.find(DELIMITER, start);
-            if(first){
-                std::wstring original(line, start, end == std::wstring::npos ? line.size() : end - start);
-                auto s = preprocess.index(original);
-                if(inverse.count(s) == 0){
-                    dbw.insert(s);
-                    inverse[s] = {original};
-                }
-                else{
-                    inverse[s].insert(original);
-                }
-                test_data.push_back(std::make_pair(original, std::vector<std::pair<std::wstring, int>>()));
-                first = false;
-            }
-            else{
-                std::wstring s;
-                int f = 0;
-                size_t sep = line.find(WORD_FREQ_SEPARATOR, start);
-                if(sep != std::wstring::npos && (end == std::wstring::npos || sep < end)){
-                    s = std::wstring(line, start, sep - start);
-                    f = std::stoi(std::wstring(line, sep + 1, end == std::wstring::npos ? line.size() : end - start));
-                }
-                else{
-                    s = std::wstring(line, start, end == std::wstring::npos ? line.size() : end - start);
-                }
-                test_data.back().second.push_back(std::make_pair(s, f));
+        else{
+            inverse[indexed].insert(original);
+        }
+        test_data.push_back(std::make_pair(original, std::vector<std::pair<string_type, int>>()));
+
+        for(size_t i = 1; i < columns.size(); ++i){
+            auto values = split(columns[i], WORD_FREQ_SEPARATOR);
+            auto text = cast_string<string_type>(values[0]);
+            if(text.empty()){
+                continue;
             }
 
-            if(end == std::wstring::npos){
-                break;
+            int freq = 0;
+            if(values.size() > 1){
+                freq = std::stoi(values[1]);
             }
-            start = end + 1;
+
+            test_data.back().second.push_back(std::make_pair(text, freq));
         }
     }
     dbw.close();
-    std::wofstream wofs;
-    wofs.open(inverse_path);
+
+    std::basic_ofstream<string_type::value_type> ofs;
+    ofs.open(inverse_path);
     for(auto p: inverse){
         for(auto original: p.second){
-            wofs << p.first << L'\t' << original << std::endl;
+            ofs << p.first << DELIMITER << original << std::endl;
         }
     }
     return test_data;
@@ -192,6 +180,9 @@ int main(int argc, char* argv[])
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"ensemble_simstring_ngram_unit", -1, {"ensemble", "simstring_ngram_unit"}, "ensemble-simstring-ngram-unit", 0, "Unit of N-gram for romaji notation of input text"},
+        {"ensemble_simstring_threshold", -1, {"ensemble", "simstring_threshold"}, "ensemble-simstring-threshold", 0, "SimString threshold for ensemble"},
+        {"ensemble_max_candidate", 100, {"ensemble", "max_candidate"}, "ensemble-max-candidate", 0, "max number of candidates for ensemble method"},
         {"svr_simstring_ngram_unit", -1, {"svr", "simstring_ngram_unit"}, "svr-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
         {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
@@ -209,10 +200,32 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
+        std::string corpus_path = pm["corpus_path"];
+        if(pm.rest.size() > 0){
+            corpus_path = pm.rest.front().as<std::string>();
+        }
+        if(corpus_path.empty()){
+            throw std::invalid_argument("no corpus file specified");
+        }
+
         int resembla_max_response = pm.get<int>("resembla_max_response");
         double resembla_threshold = pm.get<double>("resembla_threshold");
         auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int ensemble_count = 0;
+        for(auto resembla_measure: resembla_measures){
+            switch(resembla_measure){
+                case edit_distance:
+                case weighted_word_edit_distance:
+                case weighted_pronunciation_edit_distance:
+                case weighted_romaji_edit_distance:
+                case keyword_match:
+                    ++ensemble_count;
+                    break;
+                default:
+                    break;
+            }
+        }
+        bool use_ensemble = ensemble_count > 1;
 
         pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
@@ -230,6 +243,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<int>("km_simstring_ngram_unit") == -1){
             pm["km_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
+        }
+        if(pm.get<int>("ensemble_simstring_ngram_unit") == -1){
+            pm["ensemble_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
         }
         if(pm.get<int>("svr_simstring_ngram_unit") == -1){
             pm["svr_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
@@ -249,6 +265,9 @@ int main(int argc, char* argv[])
         }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("ensemble_simstring_threshold") == -1){
+            pm["ensemble_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
         if(pm.get<double>("svr_simstring_threshold") == -1){
             pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
@@ -281,6 +300,12 @@ int main(int argc, char* argv[])
         std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
         std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
         std::cerr << "    max_response=" << pm.get<int>("resembla_max_response") << std::endl;
+        if(use_ensemble){
+            std::cerr << "  measure=" << STR(ensemble) << std::endl;
+            std::cerr << "    simstring_ngram_unit=" << pm.get<int>("ensemble_simstring_ngram_unit") << std::endl;
+            std::cerr << "    simstring_threshold=" << pm.get<int>("ensemble_simstring_threshold") << std::endl;
+            std::cerr << "    max_candidate=" << pm.get<int>("ensemble_max_candidate") << std::endl;
+        }
         for(const auto& resembla_measure: resembla_measures){
             if(resembla_measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                 std::cerr << "  Edit distance:" << std::endl;
@@ -352,7 +377,6 @@ int main(int argc, char* argv[])
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "config"));
-        std::cerr << "configuration finished" << std::endl;
 
         // load test data and create index for each measure
         TestData test_data;
@@ -366,49 +390,19 @@ int main(int argc, char* argv[])
                             pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
                     test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("svr_simstring_ngram_unit"), indexer);
 
-                    /*
-                    auto features = load_features(pm.get<std::string>("svr_features_path"));
-                    if(features.empty()){
-                        throw std::runtime_error("no feature");
-                    }
-                    const auto& base_feature = features[0][0];
-
-                    FeatureExtractor extractor;
-                    for(const auto& feature: features){
-                        const auto& name = feature[0];
-                        if(name == base_feature){
-                            continue;
-                        }
-
-                        const auto& feature_extractor_type = feature[1];
-                        if(feature_extractor_type == "re"){
-                            extractor.append(name, std::make_shared<RegexFeatureExtractor>(pm.get<std::string>("svr_patterns_home") + "/" + name + ".tsv"));
-                        }
-                        else if(feature_extractor_type == "date_period"){
-                            extractor.append(name, std::make_shared<DatePeriodFeatureExtractor>());
-                        }
-                        else if(feature_extractor_type == "time_period"){
-                            extractor.append(name, std::make_shared<TimePeriodFeatureExtractor>());
-                        }
-                        else if(feature_extractor_type != "-"){
-                            throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
-                        }
-                    }
-                    test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("simstring_ngram_unit"), extractor);
-                    */
                     break;
                 }
                 case edit_distance: {
                     if(pm.get<double>("ed_ensemble_weight") > 0){
-                        AsIsSequenceBuilder<std::wstring> builder;
+                        AsIsSequenceBuilder<string_type> builder;
                         test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), builder);
                     }
                     break;
                 }
                 case weighted_word_edit_distance: {
                     if(pm.get<double>("wwed_ensemble_weight") > 0){
-                        WeightedSequenceBuilder<WordSequenceBuilder, WordWeight> builder(
-                            WordSequenceBuilder(pm.get<std::string>("wwed_mecab_options")),
+                        WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight> builder(
+                            WordSequenceBuilder<string_type>(pm.get<std::string>("wwed_mecab_options")),
                             WordWeight(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
@@ -450,16 +444,25 @@ int main(int argc, char* argv[])
                     break;
             }
         }
+
+        if(use_ensemble){
+            std::string db_path = db_path_from_resembla_measure(corpus_path, ensemble);
+            std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
+
+            RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
+                    pm.get<int>("index_romaji_mecab_feature_pos"),
+                    pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+            test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ensemble_simstring_ngram_unit"), indexer);
+        }
+
         if(test_data.empty()){
             throw std::invalid_argument("no data for evaluation");
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "index"));
-        std::cerr << "indexing finished" << std::endl;
 
         // initialize Resembla with created indexes
         auto resembla = construct_resembla(corpus_path, pm);
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "load"));
-        std::cerr << "construction finished" << std::endl;
 
         // execute evaluation
         std::vector<std::vector<ResemblaInterface::output_type>> answers;
@@ -469,7 +472,6 @@ int main(int argc, char* argv[])
             }
         }
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "answer"));
-        std::cerr << "answering finished" << std::endl;
 
         // output results
         auto it = std::begin(answers);
@@ -489,7 +491,7 @@ int main(int argc, char* argv[])
 
                 auto response = *it++;
 
-                std::wstring best = !response.empty() ? response[0].text : L"NONE";
+                auto best = !response.empty() ? response[0].text : cast_string<string_type>(std::string(NONE));
                 double score_best = !response.empty() ? response[0].score : -1;
                 auto p = std::find_if(response.begin(), response.end(),
                         [original](ResemblaInterface::output_type& r) -> bool {return original == r.text;});

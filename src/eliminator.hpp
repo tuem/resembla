@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -23,24 +23,26 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
+#ifdef DEBUG
+#include <iostream>
 #include "string_util.hpp"
+#endif
 
 namespace resembla {
 
-template<typename string_type, typename bitvector_type = uint64_t>
+template<
+    typename string_type = std::string,
+    typename bitvector_type = uint64_t,
+    typename distance_type = long long
+>
 struct Eliminator
 {
     using size_type = typename string_type::size_type;
     using symbol_type = typename string_type::value_type;
-    using distance_type = int;
 
-    Eliminator(string_type const& pattern = string_type())
-    {
-        init(pattern);
-    }
-
-    void init(string_type const& pattern)
+    Eliminator(const string_type& pattern = string_type())
     {
         this->pattern = pattern;
         if(pattern.empty()){
@@ -214,7 +216,7 @@ protected:
         c_max = PM.back().first;
     }
 
-    distance_type distance_sp(string_type const &text)
+    distance_type distance_sp(const string_type& text)
     {
         auto& w = work.front();
         w.reset();
@@ -242,7 +244,7 @@ protected:
         return D;
     }
 
-    distance_type distance_lp(string_type const &text)
+    distance_type distance_lp(const string_type& text)
     {
         constexpr bitvector_type msb = bitvector_type{1} << (bitWidth<bitvector_type>() - 1);
 
@@ -286,7 +288,7 @@ protected:
         return D;
     }
 
-    distance_type distance(string_type const &text)
+    distance_type distance(const string_type& text)
     {
         if(text.empty()){
             return pattern_length;
