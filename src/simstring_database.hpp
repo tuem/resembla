@@ -35,7 +35,7 @@ template<typename Indexer>
 class SimStringDatabase
 {
 public:
-    using string_type = Indexer::string_type;
+    using string_type = Indexer::output_type;
 
     SimStringDatabase(const std::string& db_path, int measure, double threshold,
             std::shared_ptr<Indexer> index):
