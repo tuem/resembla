@@ -23,10 +23,6 @@ limitations under the License.
 
 #include "simstring_database.hpp"
 
-#include "measure/edit_distance.hpp"
-#include "measure/weighted_edit_distance.hpp"
-
-#include "measure/asis_indexer.hpp"
 #include "measure/asis_preprocessor.hpp"
 
 #include "measure/word_preprocessor.hpp"
@@ -41,14 +37,17 @@ limitations under the License.
 #include "measure/romaji_weight.hpp"
 #include "measure/romaji_mismatch_cost.hpp"
 
-#include "measure/weighted_sequence_builder.hpp"
-#include "measure/weighted_sequence_serializer.hpp"
-
 #include "measure/keyword_match_preprocessor.hpp"
 #include "measure/keyword_matcher.hpp"
 
-#include "resembla_ensemble.hpp"
+#include "measure/weighted_sequence_builder.hpp"
+#include "measure/weighted_sequence_serializer.hpp"
+
+#include "measure/edit_distance.hpp"
+#include "measure/weighted_edit_distance.hpp"
+
 #include "measure/weighted_l2_norm.hpp"
+#include "resembla_ensemble.hpp"
 
 #include "regression/extractor/feature_extractor.hpp"
 #include "regression/extractor/regex_feature_extractor.hpp"
