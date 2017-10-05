@@ -24,6 +24,7 @@ limitations under the License.
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <algorithm>
 #include <mutex>
 
 #include <simstring/simstring.h>
@@ -39,16 +40,16 @@ public:
     using string_type = typename Indexer::output_type;
 
     SimStringDatabase(const std::string& simstring_db_path, int measure, double threshold,
-            std::shared_ptr<Indexer> index_func, const std::string& inverse_path):
+            std::shared_ptr<Indexer> index_func, const std::string& index_path):
         measure(measure), threshold(threshold), index_func(index_func)
     {
         db.open(simstring_db_path);
 
-        for(const auto& columns: CsvReader<string_type>(inverse_path, 2)){
+        for(const auto& columns: CsvReader<string_type>(index_path, 2)){
             const auto& indexed = columns[0];
             const auto& original = columns[1];
 
-            const auto& p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
+            const auto& p = variants.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
             if(!p.second){
                 p.first->second.push_back(original);
             }
@@ -65,10 +66,6 @@ public:
             db.retrieve(search_query, measure, threshold,
                     std::back_inserter(simstring_result));
         }
-        if(simstring_result.empty()){
-            return {};
-        }
-
         if(max_output != 0 && simstring_result.size() > max_output){
             Eliminator<string_type> eliminate(search_query);
             eliminate(simstring_result, max_output);
@@ -79,14 +76,12 @@ public:
             if(i.empty()){
                 continue;
             }
-            const auto& j = inverse.at(i);
+            const auto& j = variants.at(i);
             std::copy(std::begin(j), std::end(j), std::back_inserter(result));
         }
 
         return result;
     }
-
-    // TODO: implement database writer
 
 protected:
     mutable simstring::reader db;
@@ -97,7 +92,7 @@ protected:
 
     const std::shared_ptr<Indexer> index_func;
 
-    std::unordered_map<string_type, std::vector<string_type>> inverse;
+    std::unordered_map<string_type, std::vector<string_type>> variants;
 };
 
 }
