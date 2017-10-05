@@ -290,9 +290,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                 word_preprocessor = std::make_shared<WordPreprocessor<string_type>>(pm.get<std::string>("wwed_mecab_options"));
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
-                        std::make_shared<SimStringDatabase<WordPreprocessor<string_type>>>(db_path,
+                        std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("wwed_simstring_threshold"),
-                            word_preprocessor, inverse_path),
+                            std::make_shared<AsIsPreprocessor<string_type>>(), inverse_path),
                         std::make_shared<WeightedSequenceBuilder<WordPreprocessor<string_type>, WordWeight>>(
                             word_preprocessor, 
                             std::make_shared<WordWeight>(pm.get<double>("wwed_base_weight"),
@@ -341,7 +341,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                 break;
             case keyword_match:
                 keyword_resembla = construct_basic_resembla(
-                    std::make_shared<SimStringDatabase<RomajiPreprocessor>>(db_path,
+                    std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(db_path,
                         pm.get<int>("simstring_measure"), pm.get<double>("km_simstring_threshold"),
                         std::make_shared<AsIsPreprocessor<string_type>>(), inverse_path),
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
