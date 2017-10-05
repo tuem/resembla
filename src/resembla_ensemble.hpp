@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <algorithm>
 
@@ -72,11 +73,11 @@ public:
         }
 
         if(max_response != 0 && results.size() > max_response){
-            std::partial_sort(results.begin(), results.begin() + max_response, results.end());
-            results.erase(results.begin() + max_response, results.end());
+            std::partial_sort(std::begin(results), std::begin(results) + max_response, std::end(results));
+            results.erase(std::begin(results) + max_response, std::end(results));
         }
         else{
-            std::sort(results.begin(), results.end());
+            std::sort(std::begin(results), std::end(results));
         }
 
         return results;
