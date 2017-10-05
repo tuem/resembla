@@ -32,10 +32,10 @@ limitations under the License.
 #include "resembla_util.hpp"
 #include "csv_reader.hpp"
 
-#include "measure/asis_sequence_builder.hpp"
-#include "measure/word_sequence_builder.hpp"
-#include "measure/pronunciation_sequence_builder.hpp"
-#include "measure/romaji_sequence_builder.hpp"
+#include "measure/asis_preprocessor.hpp"
+#include "measure/word_preprocessor.hpp"
+#include "measure/pronunciation_preprocessor.hpp"
+#include "measure/romaji_preprocessor.hpp"
 #include "measure/weighted_sequence_builder.hpp"
 #include "measure/keyword_match_preprocessor.hpp"
 
@@ -60,9 +60,9 @@ constexpr char WORD_FREQ_SEPARATOR = '/';
 constexpr char NONE[] = "NONE";
 
 // generates SimString index and test data
-template<typename Preprocessor>
+template<typename Indexer>
 TestData prepare_data(std::string test_data_path, std::string db_path, std::string inverse_path,
-        int simstring_ngram_unit, Preprocessor preprocess)
+        int simstring_ngram_unit, std::shared_ptr<Indexer> index)
 {
     std::unordered_map<string_type, std::unordered_set<string_type>> inverse;
     TestData test_data;
@@ -79,7 +79,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
 
         // format: {true}\t{input0}/{freq0}\t{input1}\t{freq1}...
         const auto original = cast_string<string_type>(columns[0]);
-        auto indexed = preprocess.index(original);
+        auto indexed = (*index)(original);
         if(inverse.count(indexed) == 0){
             dbw.insert(indexed);
             inverse[indexed] = {original};
@@ -385,58 +385,46 @@ int main(int argc, char* argv[])
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
             switch(resembla_measure){
                 case svr: {
-                    RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
-                            pm.get<int>("index_romaji_mecab_feature_pos"),
-                            pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+                    auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
+                            pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
                     test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("svr_simstring_ngram_unit"), indexer);
 
                     break;
                 }
                 case edit_distance: {
                     if(pm.get<double>("ed_ensemble_weight") > 0){
-                        AsIsSequenceBuilder<string_type> builder;
-                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), builder);
+                        auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"), indexer);
                     }
                     break;
                 }
                 case weighted_word_edit_distance: {
                     if(pm.get<double>("wwed_ensemble_weight") > 0){
-                        WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight> builder(
-                            WordSequenceBuilder<string_type>(pm.get<std::string>("wwed_mecab_options")),
-                            WordWeight(pm.get<double>("wwed_base_weight"),
-                                pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
-                                pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
-                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"), builder);
+                        auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"), indexer);
                     }
                     break;
                 }
                 case weighted_pronunciation_edit_distance: {
                     if(pm.get<double>("wped_ensemble_weight") > 0){
-                        WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>> builder(
-                            PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
-                                pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                            LetterWeight<string_type>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
-                                pm.get<std::string>("wped_letter_weight_path")));
-                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wped_simstring_ngram_unit"), builder);
+                        auto indexer = std::make_shared<PronunciationPreprocessor>(pm.get<std::string>("wped_mecab_options"),
+                            pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wped_simstring_ngram_unit"), indexer);
                     }
                     break;
                 }
                 case weighted_romaji_edit_distance: {
                     if(pm.get<double>("wred_ensemble_weight") > 0){
-                        WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight> builder(
-                            RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
-                                pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
-                            RomajiWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
-                                pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
-                                pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
-                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"), builder);
+                        auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("wred_mecab_options"),
+                            pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"), indexer);
                     }
                     break;
                 }
                 case keyword_match: {
                     if(pm.get<double>("km_ensemble_weight") > 0){
-                        KeywordMatchPreprocessor<string_type> builder;
-                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"), builder);
+                        auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"), indexer);
                     }
                     break;
                 }
@@ -449,7 +437,7 @@ int main(int argc, char* argv[])
             std::string db_path = db_path_from_resembla_measure(corpus_path, ensemble);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
-            RomajiSequenceBuilder indexer(pm.get<std::string>("index_romaji_mecab_options"),
+            auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
                     pm.get<int>("index_romaji_mecab_feature_pos"),
                     pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
             test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ensemble_simstring_ngram_unit"), indexer);
