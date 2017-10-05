@@ -410,7 +410,7 @@ int main(int argc, char* argv[])
                 case keyword_match: {
                     if(pm.get<double>("km_ensemble_weight") > 0){
                         auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
-                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"), indexer);
+                        test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("km_simstring_ngram_unit"), indexer);
                     }
                     break;
                 }
