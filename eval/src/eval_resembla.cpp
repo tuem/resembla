@@ -33,22 +33,8 @@ limitations under the License.
 #include "csv_reader.hpp"
 
 #include "measure/asis_preprocessor.hpp"
-#include "measure/word_preprocessor.hpp"
 #include "measure/pronunciation_preprocessor.hpp"
 #include "measure/romaji_preprocessor.hpp"
-#include "measure/weighted_sequence_builder.hpp"
-#include "measure/keyword_match_preprocessor.hpp"
-
-#include "measure/word_weight.hpp"
-#include "measure/letter_weight.hpp"
-#include "measure/romaji_weight.hpp"
-
-#include "regression/extractor/feature_extractor.hpp"
-#include "regression/extractor/regex_feature_extractor.hpp"
-#include "regression/extractor/date_period_feature_extractor.hpp"
-#include "regression/extractor/time_period_feature_extractor.hpp"
-
-#include "measure/weighted_sequence_serializer.hpp"
 
 using namespace resembla;
 
@@ -438,8 +424,8 @@ int main(int argc, char* argv[])
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
             auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
-                    pm.get<int>("index_romaji_mecab_feature_pos"),
-                    pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+                pm.get<int>("index_romaji_mecab_feature_pos"),
+                pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
             test_data = prepare_data(corpus_path, db_path, inverse_path, pm.get<int>("ensemble_simstring_ngram_unit"), indexer);
         }
 
