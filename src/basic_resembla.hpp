@@ -44,7 +44,7 @@ public:
             size_t max_candidate = 0, const std::string& index_path = "",
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
         database(database), preprocess(preprocess), score_func(score_func),
-        max_candidate(max_candidate)
+        reranker(), max_candidate(max_candidate)
     {
         if(index_path.empty() || !preprocess_corpus){
             return;

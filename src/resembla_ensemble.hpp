@@ -36,7 +36,8 @@ class ResemblaEnsemble: public ResemblaInterface
 public:
     ResemblaEnsemble(const std::string& measure_name, std::shared_ptr<Database> database,
             std::shared_ptr<Aggregator> aggregate, size_t max_candidate):
-        measure_name(measure_name), database(database), aggregate(aggregate), max_candidate(max_candidate)
+        measure_name(measure_name), database(database), aggregate(aggregate),
+        max_candidate(max_candidate)
     {}
 
     void append(const std::shared_ptr<ResemblaInterface> resembla, double weight = 1.0)
