@@ -249,7 +249,7 @@ construct_resembla_regression(const std::string& simstring_db_path, const std::s
 
     auto resembla_regression = std::make_shared<
             ResemblaRegression<SimStringDatabase<RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>(
-                database, extractor, predictor, resembla_index_path, pm.get<int>("svr_max_candidate"));
+                database, extractor, predictor, pm.get<int>("svr_max_candidate"), resembla_index_path);
     resembla_regression->append("base_similarity", resembla);
     return resembla_regression;
 }
@@ -282,7 +282,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                             std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
                         std::make_shared<AsIsPreprocessor<string_type>>(),
                         std::make_shared<EditDistance<>>(STR(edit_distance)),
-                        resembla_index_path, pm.get<int>("ed_max_reranking_num"), true),
+                        pm.get<int>("ed_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("ed_ensemble_weight")));
                 break;
             case weighted_word_edit_distance:
@@ -298,7 +298,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
                         std::make_shared<WeightedEditDistance<WordMismatchCost>>(STR(weighted_word_edit_distance)),
-                        resembla_index_path, pm.get<int>("wwed_max_reranking_num"), true),
+                        pm.get<int>("wwed_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("wwed_ensemble_weight")));
                 break;
             case weighted_pronunciation_edit_distance:
@@ -315,7 +315,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                                 pm.get<double>("wped_delete_insert_ratio"), pm.get<std::string>("wped_letter_weight_path"))),
                         std::make_shared<WeightedEditDistance<KanaMismatchCost<string_type>>>(
                             STR(weighted_pronunciation_edit_distance), pm.get<std::string>("wped_mismatch_cost_path")),
-                        resembla_index_path, pm.get<int>("wped_max_reranking_num"), true),
+                        pm.get<int>("wped_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("wped_ensemble_weight")));
                 break;
             case weighted_romaji_edit_distance:
@@ -335,7 +335,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                         std::make_shared<WeightedEditDistance<RomajiMismatchCost>>(STR(weighted_romaji_edit_distance),
                             RomajiMismatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
                                 pm.get<double>("wred_case_mismatch_cost"))),
-                        resembla_index_path, pm.get<int>("wred_max_reranking_num"), true),
+                        pm.get<int>("wred_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("wred_ensemble_weight")));
                 break;
             case keyword_match:
@@ -345,7 +345,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                         std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
                     std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)),
-                    resembla_index_path, pm.get<int>("km_max_reranking_num"), true);
+                    pm.get<int>("km_max_reranking_num"), resembla_index_path, true);
                 break;
             case ensemble:
                 break;
