@@ -41,8 +41,10 @@ template<typename Database, typename ScoreFunction>
 class ResemblaRegression: public ResemblaInterface
 {
 public:
-    ResemblaRegression(std::shared_ptr<Database> database,
-            std::shared_ptr<FeatureExtractor> feature_extractor, std::shared_ptr<ScoreFunction> score_func,
+    ResemblaRegression(
+            std::shared_ptr<Database> database,
+            std::shared_ptr<FeatureExtractor> feature_extractor,
+            std::shared_ptr<ScoreFunction> score_func,
             const std::string& index_path, size_t max_candidate):
         database(database), preprocess(feature_extractor), score_func(score_func),
         max_candidate(max_candidate)
@@ -72,22 +74,7 @@ public:
 
     std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
     {
-        auto candidates = database->search(query, max_candidate);
-
-        // load pre-computed features
-        std::unordered_map<string_type, StringFeatureMap> candidate_features;
-        for(const auto& c: candidates){
-            candidate_features[c] = corpus_features.at(c);
-        }
-
-        // compute similarity using child Resembla
-        for(const auto& p: resemblas){
-            for(auto r: p.second->eval(query, candidates, 0.0, 0)){
-                candidate_features[r.text][p.first] = Feature::toText(r.score);
-            }
-        }
-
-        return eval(query, candidate_features, threshold, max_response);
+        return eval(query, database->search(query, max_candidate), threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
@@ -98,18 +85,27 @@ public:
             auto i = corpus_features.find(c);
             if(i != std::end(corpus_features)){
                 candidate_features[c] = i->second;
-                continue;
             }
-            candidate_features[c] = (*preprocess)(c);
+            else{
+                candidate_features[c] = (*preprocess)(c);
+            }
         }
 
         for(const auto& p: resemblas){
             for(const auto& r: p.second->eval(query, candidates, 0.0, 0)){
-                candidate_features[r.text][p.first] = Feature::toText(r.score);
+                candidate_features.at(r.text)[p.first] = Feature::toText(r.score);
             }
         }
 
-        return eval(query, candidate_features, threshold, max_response);
+        WorkData input_data = std::make_pair(query, (*preprocess)(query));
+        std::vector<ResemblaInterface::output_type> results;
+        for(const auto& r: reranker.rerank(input_data,
+                std::begin(candidate_features), std::end(candidate_features),
+                *score_func, threshold, max_response)){
+            results.push_back({r.first, score_func->name, std::max(std::min(r.second, 1.0), 0.0)});
+        }
+
+        return results;
     }
 
 protected:
@@ -125,26 +121,6 @@ protected:
 
     const size_t max_candidate;
     const Reranker<string_type> reranker;
-
-    std::vector<output_type> eval(const string_type& query,
-            const std::unordered_map<string_type, StringFeatureMap>& candidate_features,
-            double threshold, size_t max_response) const
-    {
-        // prepare data for reranking
-        std::vector<WorkData> candidates;
-        for(const auto& c: candidate_features){
-            candidates.push_back(std::make_pair(c.first, c.second));
-        }
-        WorkData input_data = std::make_pair(query, (*preprocess)(query));
-
-        // rerank by regression
-        std::vector<ResemblaInterface::output_type> results;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates),
-                *score_func, threshold, max_response)){
-            results.push_back({r.first, score_func->name, std::max(std::min(r.second, 1.0), 0.0)});
-        }
-        return results;
-    }
 };
 
 }
