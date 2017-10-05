@@ -24,7 +24,7 @@ limitations under the License.
 
 #include "string_util.hpp"
 
-#include "measure/pronunciation_sequence_builder.hpp"
+#include "measure/pronunciation_preprocessor.hpp"
 
 using namespace resembla;
 
@@ -35,7 +35,10 @@ const std::string PRONUNCIATION_SEQUENCE_PARSER_MECAB_PRONUNCIATION_OF_MARKS = "
 void test_pronunciation_sequence_builder_build(const std::wstring& input, const std::wstring& correct)
 {
     init_locale();
-    PronunciationSequenceBuilder preprocess(PRONUNCIATION_SEQUENCE_PARSER_MECAB_OPTIONS, PRONUNCIATION_SEQUENCE_PARSER_MECAB_FUTURE_POS, PRONUNCIATION_SEQUENCE_PARSER_MECAB_PRONUNCIATION_OF_MARKS);
+    PronunciationPreprocessor preprocess(
+        PRONUNCIATION_SEQUENCE_PARSER_MECAB_OPTIONS,
+        PRONUNCIATION_SEQUENCE_PARSER_MECAB_FUTURE_POS,
+        PRONUNCIATION_SEQUENCE_PARSER_MECAB_PRONUNCIATION_OF_MARKS);
     auto answer = preprocess(input);
 #ifdef DEBUG
     std::wcerr << "input text: " << input <<  std::endl;
@@ -47,8 +50,8 @@ void test_pronunciation_sequence_builder_build(const std::wstring& input, const 
 void test_pronunciation_sequence_builder_build_indexing_text(const std::wstring& input, const std::wstring& correct)
 {
     init_locale();
-    PronunciationSequenceBuilder preprocess(PRONUNCIATION_SEQUENCE_PARSER_MECAB_OPTIONS, PRONUNCIATION_SEQUENCE_PARSER_MECAB_FUTURE_POS, PRONUNCIATION_SEQUENCE_PARSER_MECAB_PRONUNCIATION_OF_MARKS);
-    auto answer = preprocess.index(input);
+    PronunciationPreprocessor preprocess(PRONUNCIATION_SEQUENCE_PARSER_MECAB_OPTIONS, PRONUNCIATION_SEQUENCE_PARSER_MECAB_FUTURE_POS, PRONUNCIATION_SEQUENCE_PARSER_MECAB_PRONUNCIATION_OF_MARKS);
+    auto answer = preprocess(input);
 #ifdef DEBUG
     std::wcerr << "input text: " << input <<  std::endl;
     std::wcerr << "indexing text: " << answer <<  std::endl;
