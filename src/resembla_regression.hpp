@@ -43,11 +43,11 @@ class ResemblaRegression: public ResemblaInterface
 public:
     ResemblaRegression(std::shared_ptr<Database> database,
             std::shared_ptr<FeatureExtractor> feature_extractor, std::shared_ptr<ScoreFunction> score_func,
-            const std::string& inverse_path, size_t max_candidate):
+            const std::string& index_path, size_t max_candidate):
         database(database), preprocess(feature_extractor), score_func(score_func),
         max_candidate(max_candidate)
     {
-        for(const auto& columns: CsvReader<std::string>(inverse_path, 2)){
+        for(const auto& columns: CsvReader<std::string>(index_path, 2)){
             const auto& original = cast_string<string_type>(columns[1]);
 
             if(columns.size() > 2){

@@ -42,7 +42,7 @@ public:
             std::shared_ptr<Database> database,
             std::shared_ptr<Preprocessor> preprocess,
             std::shared_ptr<ScoreFunction> score_func,
-            const std::string& inverse_path, size_t max_candidate,
+            const std::string& index_path, size_t max_candidate,
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
         database(database), preprocess(preprocess), score_func(score_func),
         max_candidate(max_candidate), preprocess_corpus(preprocess_corpus)
@@ -51,7 +51,7 @@ public:
             return;
         }
 
-        for(const auto& columns: CsvReader<string_type>(inverse_path, 3)){
+        for(const auto& columns: CsvReader<string_type>(index_path, 3)){
             const auto& original = columns[1];
 
             if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
