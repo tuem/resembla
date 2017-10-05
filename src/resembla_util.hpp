@@ -71,16 +71,16 @@ template<typename Database, typename Preprocessor, typename ScoreFunction>
 std::shared_ptr<ResemblaInterface> construct_basic_resembla(
         std::shared_ptr<Database> database, std::shared_ptr<Preprocessor> preprocess,
         std::shared_ptr<ScoreFunction> score_func,
-        const std::string& inverse_path, size_t max_candidate,
+        const std::string& index_path, size_t max_candidate,
         bool preprocess_corpus = true)
 {
     return std::make_shared<BasicResembla<Database, Preprocessor, ScoreFunction>>(
             database, preprocess, score_func,
-            inverse_path, max_candidate, preprocess_corpus);
+            index_path, max_candidate, preprocess_corpus);
 }
 
 std::shared_ptr<ResemblaRegression<SimStringDatabase<RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>
-construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
+construct_resembla_regression(const std::string& simstring_db_path, const std::string& resembla_index_path,
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 
 // utility function to construct Resembla instance

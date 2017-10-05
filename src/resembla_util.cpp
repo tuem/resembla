@@ -182,15 +182,15 @@ std::vector<measure> split_to_resembla_measures(std::string text, char delimiter
 }
 
 std::shared_ptr<ResemblaRegression<SimStringDatabase<RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>
-construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
+construct_resembla_regression(const std::string& simstring_db_path, const std::string& resembla_index_path,
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla)
 {
     auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
             pm.get<int>("index_romaji_mecab_feature_pos"),
             pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
-    auto database = std::make_shared<SimStringDatabase<RomajiPreprocessor>>(db_path,
+    auto database = std::make_shared<SimStringDatabase<RomajiPreprocessor>>(simstring_db_path,
             pm.get<int>("simstring_measure"), pm.get<double>("ed_simstring_threshold"),
-            indexer, inverse_path);
+            indexer, resembla_index_path);
 
     auto features = load_features(pm.get<std::string>("svr_features_path"));
     if(features.empty()){
@@ -249,7 +249,7 @@ construct_resembla_regression(const std::string& db_path, const std::string& inv
 
     auto resembla_regression = std::make_shared<
             ResemblaRegression<SimStringDatabase<RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>(
-                database, extractor, predictor, inverse_path, pm.get<int>("svr_max_candidate"));
+                database, extractor, predictor, resembla_index_path, pm.get<int>("svr_max_candidate"));
     resembla_regression->append("base_similarity", resembla);
     return resembla_regression;
 }
@@ -262,8 +262,8 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
     std::shared_ptr<ResemblaInterface> keyword_resembla = nullptr;
     bool use_regression = false;
     for(auto resembla_measure: split_to_resembla_measures(resembla_measure_all)){
-        auto db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
-        auto inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
+        auto simstring_db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
+        auto resembla_index_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
 
         std::shared_ptr<WordPreprocessor<string_type>> word_preprocessor;
         std::shared_ptr<PronunciationPreprocessor> pronunciation_preprocessor;
@@ -277,28 +277,28 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
             case edit_distance:
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
-                        std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(db_path,
+                        std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(simstring_db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("ed_simstring_threshold"),
-                            std::make_shared<AsIsPreprocessor<string_type>>(), inverse_path),
+                            std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
                         std::make_shared<AsIsPreprocessor<string_type>>(),
                         std::make_shared<EditDistance<>>(STR(edit_distance)),
-                        inverse_path, pm.get<int>("ed_max_reranking_num"), true),
+                        resembla_index_path, pm.get<int>("ed_max_reranking_num"), true),
                     pm.get<double>("ed_ensemble_weight")));
                 break;
             case weighted_word_edit_distance:
                 word_preprocessor = std::make_shared<WordPreprocessor<string_type>>(pm.get<std::string>("wwed_mecab_options"));
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
-                        std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(db_path,
+                        std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(simstring_db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("wwed_simstring_threshold"),
-                            std::make_shared<AsIsPreprocessor<string_type>>(), inverse_path),
+                            std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
                         std::make_shared<WeightedSequenceBuilder<WordPreprocessor<string_type>, WordWeight>>(
                             word_preprocessor, 
                             std::make_shared<WordWeight>(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
                         std::make_shared<WeightedEditDistance<WordMismatchCost>>(STR(weighted_word_edit_distance)),
-                        inverse_path, pm.get<int>("wwed_max_reranking_num"), true),
+                        resembla_index_path, pm.get<int>("wwed_max_reranking_num"), true),
                     pm.get<double>("wwed_ensemble_weight")));
                 break;
             case weighted_pronunciation_edit_distance:
@@ -306,16 +306,16 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                     pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
-                        std::make_shared<SimStringDatabase<PronunciationPreprocessor>>(db_path,
+                        std::make_shared<SimStringDatabase<PronunciationPreprocessor>>(simstring_db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("wped_simstring_threshold"),
-                            pronunciation_preprocessor, inverse_path),
+                            pronunciation_preprocessor, resembla_index_path),
                         std::make_shared<WeightedSequenceBuilder<PronunciationPreprocessor, LetterWeight<string_type>>>(
                             pronunciation_preprocessor, 
                             std::make_shared<LetterWeight<string_type>>(pm.get<double>("wped_base_weight"),
                                 pm.get<double>("wped_delete_insert_ratio"), pm.get<std::string>("wped_letter_weight_path"))),
                         std::make_shared<WeightedEditDistance<KanaMismatchCost<string_type>>>(
                             STR(weighted_pronunciation_edit_distance), pm.get<std::string>("wped_mismatch_cost_path")),
-                        inverse_path, pm.get<int>("wped_max_reranking_num"), true),
+                        resembla_index_path, pm.get<int>("wped_max_reranking_num"), true),
                     pm.get<double>("wped_ensemble_weight")));
                 break;
             case weighted_romaji_edit_distance:
@@ -323,9 +323,9 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                     pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
-                        std::make_shared<SimStringDatabase<RomajiPreprocessor>>(db_path,
+                        std::make_shared<SimStringDatabase<RomajiPreprocessor>>(simstring_db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("wred_simstring_threshold"),
-                            romaji_preprocessor, inverse_path),
+                            romaji_preprocessor, resembla_index_path),
                         std::make_shared<WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>>(
                             romaji_preprocessor, 
                             std::make_shared<RomajiWeight>(
@@ -335,17 +335,17 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
                         std::make_shared<WeightedEditDistance<RomajiMismatchCost>>(STR(weighted_romaji_edit_distance),
                             RomajiMismatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
                                 pm.get<double>("wred_case_mismatch_cost"))),
-                        inverse_path, pm.get<int>("wred_max_reranking_num"), true),
+                        resembla_index_path, pm.get<int>("wred_max_reranking_num"), true),
                     pm.get<double>("wred_ensemble_weight")));
                 break;
             case keyword_match:
                 keyword_resembla = construct_basic_resembla(
-                    std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(db_path,
+                    std::make_shared<SimStringDatabase<AsIsPreprocessor<string_type>>>(simstring_db_path,
                         pm.get<int>("simstring_measure"), pm.get<double>("km_simstring_threshold"),
-                        std::make_shared<AsIsPreprocessor<string_type>>(), inverse_path),
+                        std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
                     std::make_shared<KeywordMatchPreprocessor<string_type>>(),
                     std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)),
-                    inverse_path, pm.get<int>("km_max_reranking_num"), true);
+                    resembla_index_path, pm.get<int>("km_max_reranking_num"), true);
                 break;
             case ensemble:
                 break;
@@ -368,16 +368,16 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_
         else{
             auto indexer = std::make_shared<RomajiPreprocessor>((pm.get<std::string>("index_romaji_mecab_options"),
                     pm.get<int>("index_romaji_mecab_feature_pos"), pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
-            auto db_path = db_path_from_resembla_measure(corpus_path, ensemble);
-            auto inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
+            auto simstring_db_path = db_path_from_resembla_measure(corpus_path, ensemble);
+            auto resembla_index_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
             auto resembla_ensemble = std::make_shared<ResemblaEnsemble<SimStringDatabase<RomajiPreprocessor>, WeightedL2Norm<>>>(
                 resembla_measure_all, 
-                std::make_shared<SimStringDatabase<RomajiPreprocessor>>(db_path,
+                std::make_shared<SimStringDatabase<RomajiPreprocessor>>(simstring_db_path,
                     pm.get<int>("simstring_measure"), pm.get<double>("wred_simstring_threshold"),
                     std::make_shared<RomajiPreprocessor>(
                         pm.get<std::string>("wred_mecab_options"), pm.get<int>("wred_mecab_feature_pos"),
-                        pm.get<std::string>("wred_mecab_pronunciation_of_marks")), inverse_path),
+                        pm.get<std::string>("wred_mecab_pronunciation_of_marks")), resembla_index_path),
                 std::make_shared<WeightedL2Norm<>>(), pm.get<double>("ensemble_max_candidate"));
 
             for(auto p: basic_resemblas){
