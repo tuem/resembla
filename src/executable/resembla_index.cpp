@@ -32,10 +32,10 @@ limitations under the License.
 #include "string_normalizer.hpp"
 #include "resembla_util.hpp"
 
-#include "measure/asis_sequence_builder.hpp"
-#include "measure/word_sequence_builder.hpp"
-#include "measure/pronunciation_sequence_builder.hpp"
-#include "measure/romaji_sequence_builder.hpp"
+#include "measure/asis_preprocessor.hpp"
+#include "measure/word_preprocessor.hpp"
+#include "measure/pronunciation_preprocessor.hpp"
+#include "measure/romaji_preprocessor.hpp"
 #include "measure/weighted_sequence_builder.hpp"
 #include "measure/keyword_match_preprocessor.hpp"
 
@@ -54,7 +54,7 @@ using namespace resembla;
 
 template<typename Indexer, typename Preprocessor>
 void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
-        int n, std::shared_ptr<Indexer> indexer, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
+        int n, std::shared_ptr<Indexer> index_func, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
     constexpr auto delimiter = column_delimiter<string_type::value_type>();
@@ -65,7 +65,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     for(const auto& columns: CsvReader<string_type>(corpus_path, text_col, delimiter)){
         auto original = columns[text_col - 1];
         const auto& normalized = normalize != nullptr ? (*normalize)(original) : original;
-        const auto& indexed = indexer->index(normalized);
+        const auto& indexed = (*index_func)(normalized);
 
         if(features_col > 0 && features_col - 1 < columns.size()){
             original += delimiter + columns[features_col - 1];
@@ -286,47 +286,51 @@ int main(int argc, char* argv[])
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
 
             if(resembla_measure == edit_distance){
-                auto builder = std::make_shared<AsIsSequenceBuilder<string_type>>();
+                auto preprocessor = std::make_shared<AsIsPreprocessor<string_type>>();
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"),
-                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        preprocessor, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
-                auto builder = std::make_shared<WeightedSequenceBuilder<WordSequenceBuilder<string_type>, WordWeight>>(
-                    WordSequenceBuilder<string_type>(pm.get<std::string>("wwed_mecab_options")),
-                    WordWeight(pm.get<double>("wwed_base_weight"),
+                auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
+                auto preprocessor = std::make_shared<WeightedSequenceBuilder<WordPreprocessor<string_type>, WordWeight>>(
+                    std::make_shared<WordPreprocessor<string_type>>(pm.get<std::string>("wwed_mecab_options")),
+                    std::make_shared<WordWeight>(pm.get<double>("wwed_base_weight"),
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"),
-                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
-                auto builder = std::make_shared<WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>>(
-                    PronunciationSequenceBuilder(pm.get<std::string>("wped_mecab_options"),
-                        pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks")),
-                    LetterWeight<string_type>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
+                auto indexer = std::make_shared<PronunciationPreprocessor>(pm.get<std::string>("wped_mecab_options"),
+                        pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
+                auto preprocessor = std::make_shared<WeightedSequenceBuilder<PronunciationPreprocessor, LetterWeight<string_type>>>(
+                    indexer,
+                    std::make_shared<LetterWeight<string_type>>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
                         pm.get<std::string>("wped_letter_weight_path")));
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("wped_simstring_ngram_unit"),
-                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
-                auto builder = std::make_shared<WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight>>(
-                    RomajiSequenceBuilder(pm.get<std::string>("wred_mecab_options"),
-                        pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
-                    RomajiWeight(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
+                auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("wred_mecab_options"),
+                    pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
+                auto preprocessor = std::make_shared<WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>>(
+                    indexer,
+                    std::make_shared<RomajiWeight>(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
-                        builder, builder, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
-                auto preprocess = std::make_shared<KeywordMatchPreprocessor<string_type>>();
+                auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
+                auto preprocessor = std::make_shared<KeywordMatchPreprocessor<string_type>>();
                 create_index(corpus_path, db_path, inverse_path, pm.get<int>("km_simstring_ngram_unit"),
-                        preprocess, preprocess, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                        indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == svr){
-                auto indexer = std::make_shared<RomajiSequenceBuilder>(pm.get<std::string>("index_romaji_mecab_options"),
-                        pm.get<int>("index_romaji_mecab_feature_pos"),
-                        pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
+                auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
+                    pm.get<int>("index_romaji_mecab_feature_pos"),
+                    pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
 
                 auto features = load_features(pm.get<std::string>("svr_features_path"));
                 if(features.empty()){
@@ -366,11 +370,11 @@ int main(int argc, char* argv[])
             std::string db_path = db_path_from_resembla_measure(corpus_path, ensemble);
             std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
-            auto indexer = std::make_shared<RomajiSequenceBuilder>(pm.get<std::string>("index_romaji_mecab_options"),
+            auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
                     pm.get<int>("index_romaji_mecab_feature_pos"),
                     pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
             create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
-                    indexer, std::shared_ptr<RomajiSequenceBuilder>(), pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+                    indexer, std::shared_ptr<RomajiPreprocessor>(), pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
 
             std::cerr << "database saved to " << db_path << std::endl;
         }
