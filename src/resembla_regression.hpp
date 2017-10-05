@@ -45,10 +45,14 @@ public:
             std::shared_ptr<Database> database,
             std::shared_ptr<FeatureExtractor> feature_extractor,
             std::shared_ptr<ScoreFunction> score_func,
-            const std::string& index_path, size_t max_candidate):
+            const std::string& index_path = "", size_t max_candidate = 0):
         database(database), preprocess(feature_extractor), score_func(score_func),
         max_candidate(max_candidate)
     {
+        if(index_path.empty()){
+            return;
+        }
+
         for(const auto& columns: CsvReader<std::string>(index_path, 2)){
             const auto& original = cast_string<string_type>(columns[1]);
 
