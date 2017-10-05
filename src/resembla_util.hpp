@@ -27,7 +27,7 @@ limitations under the License.
 
 #include "basic_resembla.hpp"
 
-#include "measure/romaji_indexer.hpp"
+#include "measure/romaji_preprocessor.hpp"
 #include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/predictor/svr_predictor.hpp"
 #include "composition.hpp"
@@ -74,11 +74,11 @@ std::shared_ptr<ResemblaInterface> construct_basic_resembla(
         bool preprocess_corpus = true)
 {
     return std::make_shared<BasicResembla<Database, Preprocessor, ScoreFunction>>(
-            database, preprocessor, score_func,
+            database, preprocess, score_func,
             inverse_path, max_candidate, preprocess_corpus);
 }
 
-std::shared_ptr<ResemblaRegression<RomajiIndexer, Composition<FeatureAggregator, SVRPredictor>>>
+std::shared_ptr<ResemblaRegression<RomajiPreprocessor, Composition<FeatureAggregator, SVRPredictor>>>
 construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 

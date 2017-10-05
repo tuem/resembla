@@ -36,7 +36,7 @@ template<typename Indexer>
 class SimStringDatabase
 {
 public:
-    using string_type = Indexer::output_type;
+    using string_type = typename Indexer::output_type;
 
     SimStringDatabase(const std::string& simstring_db_path, int measure, double threshold,
             std::shared_ptr<Indexer> index, const std::string& inverse_path):
@@ -71,7 +71,7 @@ public:
 
         if(max_output != 0 && simstring_result.size() > max_output){
             Eliminator<string_type> eliminate(search_query);
-            eliminate(result, max_output);
+            eliminate(simstring_result, max_output);
         }
 
         std::vector<string_type> result;
