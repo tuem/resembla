@@ -33,6 +33,7 @@ namespace resembla {
 
 struct PronunciationPreprocessor
 {
+    using string_type = resembla::string_type;
     using token_type = string_type::value_type;
     using output_type = string_type;
 

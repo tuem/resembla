@@ -38,9 +38,11 @@ template<typename Database, typename Preprocessor, typename ScoreFunction>
 class BasicResembla: public ResemblaInterface
 {
 public:
-    BasicResembla(std::shared_ptr<Database> database,
-            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
-            size_t max_candidate, const std::string& inverse_path,
+    BasicResembla(
+            std::shared_ptr<Database> database,
+            std::shared_ptr<Preprocessor> preprocess,
+            std::shared_ptr<ScoreFunction> score_func,
+            const std::string& inverse_path, size_t max_candidate,
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
         database(database), preprocess(preprocess), score_func(score_func),
         max_candidate(max_candidate), preprocess_corpus(preprocess_corpus)

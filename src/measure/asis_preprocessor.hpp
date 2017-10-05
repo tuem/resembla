@@ -24,13 +24,14 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type>
+template<typename String>
 struct AsIsPreprocessor
 {
-    using token_type = typename string_type::value_type;
-    using output_type = string_type;
+    using string_type = String;
+    using token_type = typename String::value_type;
+    using output_type = String;
 
-    output_type operator()(const string_type& text, bool is_original) const
+    output_type operator()(const String& text, bool is_original = false) const
     {
         return is_original ? split(text, column_delimiter<token_type>())[0] : text;
     }

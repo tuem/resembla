@@ -36,11 +36,11 @@ template<typename Indexer>
 class SimStringDatabase
 {
 public:
-    using string_type = typename Indexer::output_type;
+    using string_type = typename Indexer::string_type;
 
     SimStringDatabase(const std::string& simstring_db_path, int measure, double threshold,
-            std::shared_ptr<Indexer> index, const std::string& inverse_path):
-        measure(measure), threshold(threshold), index(index)
+            std::shared_ptr<Indexer> index_func, const std::string& inverse_path):
+        measure(measure), threshold(threshold), index_func(index_func)
     {
         db.open(simstring_db_path);
 
@@ -57,7 +57,7 @@ public:
 
     std::vector<string_type> search(const string_type& query, size_t max_output = 0) const
     {
-        auto search_query = index(query);
+        auto search_query = (*index_func)(query);
 
         std::vector<string_type> simstring_result;
         {
@@ -95,7 +95,7 @@ protected:
     const int measure;
     const double threshold;
 
-    const std::shared_ptr<Indexer> index;
+    const std::shared_ptr<Indexer> index_func;
 
     std::unordered_map<string_type, std::vector<string_type>> inverse;
 };
