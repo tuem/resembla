@@ -31,11 +31,10 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename String>
+template<typename string_type>
 class WordPreprocessor final
 {
 public:
-    using string_type = String;
     using token_type = Word<string_type>;
     using output_type = std::vector<token_type>;
 
