@@ -24,10 +24,9 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename _string_type>
+template<typename string_type>
 struct AsIsPreprocessor
 {
-    using string_type = _string_type;
     using token_type = typename string_type::value_type;
     using output_type = string_type;
 
