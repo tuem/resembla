@@ -29,7 +29,6 @@ limitations under the License.
 
 #include "resembla_interface.hpp"
 #include "csv_reader.hpp"
-#include "eliminator.hpp"
 #include "reranker.hpp"
 
 namespace resembla {
@@ -42,16 +41,16 @@ public:
             std::shared_ptr<Database> database,
             std::shared_ptr<Preprocessor> preprocess,
             std::shared_ptr<ScoreFunction> score_func,
-            const std::string& index_path, size_t max_candidate,
+            const std::string& index_path, size_t max_candidate = 0,
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
         database(database), preprocess(preprocess), score_func(score_func),
-        max_candidate(max_candidate), preprocess_corpus(preprocess_corpus)
+        max_candidate(max_candidate)
     {
         if(!preprocess_corpus){
             return;
         }
 
-        for(const auto& columns: CsvReader<string_type>(index_path, 3)){
+        for(const auto& columns: CsvReader<string_type>(index_path, 2)){
             const auto& original = columns[1];
 
             if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
@@ -78,17 +77,15 @@ public:
     {
         std::vector<WorkData> work;
         for(const auto& t: candidates){
-            if(preprocess_corpus){
-                const auto i = preprocessed_corpus.find(t);
-                if(i != std::end(preprocessed_corpus)){
-                    work.push_back(i->second);
-                    continue;
-                }
+            const auto i = preprocessed_corpus.find(t);
+            if(i != std::end(preprocessed_corpus)){
+                work.push_back(i->second);
             }
-            auto tabpos = t.find(column_delimiter<string_type::value_type>());
-            work.push_back(std::make_pair(
-                tabpos != string_type::npos ? t.substr(0, tabpos) : t,
-                (*preprocess)(t, true)));
+            else{
+                work.push_back(std::make_pair(
+                    split(t, column_delimiter<string_type::value_type>())[0],
+                    (*preprocess)(t, true)));
+            }
         }
 
         // execute reranking
@@ -104,15 +101,14 @@ public:
 protected:
     using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
 
+    std::unordered_map<string_type, WorkData> preprocessed_corpus;
+
     const std::shared_ptr<Database> database;
     const std::shared_ptr<Preprocessor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
 
     const Reranker<string_type> reranker;
     const size_t max_candidate;
-
-    std::unordered_map<string_type, WorkData> preprocessed_corpus;
-    const bool preprocess_corpus;
 };
 
 }

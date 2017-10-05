@@ -29,7 +29,6 @@ limitations under the License.
 
 #include "resembla_interface.hpp"
 #include "csv_reader.hpp"
-#include "eliminator.hpp"
 #include "reranker.hpp"
 
 #include "regression/feature.hpp"
@@ -45,19 +44,21 @@ public:
             std::shared_ptr<Database> database,
             std::shared_ptr<FeatureExtractor> feature_extractor,
             std::shared_ptr<ScoreFunction> score_func,
-            const std::string& index_path = "", size_t max_candidate = 0):
+            const std::string& index_path, size_t max_candidate = 0,
+            bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
         database(database), preprocess(feature_extractor), score_func(score_func),
         max_candidate(max_candidate)
     {
-        if(index_path.empty()){
+        if(!preprocess_corpus){
             return;
         }
 
         for(const auto& columns: CsvReader<std::string>(index_path, 2)){
             const auto& original = cast_string<string_type>(columns[1]);
 
-            if(columns.size() > 2){
-                const auto& features = columns[2];
+            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
+                    !columns[preprocessed_data_col - 1].empty()){
+                const auto& features = columns[preprocessed_data_col - 1];
                 nlohmann::json j = nlohmann::json::parse(features);
                 typename FeatureExtractor::output_type preprocessed;
                 for(nlohmann::json::iterator i = std::begin(j); i != std::end(j); ++i){
@@ -76,7 +77,8 @@ public:
         resemblas[name] = resembla;
     }
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
+    std::vector<output_type> find(const string_type& query,
+            double threshold = 0.0, size_t max_response = 0) const
     {
         return eval(query, database->search(query, max_candidate), threshold, max_response);
     }
@@ -123,8 +125,8 @@ protected:
 
     std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
 
-    const size_t max_candidate;
     const Reranker<string_type> reranker;
+    const size_t max_candidate;
 };
 
 }
