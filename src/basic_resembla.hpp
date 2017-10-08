@@ -91,7 +91,7 @@ public:
         // execute reranking
         auto input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, work.begin(), work.end(),
+        for(const auto& r: reranker.rerank(input_data, std::begin(work), std::end(work),
                 *score_func, threshold, max_response)){
             response.push_back({r.first, score_func->name, r.second});
         }
