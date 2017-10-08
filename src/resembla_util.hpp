@@ -22,16 +22,18 @@ limitations under the License.
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include <paramset.hpp>
 
-#include "basic_resembla.hpp"
-
 #include "simstring_database.hpp"
+
 #include "measure/romaji_preprocessor.hpp"
 #include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/predictor/svr_predictor.hpp"
 #include "composition.hpp"
+
+#include "basic_resembla.hpp"
 #include "resembla_regression.hpp"
 
 namespace resembla {
