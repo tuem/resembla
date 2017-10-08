@@ -41,7 +41,6 @@ namespace resembla {
 // for converting enums to strings
 #define STR(val) #val
 
-extern const std::string SIMSTRING_DB_FILE_SUFFIX;
 extern const std::string SIMSTRING_DB_FILE_COMMON_SUFFIX;
 extern const std::string SIMSTRING_INVERSE_FILE_COMMON_SUFFIX;
 

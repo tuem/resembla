@@ -60,7 +60,6 @@ limitations under the License.
 
 namespace resembla {
 
-const std::string SIMSTRING_DB_FILE_SUFFIX = ".simstring.cdb";
 const std::string SIMSTRING_DB_FILE_COMMON_SUFFIX = ".simstring_db.";
 const std::string SIMSTRING_INVERSE_FILE_COMMON_SUFFIX = ".inverse.";
 
