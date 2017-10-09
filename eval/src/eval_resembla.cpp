@@ -467,9 +467,9 @@ int main(int argc, char* argv[])
 
                 auto best = !response.empty() ? response[0].text : cast_string<string_type>(std::string(NONE));
                 double score_best = !response.empty() ? response[0].score : -1;
-                auto p = std::find_if(response.begin(), response.end(),
+                auto p = std::find_if(std::begin(response), std::end(response),
                         [original](ResemblaInterface::output_type& r) -> bool {return original == r.text;});
-                int rank_correct = p != response.end() ? p - response.begin() + 1 : -1;
+                int rank_correct = p != std::end(response) ? p - std::begin(response) + 1 : -1;
                 double score_correct = rank_correct != -1 ? response[rank_correct - 1].score : -1;
 
                 std::wcout <<
