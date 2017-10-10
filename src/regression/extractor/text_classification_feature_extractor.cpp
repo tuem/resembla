@@ -51,7 +51,7 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
     BoW bow;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
-        for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
+        for(const auto* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
             // skip BOS/EOS nodes
             if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
                 continue;
@@ -74,7 +74,7 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
 
     std::vector<svm_node> nodes(bow.size() + 1);
     size_t i = 0;
-    for(const auto j: bow){
+    for(const auto& j: bow){
         nodes[j.first].index = j.first;
         nodes[j.first].value = static_cast<double>(j.second);
         ++i;
