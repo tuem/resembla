@@ -280,13 +280,14 @@ int main(int argc, char* argv[])
                 pm.get<std::string>("icu_transliteration_path"),
                 pm.get<bool>("icu_to_lower"));
         }
+
         auto resembla = construct_resembla(corpus_path, pm);
         std::shared_ptr<ResemblaWithId<>> resembla_with_id;
         if(pm.get<int>("id_col") != 0){
-            size_t id_col = pm.get<int>("id_col");
-            size_t text_col = pm.get<int>("text_col");
-            resembla_with_id = std::make_shared<ResemblaWithId<>>(resembla, corpus_path, id_col, text_col);
+            resembla_with_id = std::make_shared<ResemblaWithId<>>(resembla, corpus_path,
+                    pm.get<int>("id_col"), pm.get<int>("text_col"));
         }
+
         while(true){
             std::string raw_input;
             std::getline(std::cin, raw_input);
@@ -322,7 +323,7 @@ int main(int argc, char* argv[])
                 }
                 else{
                     for(const auto& r: result){
-                        std::cout << r.id << ", " << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
+                        std::cout << r.id << "\t" << cast_string<std::string>(r.text) << "\t" << r.score << std::endl;
                     }
                 }
             }
@@ -335,7 +336,7 @@ int main(int argc, char* argv[])
                 }
                 else{
                     for(const auto& r: result){
-                        std::cout << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
+                        std::cout << cast_string<std::string>(r.text) << "\t" << r.score << std::endl;
                     }
                 }
             }
