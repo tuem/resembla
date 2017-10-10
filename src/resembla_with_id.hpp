@@ -77,11 +77,11 @@ public:
         return results;
     }
 
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
             double threshold = 0.0, size_t max_response = 0) const
     {
         std::vector<output_type> results;
-        for(auto raw_result: resembla->eval(query, targets, threshold, max_response)){
+        for(auto raw_result: resembla->eval(query, candidates, threshold, max_response)){
             auto i = ids.find(raw_result.text);
             results.push_back({raw_result, i != ids.end() ? i->second : id_type{0}});
         }

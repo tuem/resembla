@@ -36,7 +36,7 @@ public:
 
     struct Function
     {
-        virtual ~Function(){}
+        virtual ~Function() = default;
         virtual Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const = 0;
     };
 
@@ -45,6 +45,7 @@ public:
     {
         StringsToRealFunction(){}
         StringsToRealFunction(F f): f(f){}
+        virtual ~StringsToRealFunction() = default;
 
         Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const
         {
