@@ -50,7 +50,8 @@ public:
             const auto& indexed = columns[0];
             const auto& original = columns[1];
 
-            const auto& p = variants.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
+            const auto& p = originals.insert(std::pair<string_type,
+                    std::vector<string_type>>(indexed, {original}));
             if(!p.second){
                 p.first->second.push_back(original);
             }
@@ -77,7 +78,7 @@ public:
             if(i.empty()){
                 continue;
             }
-            const auto& j = variants.at(i);
+            const auto& j = originals.at(i);
             std::copy(std::begin(j), std::end(j), std::back_inserter(result));
         }
 
@@ -93,7 +94,7 @@ protected:
 
     const std::shared_ptr<Indexer> index_func;
 
-    std::unordered_map<string_type, std::vector<string_type>> variants;
+    std::unordered_map<string_type, std::vector<string_type>> originals;
 };
 
 }
