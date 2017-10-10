@@ -38,7 +38,7 @@ public:
 
     struct Function
     {
-        virtual ~Function(){}
+        virtual ~Function() = default;
         virtual Feature::text_type operator()(const string_type& text) const = 0;
     };
 
@@ -47,6 +47,7 @@ public:
     {
         StringToStringFunction(){}
         StringToStringFunction(F f): f(f){}
+        virtual ~StringToStringFunction() = default;
 
         Feature::text_type operator()(const string_type& text) const
         {
