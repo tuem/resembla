@@ -23,6 +23,7 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 #include <mutex>
 
 #include <mecab.h>

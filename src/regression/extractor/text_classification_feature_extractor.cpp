@@ -19,6 +19,7 @@ limitations under the License.
 
 #include "text_classification_feature_extractor.hpp"
 
+#include "../../string_util.hpp"
 #include "../../csv_reader.hpp"
 
 namespace resembla {
