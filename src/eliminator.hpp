@@ -72,20 +72,20 @@ struct Eliminator
         std::vector<index_distance> work(candidates.size());
         for(size_type i = 0; i < work.size(); ++i){
             work[i].first = i;
-            work[i].second = -distance(candidates[i]);
+            work[i].second = distance(candidates[i]);
         }
 
         if(keep_tie){
             // sort partially to obtain top-k elements
             std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
                 [](const index_distance& a, const index_distance& b) -> bool{
-                    return a.second > b.second;
+                    return a.second < b.second;
                 });
         }
         else{
             std::sort(std::begin(work), std::end(work),
                 [](const index_distance& a, const index_distance& b) -> bool{
-                    return a.second > b.second;
+                    return a.second < b.second;
                 });
             // expand k so that work[l] < work[k] for all l > k
             while(k < work.size() - 1 && work[k] == work[k + 1]){
