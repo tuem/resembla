@@ -211,7 +211,7 @@ protected:
         }
 
         PM.resize(PM_work.size());
-        std::copy(PM_work.begin(), PM_work.end(), PM.begin());
+        std::copy(std::begin(PM_work), std::end(PM_work), std::begin(PM));
         c_min = PM.front().first;
         c_max = PM.back().first;
     }

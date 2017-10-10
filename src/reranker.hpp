@@ -62,11 +62,11 @@ public:
         }
 
         if(max_output != 0 && result.size() > max_output){
-            std::partial_sort(result.begin(), result.begin() + max_output, result.end(), Sorter());
+            std::partial_sort(std::begin(result), std::begin(result) + max_output, std::end(result), Sorter());
             result.erase(std::begin(result) + max_output, std::end(result));
         }
         else{
-            std::sort(result.begin(), result.end(), Sorter());
+            std::sort(std::begin(result), std::end(result), Sorter());
         }
 #ifdef DEBUG
         std::cerr << "DEBUG: " << "===========after reranking=============" << std::endl;

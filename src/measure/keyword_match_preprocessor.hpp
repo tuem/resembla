@@ -22,11 +22,14 @@ limitations under the License.
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include <json.hpp>
 
 #include "../string_util.hpp"
+
+#ifdef DEBUG
+#include <iostream>
+#endif
 
 namespace resembla {
 
@@ -50,6 +53,7 @@ public:
         if(!is_original){
             return {raw_text, {}};
         }
+
         const auto key = cast_string<string_type>("keyword");
         auto columns = split(raw_text, column_delimiter<typename string_type::value_type>());
         if(columns.size() > 1){
@@ -58,7 +62,8 @@ public:
                 if(kv.size() == 2 && kv[0] == key){
 #ifdef DEBUG
                     for(auto w: split(kv[1], value_delimiter<typename string_type::value_type>())){
-                        std::cerr << "load keyword: text=" << cast_string<std::string>(columns[0]) << ", keyword=" << cast_string<std::string>(w) << std::endl;
+                        std::cerr << "load keyword: text=" << cast_string<std::string>(columns[0]) <<
+                            ", keyword=" << cast_string<std::string>(w) << std::endl;
                     }
 #endif
                     return {columns[0], split(kv[1], value_delimiter<typename string_type::value_type>())};
@@ -67,11 +72,6 @@ public:
             return {columns[0], {}};
         }
         return {raw_text, {}};
-    }
-
-    string_type index(const string_type& text) const
-    {
-        return text;
     }
 
 protected:

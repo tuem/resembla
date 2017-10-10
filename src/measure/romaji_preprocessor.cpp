@@ -17,11 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "romaji_sequence_builder.hpp"
+#include "romaji_preprocessor.hpp"
 
 namespace resembla {
 
-const std::unordered_map<string_type, string_type> RomajiSequenceBuilder::ROMAJI_MAP = {
+const std::unordered_map<string_type, string_type> RomajiPreprocessor::ROMAJI_MAP = {
     {L"ァ", L"a"},
     {L"ア", L"A"},
     {L"ィ", L"i"},
@@ -226,14 +226,16 @@ const std::unordered_map<string_type, string_type> RomajiSequenceBuilder::ROMAJI
     {L"ッヴ", L"vVU"},
 };
 
-RomajiSequenceBuilder::RomajiSequenceBuilder(const std::string mecab_options, const size_t mecab_feature_pos,
-        const std::string mecab_pronunciation_of_marks, bool keep_case):
-    PronunciationSequenceBuilder(mecab_options, mecab_feature_pos, mecab_pronunciation_of_marks), keep_case(keep_case) {}
+RomajiPreprocessor::RomajiPreprocessor(const std::string& mecab_options, size_t mecab_feature_pos,
+        const std::string& mecab_pronunciation_of_marks, bool keep_case):
+    PronunciationPreprocessor(mecab_options, mecab_feature_pos, mecab_pronunciation_of_marks),
+    keep_case(keep_case)
+{}
 
-RomajiSequenceBuilder::output_type RomajiSequenceBuilder::operator()(const string_type& text, bool) const
+RomajiPreprocessor::output_type RomajiPreprocessor::operator()(const string_type& text, bool) const
 {
     output_type s;
-    auto pronunciation = PronunciationSequenceBuilder::operator()(text);
+    auto pronunciation = PronunciationPreprocessor::operator()(text);
     for(size_t i = 0; i < pronunciation.size(); ++i){
         string_type p = {pronunciation[i]};
         // try to read-ahead next letter
@@ -254,29 +256,18 @@ RomajiSequenceBuilder::output_type RomajiSequenceBuilder::operator()(const strin
 
         // convert to romaji if p exists in map
         if(ROMAJI_MAP.count(p) > 0){
-        //if(ROMAJI_MAP.count(p) != ROMAJI_MAP.end()){
             p = ROMAJI_MAP.at(p);
         }
 
         // put each roman alphabet to output sequence
         for(auto c: p){
+            if(!keep_case && L'A' <= c && c <= L'Z'){
+                c = c - L'A' + L'a';
+            }
             s.push_back(c);
         }
     }
     return s;
-}
-
-string_type RomajiSequenceBuilder::index(const string_type& text) const
-{
-    string_type t;
-    for(auto p: operator()(text)){
-        auto c = p;
-        if(!keep_case && L'A' <= c && c <= L'Z'){
-            c = c - L'A' + L'a';
-        }
-        t += c;
-    }
-    return t;
 }
 
 }

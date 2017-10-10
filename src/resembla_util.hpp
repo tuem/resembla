@@ -22,15 +22,18 @@ limitations under the License.
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include <paramset.hpp>
 
-#include "basic_resembla.hpp"
+#include "simstring_database.hpp"
 
-#include "measure/romaji_sequence_builder.hpp"
+#include "measure/romaji_preprocessor.hpp"
 #include "regression/aggregator/feature_aggregator.hpp"
 #include "regression/predictor/svr_predictor.hpp"
 #include "composition.hpp"
+
+#include "basic_resembla.hpp"
 #include "resembla_regression.hpp"
 
 namespace resembla {
@@ -38,7 +41,6 @@ namespace resembla {
 // for converting enums to strings
 #define STR(val) #val
 
-extern const std::string SIMSTRING_DB_FILE_SUFFIX;
 extern const std::string SIMSTRING_DB_FILE_COMMON_SUFFIX;
 extern const std::string SIMSTRING_INVERSE_FILE_COMMON_SUFFIX;
 
@@ -66,23 +68,20 @@ std::string inverse_path_from_resembla_measure(const std::string& corpus_path, c
 std::vector<measure> split_to_resembla_measures(std::string text, char delimiter = ',', bool ignore_unknown_measure = false);
 
 // utility function for creating Resembla instance
-template<
-    typename Preprocessor,
-    typename ScoreFunction
->
+template<typename Database, typename Preprocessor, typename ScoreFunction>
 std::shared_ptr<ResemblaInterface> construct_basic_resembla(
-        const std::string& db_path, const std::string& inverse_path,
-        int simstring_measure, double simstring_threshold, int max_reranking_num,
-        std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+        std::shared_ptr<Database> database, std::shared_ptr<Preprocessor> preprocess,
+        std::shared_ptr<ScoreFunction> score_func,
+        size_t max_candidate, const std::string& index_path,
         bool preprocess_corpus = true)
 {
-    return std::make_shared<BasicResembla<Preprocessor, ScoreFunction>>(
-            db_path, inverse_path, simstring_measure, simstring_threshold, max_reranking_num,
-            preprocess, score_func, preprocess_corpus);
+    return std::make_shared<BasicResembla<Database, Preprocessor, ScoreFunction>>(
+            database, preprocess, score_func,
+            max_candidate, index_path, preprocess_corpus);
 }
 
-std::shared_ptr<ResemblaRegression<RomajiSequenceBuilder, Composition<FeatureAggregator, SVRPredictor>>>
-construct_resembla_regression(const std::string& db_path, const std::string& inverse_path,
+std::shared_ptr<ResemblaRegression<SimStringDatabase<RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>
+construct_resembla_regression(const std::string& simstring_db_path, const std::string& resembla_index_path,
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 
 // utility function to construct Resembla instance

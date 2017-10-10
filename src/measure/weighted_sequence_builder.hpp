@@ -37,29 +37,24 @@ public:
     };
     using output_type = std::vector<token_type>;
 
-    WeightedSequenceBuilder(const SequenceTokenizer tokenize = SequenceTokenizer(),
-            const WeightFunction weight_func = WeightFunction()): 
+    WeightedSequenceBuilder(const std::shared_ptr<SequenceTokenizer> tokenize,
+            const std::shared_ptr<WeightFunction> weight_func):
         tokenize(tokenize), weight_func(weight_func) {}
 
     output_type operator()(const string_type& text, bool is_original = false) const
     {
-        auto s = tokenize(is_original ?
+        auto s = (*tokenize)(is_original ?
                 split(text, column_delimiter<string_type::value_type>())[0] : text, is_original);
         output_type ws;
         for(size_t i = 0; i < s.size(); ++i){
-            ws.push_back({s[i], weight_func(s[i], is_original, s.size(), i)});
+            ws.push_back({s[i], (*weight_func)(s[i], is_original, s.size(), i)});
         }
         return ws;
     }
 
-    string_type index(const string_type& text) const
-    {
-        return tokenize.index(text);
-    }
-
 protected:
-    SequenceTokenizer tokenize;
-    WeightFunction weight_func;
+    std::shared_ptr<SequenceTokenizer> tokenize;
+    std::shared_ptr<WeightFunction> weight_func;
 };
 
 }

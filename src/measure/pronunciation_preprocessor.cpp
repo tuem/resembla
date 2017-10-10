@@ -17,15 +17,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "pronunciation_preprocessor.hpp"
+
 #include <vector>
 
-#include "pronunciation_sequence_builder.hpp"
 #include "../string_util.hpp"
 
 namespace resembla {
 
-const std::unordered_map<PronunciationSequenceBuilder::token_type, string_type>
-        PronunciationSequenceBuilder::KANA_MAP = {
+const std::unordered_map<PronunciationPreprocessor::token_type, string_type>
+        PronunciationPreprocessor::KANA_MAP = {
     {L'ぁ', L"ァ"},
     {L'あ', L"ア"},
     {L'ぃ', L"ィ"},
@@ -204,7 +205,7 @@ const std::unordered_map<PronunciationSequenceBuilder::token_type, string_type>
     {L'ヿ', L"コト"},
 };
 
-bool PronunciationSequenceBuilder::isKanaWord(const string_type& w) const
+bool PronunciationPreprocessor::isKanaWord(const string_type& w) const
 {
     for(const auto c: w){
         if(KANA_MAP.find(c) == KANA_MAP.end()){
@@ -214,7 +215,7 @@ bool PronunciationSequenceBuilder::isKanaWord(const string_type& w) const
     return true;
 }
 
-string_type PronunciationSequenceBuilder::estimatePronunciation(const string_type& w) const
+string_type PronunciationPreprocessor::estimatePronunciation(const string_type& w) const
 {
     string_type y;
     for(auto c: w){
@@ -236,17 +237,13 @@ string_type PronunciationSequenceBuilder::estimatePronunciation(const string_typ
     return y;
 }
 
-PronunciationSequenceBuilder::PronunciationSequenceBuilder(
+PronunciationPreprocessor::PronunciationPreprocessor(
         const std::string& mecab_options, size_t mecab_feature_pos,
         const std::string& mecab_pronunciation_of_marks):
     tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
     mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
 
-PronunciationSequenceBuilder::PronunciationSequenceBuilder(const PronunciationSequenceBuilder& obj):
-    tagger(obj.tagger), mecab_feature_pos(obj.mecab_feature_pos),
-    mecab_pronunciation_of_marks(obj.mecab_pronunciation_of_marks) {}
-
-PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator()(
+PronunciationPreprocessor::output_type PronunciationPreprocessor::operator()(
         const string_type& text, bool is_original) const
 {
     std::string text_string = cast_string<std::string>(
@@ -306,11 +303,6 @@ PronunciationSequenceBuilder::output_type PronunciationSequenceBuilder::operator
         }
     }
     return s;
-}
-
-string_type PronunciationSequenceBuilder::index(const string_type& text) const
-{
-    return operator()(text);
 }
 
 }

@@ -22,31 +22,23 @@ limitations under the License.
 
 #include <string>
 #include <vector>
-#include <memory>
 #include <unordered_map>
+#include <memory>
 #include <algorithm>
 
-#include <simstring/simstring.h>
-
 #include "resembla_interface.hpp"
-#include "csv_reader.hpp"
-#include "eliminator.hpp"
 
 namespace resembla {
 
-template<typename Indexer, typename ScoreFunction>
+template<typename Database, typename Aggregator>
 class ResemblaEnsemble: public ResemblaInterface
 {
 public:
-    ResemblaEnsemble(const std::string& measure_name,
-            const std::string& simstring_db_path, const std::string& index_path,
-            const int simstring_measure, const double simstring_threshold, const size_t max_candidate,
-            std::shared_ptr<Indexer> indexer, std::shared_ptr<ScoreFunction> score_func):
-        measure_name(measure_name), simstring_measure(simstring_measure), simstring_threshold(simstring_threshold),
-        max_candidate(max_candidate), indexer(indexer), score_func(score_func)
-    {
-        load(simstring_db_path, index_path);
-    }
+    ResemblaEnsemble(const std::string& measure_name, std::shared_ptr<Database> database,
+            std::shared_ptr<Aggregator> aggregate, size_t max_candidate):
+        measure_name(measure_name), database(database), aggregate(aggregate),
+        max_candidate(max_candidate)
+    {}
 
     void append(const std::shared_ptr<ResemblaInterface> resembla, double weight = 1.0)
     {
@@ -57,33 +49,7 @@ public:
     std::vector<output_type> find(const string_type& query,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        string_type search_query = indexer->index(query);
-
-        // search from N-gram index
-        std::vector<string_type> simstring_result;
-        {
-            std::lock_guard<std::mutex> lock(mutex_simstring);
-            db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
-        }
-        if(simstring_result.empty()){
-            return {};
-        }
-        else if(simstring_result.size() > max_candidate){
-            Eliminator<string_type> eliminate(search_query);
-            eliminate(simstring_result, max_candidate, true);
-        }
-
-        // load original texts
-        std::vector<string_type> candidates;
-        for(const auto& i: simstring_result){
-            if(i.empty()){
-                continue;
-            }
-            const auto& j = inverse.at(i);
-            std::copy(std::begin(j), std::end(j), std::back_inserter(candidates));
-        }
-
-        return eval(query, candidates, threshold, max_response);
+        return eval(query, database->search(query, max_candidate), threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
@@ -101,18 +67,18 @@ public:
 
         std::vector<output_type> results;
         for(const auto& p: work){
-            double score = (*score_func)(weights, p.second);
+            double score = (*aggregate)(weights, p.second);
             if(score >= threshold){
                 results.push_back({p.first, measure_name, score});
             }
         }
 
         if(max_response != 0 && results.size() > max_response){
-            std::partial_sort(results.begin(), results.begin() + max_response, results.end());
-            results.erase(results.begin() + max_response, results.end());
+            std::partial_sort(std::begin(results), std::begin(results) + max_response, std::end(results));
+            results.erase(std::begin(results) + max_response, std::end(results));
         }
         else{
-            std::sort(results.begin(), results.end());
+            std::sort(std::begin(results), std::end(results));
         }
 
         return results;
@@ -121,34 +87,13 @@ public:
 protected:
     const std::string measure_name;
 
-    mutable simstring::reader db;
-    mutable std::mutex mutex_simstring;
-    std::unordered_map<string_type, std::vector<string_type>> inverse;
-
-    const int simstring_measure;
-    const double simstring_threshold;
-    const size_t max_candidate;
-
-    const std::shared_ptr<Indexer> indexer;
-    const std::shared_ptr<ScoreFunction> score_func;
+    const std::shared_ptr<Database> database;
+    const std::shared_ptr<Aggregator> aggregate;
 
     std::vector<std::shared_ptr<ResemblaInterface>> children;
     std::vector<double> weights;
 
-    void load(const std::string& simstring_db_path, const std::string& index_path)
-    {
-        db.open(simstring_db_path);
-
-        for(const auto& columns: CsvReader<string_type>(index_path, 2)){
-            const auto& indexed = columns[0];
-            const auto& original = columns[1];
-
-            auto p = inverse.insert(std::pair<string_type, std::vector<string_type>>(indexed, {original}));
-            if(!p.second){
-                p.first->second.push_back(original);
-            }
-        }
-    }
+    const size_t max_candidate;
 };
 
 }
