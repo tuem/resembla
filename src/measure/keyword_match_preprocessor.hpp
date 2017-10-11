@@ -57,7 +57,7 @@ public:
         const auto key = cast_string<string_type>("keyword");
         auto columns = split(raw_text, column_delimiter<typename string_type::value_type>());
         if(columns.size() > 1){
-            for(auto f: split(columns[1], feature_delimiter<typename string_type::value_type>())){
+            for(auto f: split(columns[1], attribute_delimiter<typename string_type::value_type>())){
                 auto kv = split(f, keyvalue_delimiter<typename string_type::value_type>());
                 if(kv.size() == 2 && kv[0] == key){
 #ifdef DEBUG

@@ -72,16 +72,16 @@ constexpr wchar_t column_delimiter()
 }
 
 template<typename char_type = char>
-constexpr char_type feature_delimiter();
+constexpr char_type attribute_delimiter();
 
 template<>
-constexpr char feature_delimiter()
+constexpr char attribute_delimiter()
 {
     return '&';
 }
 
 template<>
-constexpr wchar_t feature_delimiter()
+constexpr wchar_t attribute_delimiter()
 {
     return L'&';
 }
@@ -161,7 +161,7 @@ std::vector<string_type> split(const string_type& text,
 
 template<typename string_type>
 std::unordered_map<string_type, string_type> splitToKeyValue(const string_type& text,
-        typename string_type::value_type delim = feature_delimiter<typename string_type::value_type>(),
+        typename string_type::value_type delim = attribute_delimiter<typename string_type::value_type>(),
         typename string_type::value_type delim_kv = keyvalue_delimiter<typename string_type::value_type>())
 {
     std::unordered_map<string_type, string_type> result;

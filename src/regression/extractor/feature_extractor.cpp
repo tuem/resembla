@@ -44,7 +44,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
     (void)raw_text;
 #endif
     output_type features;
-    for(const auto& f: split(raw_features, feature_delimiter<>())){
+    for(const auto& f: split(raw_features, attribute_delimiter<>())){
         auto kv = split(f, keyvalue_delimiter<>());
         if(kv.size() == 2){
             auto i = functions.find(kv[0]);
@@ -112,7 +112,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& te
         auto columns = split(raw_text, column_delimiter<>());
         if(columns.size() > 1){
             raw_text = columns[0];
-            for(const auto& f: split(columns[1], feature_delimiter<>())){
+            for(const auto& f: split(columns[1], attribute_delimiter<>())){
                 auto kv = split(f, keyvalue_delimiter<>());
                 if(kv.size() == 2){
                     auto i = functions.find(kv[0]);
