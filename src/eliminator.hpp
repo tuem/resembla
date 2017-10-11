@@ -53,15 +53,11 @@ struct Eliminator
         block_size = ((pattern_length - 1) >> bitOffset<bitvector_type>()) + 1;
         rest_bits = pattern_length - (block_size - 1) * bitWidth<bitvector_type>();
         sink = bitvector_type{1} << (rest_bits - 1);
+        VP0 = (bitvector_type{1} << rest_bits) - 1;
 
         constructPM();
         zeroes.resize(block_size, 0);
         work.resize(block_size);
-
-        VP0 = 0;
-        for(size_type i = 0; i < rest_bits; ++i){
-            VP0 |= bitvector_type{1} << i;
-        }
     }
 
     void operator()(std::vector<string_type>& candidates, size_type k, bool keep_tie = true)
