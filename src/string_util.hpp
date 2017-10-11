@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace resembla {
 
@@ -154,6 +155,23 @@ std::vector<string_type> split(const string_type& text,
     }
     if(!finished){
         result.push_back(string_type());
+    }
+    return result;
+}
+
+template<typename string_type>
+std::unordered_map<string_type, string_type> splitToKeyValue(const string_type& text,
+        typename string_type::value_type delim = feature_delimiter<typename string_type::value_type>(),
+        typename string_type::value_type delim_kv = keyvalue_delimiter<typename string_type::value_type>())
+{
+    std::unordered_map<string_type, string_type> result;
+    if(!text.empty()){
+        for(const auto& s: split<string_type>(text, delim)){
+            auto kv = split<string_type>(s, delim_kv, 2);
+            if(kv.size() == 2){
+                result[kv[0]] = kv[1];
+            }
+        }
     }
     return result;
 }
