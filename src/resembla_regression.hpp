@@ -80,7 +80,9 @@ public:
     std::vector<output_type> find(const string_type& query,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        return eval(query, database->search(query, max_candidate), threshold, max_response);
+        return eval(query, database->search(query,
+                max_candidate == 0 ? max_candidate : std::max(max_candidate, max_response)),
+                threshold, max_response);
     }
 
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
