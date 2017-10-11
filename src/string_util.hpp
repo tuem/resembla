@@ -160,7 +160,7 @@ std::vector<string_type> split(const string_type& text,
 }
 
 template<typename string_type>
-std::unordered_map<string_type, string_type> splitToKeyValue(const string_type& text,
+std::unordered_map<string_type, string_type> splitToKeyValueMap(const string_type& text,
         typename string_type::value_type delim = attribute_delimiter<typename string_type::value_type>(),
         typename string_type::value_type delim_kv = keyvalue_delimiter<typename string_type::value_type>())
 {
