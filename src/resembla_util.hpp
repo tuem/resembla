@@ -85,7 +85,7 @@ construct_resembla_regression(const std::string& simstring_db_path, const std::s
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 
 // utility function to construct Resembla instance
-std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_path, const paramset::manager& pm);
+std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& pm);
 
 std::vector<std::vector<std::string>> load_features(const std::string& file_path);
 

@@ -164,13 +164,13 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = pm["corpus_path"];
         if(pm.rest.size() > 0){
-            corpus_path = pm.rest.front().as<std::string>();
+            pm["corpus_path"] = pm.rest.front().as<std::string>();
         }
-        if(corpus_path.empty()){
+        if(pm.get<std::string>("corpus_path").empty()){
             throw std::invalid_argument("no corpus file specified");
         }
+        std::string corpus_path = pm.get<std::string>("corpus_path");
 
         if(pm.get<int>("ed_simstring_ngram_unit") == -1){
             pm["ed_simstring_ngram_unit"] = pm.get<int>("simstring_ngram_unit");
@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
-            std::cerr << "    corpus_path=" << corpus_path << std::endl;
+            std::cerr << "    corpus_path=" << pm.get<std::string>("corpus_path") << std::endl;
             std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
             std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
             std::cerr << "  SimString:" << std::endl;

@@ -253,8 +253,9 @@ construct_resembla_regression(const std::string& simstring_db_path, const std::s
     return resembla_regression;
 }
 
-std::shared_ptr<ResemblaInterface> construct_resembla(const std::string& corpus_path, const paramset::manager& pm)
+std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& pm)
 {
+    auto corpus_path = pm.get<std::string>("corpus_path");
     auto resembla_measure_all = pm.get<std::string>("resembla_measure");
 
     std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> basic_resemblas;

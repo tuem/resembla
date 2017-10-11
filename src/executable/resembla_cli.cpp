@@ -111,11 +111,10 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = pm["corpus_path"];
         if(pm.rest.size() > 0){
-            corpus_path = pm.rest.front().as<std::string>();
+            pm["corpus_path"] = pm.rest.front().as<std::string>();
         }
-        if(corpus_path.empty()){
+        if(pm.get<std::string>("corpus_path").empty()){
             throw std::invalid_argument("no corpus file specified");
         }
 
@@ -181,7 +180,7 @@ int main(int argc, char* argv[])
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
-            std::cerr << "    corpus_path=" << corpus_path << std::endl;
+            std::cerr << "    corpus_path=" << pm.get<std::string>("corpus_path") << std::endl;
             std::cerr << "    id_col=" << pm.get<int>("id_col") << std::endl;
             std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
             std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
@@ -281,11 +280,11 @@ int main(int argc, char* argv[])
                 pm.get<bool>("icu_to_lower"));
         }
 
-        auto resembla = construct_resembla(corpus_path, pm);
+        auto resembla = construct_resembla(pm);
         std::shared_ptr<ResemblaWithId<>> resembla_with_id;
         if(pm.get<int>("id_col") != 0){
-            resembla_with_id = std::make_shared<ResemblaWithId<>>(resembla, corpus_path,
-                    pm.get<int>("id_col"), pm.get<int>("text_col"));
+            resembla_with_id = std::make_shared<ResemblaWithId<>>(resembla,
+                    pm.get<std::string>("corpus_path"), pm.get<int>("id_col"), pm.get<int>("text_col"));
         }
 
         while(true){
