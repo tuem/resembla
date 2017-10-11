@@ -294,7 +294,7 @@ int main(int argc, char* argv[])
             if(std::cin.eof() || raw_input == "exit" || raw_input == "quit" || raw_input == "bye"){
                 break;
             }
-            else if(raw_input.length() == 0){
+            else if(raw_input.empty()){
                 continue;
             }
 
@@ -304,9 +304,9 @@ int main(int argc, char* argv[])
             }
 
             bool ondemand = false;
-            auto tmp = split(input, '/');
+            auto tmp = split(input, '/', 2);
             std::vector<string_type> candidates;
-            if(tmp.size() > 1){
+            if(tmp.size() == 2){
                 ondemand = true;
                 input = tmp[0];
                 for(const auto& c: split(tmp[1], ',')){
