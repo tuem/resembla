@@ -95,9 +95,9 @@ struct Eliminator
                 return a.first < b.first;
             });
 #ifdef DEBUG
-        std::cerr << "narrow " << work.size() << " strings" << std::endl;
+        std::cerr << "DEBUG: " << "eliminate " << work.size() << " strings" << std::endl;
         for(size_type i = 0; i < k; ++i){
-            std::cerr << cast_string<std::string>(candidates[work[i].first]) << ": " << work[i].second << std::endl;
+            std::cerr << "DEBUG: " << cast_string<std::string>(candidates[work[i].first]) << ": " << work[i].second << std::endl;
         }
 #endif
 
@@ -115,6 +115,7 @@ protected:
     size_type block_size;
     size_type rest_bits;
     bitvector_type sink;
+    bitvector_type VP0;
 
     std::vector<std::pair<symbol_type, std::vector<bitvector_type>>> PM;
     std::vector<bitvector_type> zeroes;
@@ -134,7 +135,6 @@ protected:
         }
     };
     std::vector<WorkData> work;
-    bitvector_type VP0;
 
     template<typename Integer> static constexpr int bitWidth()
     {
