@@ -19,11 +19,15 @@ limitations under the License.
 
 #include "feature.hpp"
 
+#include <sstream>
+
 namespace resembla {
 
 Feature::text_type Feature::toText(const real_type& a)
 {
-    return std::to_string(a);
+    std::stringstream s;
+    s << a;
+    return s.str();
 }
 
 Feature::real_type Feature::toReal(const text_type& a)
