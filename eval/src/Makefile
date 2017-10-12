@@ -29,8 +29,8 @@ DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 eval_resembla: eval_resembla.o
 	$(CXX) -o $@ eval_resembla.o $(CXXLIBS)
 
-benchmark_eliminator: benchmark_eliminator.o
-	$(CXX) -o $@ benchmark_eliminator.o $(CXXLIBS)
+benchmark_eliminator: benchmark_eliminator.o history.o
+	$(CXX) -o $@ benchmark_eliminator.o history.o $(CXXLIBS)
 
 
 .PHONY: clean all

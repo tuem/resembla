@@ -28,44 +28,9 @@ limitations under the License.
 #include "eliminator.hpp"
 #include "string_util.hpp"
 
+#include "history.hpp"
+
 using namespace resembla;
-
-class History final
-{
-public:
-    History()
-    {
-        time_records.push_back({std::chrono::system_clock::now(), "", 0});
-    }
-
-    void record(const std::string& task, int count = 1)
-    {
-        time_records.push_back({std::chrono::system_clock::now(), task, count});
-    }
-
-    void dump(std::ostream& os = std::cout)
-    {
-        os << "task\ttime[ms]\tcount\taverage[ms]" << std::endl;
-        for(size_t i = 1; i < time_records.size(); ++i){
-            auto t = std::chrono::duration_cast<std::chrono::microseconds>(time_records[i].time - time_records[i - 1].time).count() / 1000.0;
-            os <<
-                time_records[i].task << "\t" <<
-                std::setprecision(10) << t << "\t" <<
-                time_records[i].count << "\t" <<
-                std::setprecision(10) << t / time_records[i].count <<
-                std::endl;
-        }
-    }
-
-private:
-    struct TimeRecord
-    {
-        std::chrono::system_clock::time_point time;
-        std::string task;
-        int count;
-    };
-    std::vector<TimeRecord> time_records;
-};
 
 int main(int argc, char* argv[])
 {

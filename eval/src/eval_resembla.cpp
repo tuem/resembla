@@ -460,7 +460,7 @@ int main(int argc, char* argv[])
         for(const auto& d: test_data){
             const auto& original = d.first;
             for(const auto& i: d.second){
-                const auto& query = i.first;
+                const auto query = cast_string<std::string>(i.first);
                 const auto& freq = i.second;
 
                 auto response = *it++;
@@ -474,7 +474,7 @@ int main(int argc, char* argv[])
 
                 std::cout <<
                     freq << "\t" <<
-                    cast_string<std::string>(query) << "\t" <<
+                    query << "\t" <<
                     best << "\t" <<
                     cast_string<std::string>(original) << "\t" <<
                     score_best << "\t" <<
