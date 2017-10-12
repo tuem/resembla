@@ -186,13 +186,13 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = pm["corpus_path"];
         if(pm.rest.size() > 0){
-            corpus_path = pm.rest.front().as<std::string>();
+            pm["corpus_path"] = pm.rest.front().as<std::string>();
         }
-        if(corpus_path.empty()){
+        if(pm.get<std::string>("corpus_path").empty()){
             throw std::invalid_argument("no corpus file specified");
         }
+        std::string corpus_path = pm.get<std::string>("corpus_path");
 
         int resembla_max_response = pm.get<int>("resembla_max_response");
         double resembla_threshold = pm.get<double>("resembla_threshold");
@@ -435,7 +435,7 @@ int main(int argc, char* argv[])
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "index"));
 
         // initialize Resembla with created indexes
-        auto resembla = construct_resembla(corpus_path, pm);
+        auto resembla = construct_resembla(pm);
         time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "load"));
 
         // execute evaluation
