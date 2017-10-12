@@ -105,8 +105,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    std::cout << std::endl;
-    history.dump();
+    history.dump(std::cout, true, true);
 
     return 0;
 }

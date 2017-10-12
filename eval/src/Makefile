@@ -26,8 +26,8 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 DEPS = $(patsubst %.cpp,%.d,$(SRCS))
 
-eval_resembla: eval_resembla.o
-	$(CXX) -o $@ eval_resembla.o $(CXXLIBS)
+eval_resembla: eval_resembla.o history.o
+	$(CXX) -o $@ eval_resembla.o history.o $(CXXLIBS)
 
 benchmark_eliminator: benchmark_eliminator.o history.o
 	$(CXX) -o $@ benchmark_eliminator.o history.o $(CXXLIBS)

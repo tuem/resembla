@@ -33,17 +33,27 @@ void History::record(const std::string& task, int count)
     time_records.push_back({std::chrono::system_clock::now(), task, count});
 }
 
-void History::dump(std::ostream& os) const
+void History::dump(std::ostream& os, bool show_header, bool show_count) const
 {
-    os << "task\ttime[ms]\tcount\taverage[ms]" << std::endl;
+    if(show_header){
+        os << "task\ttime[ms]";
+        if(show_count){
+            os << "\tcount\taverage[ms]";
+        }
+        os << std::endl;
+    }
     for(size_t i = 1; i < time_records.size(); ++i){
         auto t = std::chrono::duration_cast<std::chrono::microseconds>(
                 time_records[i].time - time_records[i - 1].time).count() / 1000.0;
         os <<
             time_records[i].task << "\t" <<
-            std::setprecision(10) << t << "\t" <<
-            time_records[i].count << "\t" <<
-            std::setprecision(10) << t / time_records[i].count << std::endl;
+            std::setprecision(10) << t;
+        if(show_count){
+            os << "\t" <<
+                time_records[i].count << "\t" <<
+                std::setprecision(10) << t / time_records[i].count;
+        }
+        os << std::endl;
     }
 }
 

@@ -36,6 +36,8 @@ limitations under the License.
 #include "measure/pronunciation_preprocessor.hpp"
 #include "measure/romaji_preprocessor.hpp"
 
+#include "history.hpp"
+
 using namespace resembla;
 
 // list of {true_text, list of {input_text, freq}}
@@ -104,9 +106,7 @@ TestData prepare_data(std::string test_data_path, std::string db_path, std::stri
 
 int main(int argc, char* argv[])
 {
-    std::vector<std::pair<std::chrono::system_clock::time_point, std::string>> time_points;
-    time_points.push_back(std::make_pair(std::chrono::system_clock::now(), ""));
-
+    History history;
     init_locale();
 
     paramset::definitions defs = {
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
                 std::cerr << "    model_path=" << pm.get<std::string>("svr_model_path") << std::endl;
             }
         }
-        time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "config"));
+        history.record("config");
 
         // load test data and create index for each measure
         TestData test_data;
@@ -432,11 +432,11 @@ int main(int argc, char* argv[])
         if(test_data.empty()){
             throw std::invalid_argument("no data for evaluation");
         }
-        time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "index"));
+        history.record("index");
 
         // initialize Resembla with created indexes
         auto resembla = construct_resembla(pm);
-        time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "load"));
+        history.record("load");
 
         // execute evaluation
         std::vector<std::vector<ResemblaInterface::output_type>> answers;
@@ -445,7 +445,7 @@ int main(int argc, char* argv[])
                 answers.push_back(resembla->find(i.first, resembla_threshold, resembla_max_response));
             }
         }
-        time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "answer"));
+        history.record("answer");
 
         // output results
         auto it = std::begin(answers);
@@ -482,13 +482,9 @@ int main(int argc, char* argv[])
                     rank_correct << std::endl;
             }
         }
-        time_points.push_back(std::make_pair(std::chrono::system_clock::now(), "output"));
+        history.record("output");
 
-        std::cerr << std::endl << "computation time" << std::endl;
-        for(size_t i = 1; i < time_points.size(); ++i){
-            auto t = std::chrono::duration_cast<std::chrono::microseconds>(time_points[i].first - time_points[i - 1].first).count();
-            std::cerr << time_points[i].second << "\t" << (t / 1000000.0) << std::endl;
-        }
+        history.dump(std::cerr);
     }
     catch(const std::exception& e){
         std::cerr << "error: " << e.what() << std::endl;
