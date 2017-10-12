@@ -34,12 +34,10 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename Indexer>
+template<typename string_type, typename Indexer>
 class SimStringDatabase
 {
 public:
-    using string_type = typename Indexer::output_type;
-
     SimStringDatabase(const std::string& simstring_db_path, int measure, double threshold,
             std::shared_ptr<Indexer> index_func, const std::string& index_path):
         measure(measure), threshold(threshold), index_func(index_func)
