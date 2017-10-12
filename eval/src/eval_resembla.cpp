@@ -23,8 +23,6 @@ limitations under the License.
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include <chrono>
-#include <time.h>
 
 #include <simstring/simstring.h>
 #include <paramset.hpp>
