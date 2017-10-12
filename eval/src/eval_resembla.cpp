@@ -449,13 +449,13 @@ int main(int argc, char* argv[])
 
         // output results
         auto it = std::begin(answers);
-        std::wcout <<
-            "freq" << DELIMITER <<
-            "input" << DELIMITER <<
-            "pred" << DELIMITER <<
-            "true" << DELIMITER <<
-            "score" << DELIMITER <<
-            "score_of_correct_answer" << DELIMITER <<
+        std::cout <<
+            "freq" << "\t"<<
+            "input" << "\t" <<
+            "pred" << "\t" <<
+            "true" << "\t" <<
+            "score" << "\t" <<
+            "score_of_correct_answer" << "\t" <<
             "rank_of_correct_answer" << std::endl;
         for(const auto& d: test_data){
             const auto& original = d.first;
@@ -465,20 +465,20 @@ int main(int argc, char* argv[])
 
                 auto response = *it++;
 
-                auto best = !response.empty() ? response[0].text : cast_string<string_type>(std::string(NONE));
+                auto best = !response.empty() ? cast_string<std::string>(response[0].text) : NONE;
                 double score_best = !response.empty() ? response[0].score : -1;
                 auto p = std::find_if(std::begin(response), std::end(response),
                         [original](ResemblaInterface::output_type& r) -> bool {return original == r.text;});
                 int rank_correct = p != std::end(response) ? p - std::begin(response) + 1 : -1;
                 double score_correct = rank_correct != -1 ? response[rank_correct - 1].score : -1;
 
-                std::wcout <<
-                    freq << DELIMITER <<
-                    query << DELIMITER <<
-                    best << DELIMITER <<
-                    original << DELIMITER <<
-                    score_best << DELIMITER <<
-                    score_correct << DELIMITER <<
+                std::cout <<
+                    freq << "\t" <<
+                    cast_string<std::string>(query) << "\t" <<
+                    best << "\t" <<
+                    cast_string<std::string>(original) << "\t" <<
+                    score_best << "\t" <<
+                    score_correct << "\t" <<
                     rank_correct << std::endl;
             }
         }
