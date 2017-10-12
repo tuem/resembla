@@ -40,7 +40,7 @@ public:
     template<typename Iterator, typename ScoreFunction>
     std::vector<output_type> rerank(
         const typename std::iterator_traits<Iterator>::value_type& target,
-        const Iterator begin, const Iterator end,
+        Iterator begin, Iterator end,
         const ScoreFunction& score_func,
         double threshold = 0.0, size_t max_output = 0
     ) const
