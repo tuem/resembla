@@ -74,7 +74,7 @@ public:
 
     void append(const std::string& name, const std::shared_ptr<ResemblaInterface> resembla)
     {
-        resemblas[name] = resembla;
+        children[name] = resembla;
     }
 
     std::vector<output_type> find(const string_type& query,
@@ -99,7 +99,7 @@ public:
             }
         }
 
-        for(const auto& p: resemblas){
+        for(const auto& p: children){
             for(const auto& r: p.second->eval(query, candidates, 0.0, 0)){
                 candidate_features.at(r.text)[p.first] = Feature::toText(r.score);
             }
@@ -125,7 +125,7 @@ protected:
     const std::shared_ptr<FeatureExtractor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
 
-    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> resemblas;
+    std::unordered_map<std::string, std::shared_ptr<ResemblaInterface>> children;
 
     const Reranker<string_type> reranker;
     const size_t max_candidate;
