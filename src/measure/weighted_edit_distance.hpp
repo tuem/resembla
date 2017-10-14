@@ -43,7 +43,7 @@ struct WeightedEditDistance
             return b.empty() ? 1.0 : 0.0;
         }
         else if(b.empty()){
-            return 0.0;
+            return 1.0;
         }
 
         // prepare work table
