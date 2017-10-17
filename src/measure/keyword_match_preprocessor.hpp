@@ -22,10 +22,12 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <json.hpp>
 
 #include "../string_util.hpp"
+#include "romaji_preprocessor.hpp"
 
 #ifdef DEBUG
 #include <iostream>
@@ -33,7 +35,7 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type>
+template<typename string_type, typename Indexer>
 class KeywordMatchPreprocessor
 {
 public:
@@ -43,7 +45,7 @@ public:
         std::vector<string_type> keywords;
     };
 
-    KeywordMatchPreprocessor()
+    KeywordMatchPreprocessor(std::shared_ptr<Indexer> index_func): index_func(index_func)
     {
         // TODO: loadSynonyms(synonym_path);
     }
@@ -51,7 +53,7 @@ public:
     output_type operator()(const string_type& raw_text, bool is_original = false) const
     {
         if(!is_original){
-            return {raw_text, {}};
+            return {(*index_func)(raw_text), {}};
         }
 
         const auto key = cast_string<string_type>("keyword");
@@ -62,27 +64,35 @@ public:
                 if(kv.size() == 2 && kv[0] == key){
 #ifdef DEBUG
                     for(auto w: split(kv[1], value_delimiter<typename string_type::value_type>())){
-                        std::cerr << "load keyword: text=" << cast_string<std::string>(columns[0]) <<
-                            ", keyword=" << cast_string<std::string>(w) << std::endl;
+                        std::cerr << "load keyword: text=" << cast_string<std::string>((*index_func)(columns[0])) <<
+                            ", keyword=" << cast_string<std::string>((*index_func)(w)) << std::endl;
                     }
 #endif
-                    return {columns[0], split(kv[1], value_delimiter<typename string_type::value_type>())};
+                    std::vector<string_type> keywords;
+                    for(auto w: split(kv[1], value_delimiter<typename string_type::value_type>())){
+                        keywords.push_back((*index_func)(w));
+                    }
+                    return {(*index_func)(columns[0]), keywords};
                 }
             }
-            return {columns[0], {}};
+            return {(*index_func)(columns[0]), {}};
         }
-        return {raw_text, {}};
+        return {(*index_func)(raw_text), {}};
     }
 
 protected:
+    std::shared_ptr<Indexer> index_func;
+
 // TODO: use synonym dictionary to improve keyword matching quality
 //    std::vector<std::vector<string_type>> synonyms;
 //    std::unordered_map<string_type, size_t> synonym_index;
 };
 
 // TODO: implement as template functions
-void to_json(nlohmann::json& j, const typename KeywordMatchPreprocessor<string_type>::output_type& o);
-void from_json(const nlohmann::json& j, typename KeywordMatchPreprocessor<string_type>::output_type& o);
+void to_json(nlohmann::json& j,
+        const typename KeywordMatchPreprocessor<string_type, RomajiPreprocessor>::output_type& o);
+void from_json(const nlohmann::json& j,
+        typename KeywordMatchPreprocessor<string_type, RomajiPreprocessor>::output_type& o);
 
 }
 #endif

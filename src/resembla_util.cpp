@@ -343,8 +343,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                     std::make_shared<SimStringDatabase<string_type, AsIsPreprocessor<string_type>>>(simstring_db_path,
                         pm.get<int>("simstring_measure"), pm.get<double>("km_simstring_threshold"),
                         std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
-                    std::make_shared<KeywordMatchPreprocessor<string_type>>(),
-                    std::make_shared<KeywordMatcher<string_type>>(STR(keyword_match)),
+                    std::make_shared<KeywordMatchPreprocessor<string_type, RomajiPreprocessor>>(
+                        std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
+                            pm.get<int>("index_romaji_mecab_feature_pos"),
+                            pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"))),
+                    std::make_shared<KeywordMatcher<string_type, RomajiPreprocessor>>(STR(keyword_match)),
                     pm.get<int>("km_max_reranking_num"), resembla_index_path, true);
                 break;
             case ensemble:
