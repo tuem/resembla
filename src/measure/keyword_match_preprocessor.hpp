@@ -35,7 +35,7 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename Indexer>
+template<typename string_type, typename StringPreprocessor>
 class KeywordMatchPreprocessor
 {
 public:
@@ -45,7 +45,7 @@ public:
         std::vector<string_type> keywords;
     };
 
-    KeywordMatchPreprocessor(std::shared_ptr<Indexer> index_func): index_func(index_func)
+    KeywordMatchPreprocessor(std::shared_ptr<StringPreprocessor> preprocess): preprocess(preprocess)
     {
         // TODO: loadSynonyms(synonym_path);
     }
@@ -53,35 +53,36 @@ public:
     output_type operator()(const string_type& raw_text, bool is_original = false) const
     {
         if(!is_original){
-            return {(*index_func)(raw_text), {}};
+            return {(*preprocess)(raw_text), {}};
         }
 
         const auto key = cast_string<string_type>("keyword");
         auto columns = split(raw_text, column_delimiter<typename string_type::value_type>());
         if(columns.size() > 1){
+            auto preprocessed_text = (*preprocess)(columns[0]);
             for(auto f: split(columns[1], attribute_delimiter<typename string_type::value_type>())){
                 auto kv = split(f, keyvalue_delimiter<typename string_type::value_type>());
                 if(kv.size() == 2 && kv[0] == key){
 #ifdef DEBUG
                     for(auto w: split(kv[1], value_delimiter<typename string_type::value_type>())){
-                        std::cerr << "load keyword: text=" << cast_string<std::string>((*index_func)(columns[0])) <<
-                            ", keyword=" << cast_string<std::string>((*index_func)(w)) << std::endl;
+                        std::cerr << "load keyword: text=" << cast_string<std::string>((*preprocess)(columns[0])) <<
+                            ", keyword=" << cast_string<std::string>((*preprocess)(w)) << std::endl;
                     }
 #endif
                     std::vector<string_type> keywords;
                     for(auto w: split(kv[1], value_delimiter<typename string_type::value_type>())){
-                        keywords.push_back((*index_func)(w));
+                        keywords.push_back((*preprocess)(w));
                     }
-                    return {(*index_func)(columns[0]), keywords};
+                    return {preprocessed_text, keywords};
                 }
             }
-            return {(*index_func)(columns[0]), {}};
+            return {preprocessed_text, {}};
         }
-        return {(*index_func)(raw_text), {}};
+        return {(*preprocess)(raw_text), {}};
     }
 
 protected:
-    std::shared_ptr<Indexer> index_func;
+    std::shared_ptr<StringPreprocessor> preprocess;
 
 // TODO: use synonym dictionary to improve keyword matching quality
 //    std::vector<std::vector<string_type>> synonyms;
