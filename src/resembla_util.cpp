@@ -86,13 +86,6 @@ int simstring_measure_from_string(const std::string& simstring_measure_str)
     }
 }
 
-/*
-std::string read_value_with_rest(paramset::manager& pm, const std::string key, const char* throw_if)
-{
-    return read_value_with_rest(pm, key, std::string(throw_if));
-}
-*/
-
 std::string db_path_from_resembla_measure(const std::string& corpus_path, const measure resembla_measure)
 {
     if(resembla_measure == edit_distance){
