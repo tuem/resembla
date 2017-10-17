@@ -175,13 +175,13 @@ int main(int argc, char** argv) {
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = pm["corpus_path"];
         if(pm.rest.size() > 0){
-            corpus_path = pm.rest.front().as<std::string>();
+            pm["corpus_path"] = pm.rest.front().as<std::string>();
         }
-        if(corpus_path.empty()){
+        if(pm.get<std::string>("corpus_path").empty()){
             throw std::invalid_argument("no corpus file specified");
         }
+        std::string corpus_path = pm["corpus_path"];
 
         pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
@@ -334,7 +334,7 @@ int main(int argc, char** argv) {
             std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
         }
 
-        auto resembla = construct_resembla(corpus_path, pm);
+        auto resembla = construct_resembla(pm);
         RunServer(pm.get<std::string>("grpc_server_address"), resembla,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }
