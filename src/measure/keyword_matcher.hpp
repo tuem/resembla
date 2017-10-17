@@ -27,16 +27,18 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename Indexer>
+template<typename StringPreprocessor>
 struct KeywordMatcher
 {
 public:
+    using string_type = typename StringPreprocessor::output_type;
+
     const std::string name;
 
     KeywordMatcher(const std::string name): name(name){}
 
-    double operator()(const typename KeywordMatchPreprocessor<string_type, Indexer>::output_type& target,
-            const typename KeywordMatchPreprocessor<string_type, Indexer>::output_type& reference) const
+    double operator()(const typename KeywordMatchPreprocessor<StringPreprocessor>::output_type& target,
+            const typename KeywordMatchPreprocessor<StringPreprocessor>::output_type& reference) const
     {
         // TODO: use synonyms
         if(reference.keywords.empty()){

@@ -22,7 +22,7 @@ limitations under the License.
 namespace resembla {
 
 void to_json(nlohmann::json& j,
-        const typename KeywordMatchPreprocessor<string_type, RomajiPreprocessor>::output_type& o)
+        const typename KeywordMatchPreprocessor<RomajiPreprocessor>::output_type& o)
 {
     std::vector<std::string> keywords;
     for(const auto& k: o.keywords){
@@ -32,7 +32,7 @@ void to_json(nlohmann::json& j,
 }
 
 void from_json(const nlohmann::json& j,
-        typename KeywordMatchPreprocessor<string_type, RomajiPreprocessor>::output_type& o)
+        typename KeywordMatchPreprocessor<RomajiPreprocessor>::output_type& o)
 {
     o.text = cast_string<string_type>(j.at("t").get<std::string>());
     std::vector<std::string> keywords = j.at("k").get<std::vector<std::string>>();

@@ -35,10 +35,12 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename StringPreprocessor>
+template<typename StringPreprocessor>
 class KeywordMatchPreprocessor
 {
 public:
+    using string_type = typename StringPreprocessor::output_type;
+
     struct output_type
     {
         string_type text;
@@ -91,9 +93,9 @@ protected:
 
 // TODO: implement as template functions
 void to_json(nlohmann::json& j,
-        const typename KeywordMatchPreprocessor<string_type, RomajiPreprocessor>::output_type& o);
+        const typename KeywordMatchPreprocessor<RomajiPreprocessor>::output_type& o);
 void from_json(const nlohmann::json& j,
-        typename KeywordMatchPreprocessor<string_type, RomajiPreprocessor>::output_type& o);
+        typename KeywordMatchPreprocessor<RomajiPreprocessor>::output_type& o);
 
 }
 #endif

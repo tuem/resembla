@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
             }
             else if(resembla_measure == keyword_match){
                 auto indexer = std::make_shared<AsIsPreprocessor<string_type>>();
-                auto preprocessor = std::make_shared<KeywordMatchPreprocessor<string_type, RomajiPreprocessor>>(
+                auto preprocessor = std::make_shared<KeywordMatchPreprocessor<RomajiPreprocessor>>(
                     std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
                         pm.get<int>("index_romaji_mecab_feature_pos"),
                         pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
