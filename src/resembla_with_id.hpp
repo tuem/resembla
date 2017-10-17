@@ -51,9 +51,7 @@ public:
         id_type max_id{0};
         for(const auto& columns: CsvReader<string_type>(corpus_path, text_col)){
             const auto& text = cast_string<string_type>(columns[text_col - 1]);
-
-            auto i = ids.find(text);
-            if(i == std::end(ids)){
+            if(ids.find(text) == std::end(ids)){
                 id_type id;
                 if(id_col == 0 || id_col > columns.size()){
                     id = ++max_id;
