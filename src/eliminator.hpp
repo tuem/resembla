@@ -42,9 +42,8 @@ struct Eliminator
     using size_type = typename string_type::size_type;
     using symbol_type = typename string_type::value_type;
 
-    Eliminator(const string_type& pattern)
+    Eliminator(const string_type& pattern): pattern(pattern)
     {
-        this->pattern = pattern;
         if(pattern.empty()){
             return;
         }
