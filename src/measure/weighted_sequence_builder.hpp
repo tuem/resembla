@@ -21,6 +21,7 @@ limitations under the License.
 #define RESEMBLA_WEIGHTED_SEQUENCE_BUILDER_HPP
 
 #include <vector>
+#include <memory>
 
 #include "../string_util.hpp"
 
