@@ -21,7 +21,7 @@ all: $(BIN)
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 `pkg-config --cflags grpc++ grpc` -isystem../include -I../../../src -isystem../../../include -isystem../../../include/json -isystem../../../include/cmdline -isystem../../../include/paramset
-CXXLIBS := `pkg-config --libs protobuf grpc++ grpc` -lgrpc++_reflection -lpthread -ldl -lresembla
+CXXLIBS := `pkg-config --libs icu-uc icu-i18n` `pkg-config --libs protobuf grpc++ grpc` -lgrpc++_reflection -lpthread -ldl -lresembla
 
 SUBDIRS = grpc
 

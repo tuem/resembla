@@ -26,6 +26,8 @@ limitations under the License.
 
 #include "resembla_util.hpp"
 #include "resembla_with_id.hpp"
+#include "string_normalizer.hpp"
+
 #include "resembla.grpc.pb.h"
 
 using namespace resembla;
@@ -39,19 +41,27 @@ class ResemblaServiceImpl: public server::ResemblaService::Service
 {
 protected:
     const std::shared_ptr<ResemblaWithId<int>> resembla;
+    const std::shared_ptr<StringNormalizer> normalize;
     const size_t max_response;
     const double threshold;
 
 public:
-    ResemblaServiceImpl(std::shared_ptr<ResemblaWithId<int>>& resembla, size_t max_response, double threshold):
-        server::ResemblaService::Service(),
-        resembla(resembla), max_response(max_response), threshold(threshold)
+    ResemblaServiceImpl(std::shared_ptr<ResemblaWithId<int>>& resembla,
+            const std::shared_ptr<StringNormalizer> normalize,
+            size_t max_response, double threshold):
+        server::ResemblaService::Service(), resembla(resembla),
+        normalize(normalize), max_response(max_response), threshold(threshold)
     {}
 
     Status find(ServerContext*, const server::ResemblaRequest* request, server::ResemblaResponse* response) override
     {
+        auto query = cast_string<string_type>(request->query());
+        if(normalize != nullptr){
+            query = (*normalize)(query);
+        }
+
         size_t j = 0;
-        for(const auto& r: resembla->find(cast_string<string_type>(request->query()), threshold, max_response)){
+        for(const auto& r: resembla->find(query, threshold, max_response)){
             response->add_results();
             auto* result = response->mutable_results(j++);
             result->set_id(r.id);
@@ -63,12 +73,17 @@ public:
 
     Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, server::ResemblaResponse* response) override
     {
+        auto query = cast_string<string_type>(request->query());
+        if(normalize != nullptr){
+            query = (*normalize)(query);
+        }
+
         std::vector<string_type> candidates;
         for(const auto& c: request->candidates()){
             candidates.push_back(cast_string<string_type>(c));
         }
         size_t j = 0;
-        for(const auto& r: resembla->eval(cast_string<string_type>(request->query()), candidates, threshold, max_response)){
+        for(const auto& r: resembla->eval(query, candidates, threshold, max_response)){
             response->add_results();
             auto* result = response->mutable_results(j++);
             result->set_id(0);
@@ -79,9 +94,10 @@ public:
     }
 };
 
-void RunServer(const std::string& server_address, std::shared_ptr<ResemblaWithId<int>> resembla, size_t max_response, double threshold)
+void RunServer(const std::string& server_address, std::shared_ptr<ResemblaWithId<int>> resembla,
+        const std::shared_ptr<StringNormalizer> normalize, size_t max_response, double threshold)
 {
-    ResemblaServiceImpl service(resembla, max_response, threshold);
+    ResemblaServiceImpl service(resembla, normalize, max_response, threshold);
 
     ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
@@ -337,10 +353,20 @@ int main(int argc, char** argv) {
             std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
         }
 
+        std::shared_ptr<StringNormalizer> normalize;
+        if(pm.get<bool>("normalize_text")){
+            normalize = std::make_shared<StringNormalizer>(
+                pm.get<std::string>("icu_normalization_dir"),
+                pm.get<std::string>("icu_normalization_name"),
+                pm.get<std::string>("icu_predefined_normalizer"),
+                pm.get<std::string>("icu_transliteration_path"),
+                pm.get<bool>("icu_to_lower"));
+        }
+
         auto resembla = std::make_shared<ResemblaWithId<int>>(construct_resembla(pm),
                 pm.get<std::string>("corpus_path"), pm.get<int>("id_col"), pm.get<int>("text_col"));
 
-        RunServer(pm.get<std::string>("grpc_server_address"), resembla,
+        RunServer(pm.get<std::string>("grpc_server_address"), resembla, normalize,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }
     catch(const std::exception& e){
