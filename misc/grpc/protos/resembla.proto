@@ -13,8 +13,9 @@ message ResemblaOnDemandRequest {
 
 message ResemblaResponse {
   message Result {
-    string text = 1;
-    float score = 2;
+    int32 id = 1;
+    string text = 2;
+    float score = 3;
   }
   repeated Result results = 1;
 }
