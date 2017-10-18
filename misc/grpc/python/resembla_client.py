@@ -33,6 +33,7 @@ def run(server_address, queries):
     print ('query=%s' % s)
     responses = resembla.find(resembla_pb2.ResemblaRequest(query=s), _TIMEOUT_SECONDS).results
     for response in responses:
+      print ('  response.id=%d' % response.id)
       print ('  response.text=%s' % response.text)
       print ('  response.score=%s' % response.score)
 
