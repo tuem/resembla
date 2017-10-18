@@ -20,15 +20,12 @@ limitations under the License.
 #ifndef RESEMBLA_RESEMBLA_RESPONSE_HPP
 #define RESEMBLA_RESEMBLA_RESPONSE_HPP
 
-#include <string>
-
 namespace resembla {
 
 template<typename string_type>
 struct ResemblaResponse
 {
     string_type text;
-    std::string measure;
     double score;
 
     bool operator<(const ResemblaResponse& r) const

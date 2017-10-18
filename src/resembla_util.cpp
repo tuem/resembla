@@ -274,7 +274,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                             pm.get<int>("simstring_measure"), pm.get<double>("ed_simstring_threshold"),
                             std::make_shared<AsIsPreprocessor<string_type>>(), resembla_index_path),
                         std::make_shared<AsIsPreprocessor<string_type>>(),
-                        std::make_shared<EditDistance<>>(STR(edit_distance)),
+                        std::make_shared<EditDistance<>>(),
                         pm.get<int>("ed_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("ed_ensemble_weight")));
                 break;
@@ -290,7 +290,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                             std::make_shared<WordWeight>(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        std::make_shared<WeightedEditDistance<WordMismatchCost>>(STR(weighted_word_edit_distance)),
+                        std::make_shared<WeightedEditDistance<WordMismatchCost>>(),
                         pm.get<int>("wwed_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("wwed_ensemble_weight")));
                 break;
@@ -307,7 +307,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                             std::make_shared<LetterWeight<string_type>>(pm.get<double>("wped_base_weight"),
                                 pm.get<double>("wped_delete_insert_ratio"), pm.get<std::string>("wped_letter_weight_path"))),
                         std::make_shared<WeightedEditDistance<KanaMismatchCost<string_type>>>(
-                            STR(weighted_pronunciation_edit_distance), pm.get<std::string>("wped_mismatch_cost_path")),
+                            pm.get<std::string>("wped_mismatch_cost_path")),
                         pm.get<int>("wped_max_reranking_num"), resembla_index_path, true),
                     pm.get<double>("wped_ensemble_weight")));
                 break;
@@ -325,7 +325,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                                 pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                                 pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                 pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
-                        std::make_shared<WeightedEditDistance<RomajiMismatchCost>>(STR(weighted_romaji_edit_distance),
+                        std::make_shared<WeightedEditDistance<RomajiMismatchCost>>(
                             RomajiMismatchCost(pm.get<std::string>("wred_mismatch_cost_path"),
                                 pm.get<double>("wred_case_mismatch_cost"))),
                         pm.get<int>("wred_max_reranking_num"), resembla_index_path, true),
@@ -368,7 +368,6 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
             auto resembla_index_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
             auto resembla_ensemble = std::make_shared<ResemblaEnsemble<SimStringDatabase<string_type, RomajiPreprocessor>, WeightedL2Norm<>>>(
-                resembla_measure_all, 
                 std::make_shared<SimStringDatabase<string_type, RomajiPreprocessor>>(simstring_db_path,
                     pm.get<int>("simstring_measure"), pm.get<double>("wred_simstring_threshold"),
                     std::make_shared<RomajiPreprocessor>(

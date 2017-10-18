@@ -20,7 +20,6 @@ limitations under the License.
 #ifndef RESEMBLA_EDIT_DISTANCE_HPP
 #define RESEMBLA_EDIT_DISTANCE_HPP
 
-#include <string>
 #include <vector>
 
 #include "fixed_cost.hpp"
@@ -30,11 +29,9 @@ namespace resembla {
 template<typename CostFunction = FixedCost>
 struct EditDistance
 {
-    const std::string name;
     CostFunction cost;
 
-    EditDistance(const std::string& name = "edit", CostFunction cost = CostFunction()):
-        name(name), cost(cost) {}
+    EditDistance(CostFunction cost = CostFunction()): cost(cost) {}
 
     template<typename sequence_type>
     double operator()(const sequence_type& a, const sequence_type& b) const

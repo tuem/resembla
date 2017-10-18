@@ -20,7 +20,6 @@ limitations under the License.
 #ifndef RESEMBLA_RESEMBLA_ENSEMBLE_HPP
 #define RESEMBLA_RESEMBLA_ENSEMBLE_HPP
 
-#include <string>
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -34,9 +33,9 @@ template<typename Database, typename Aggregator>
 class ResemblaEnsemble: public ResemblaInterface
 {
 public:
-    ResemblaEnsemble(const std::string& measure_name, std::shared_ptr<Database> database,
+    ResemblaEnsemble(std::shared_ptr<Database> database,
             std::shared_ptr<Aggregator> aggregate, size_t max_candidate):
-        measure_name(measure_name), database(database), aggregate(aggregate),
+        database(database), aggregate(aggregate),
         max_candidate(max_candidate)
     {}
 
@@ -71,7 +70,7 @@ public:
         for(const auto& p: work){
             double score = (*aggregate)(weights, p.second);
             if(score >= threshold){
-                results.push_back({p.first, measure_name, score});
+                results.push_back({p.first, score});
             }
         }
 
@@ -87,8 +86,6 @@ public:
     }
 
 protected:
-    const std::string measure_name;
-
     const std::shared_ptr<Database> database;
     const std::shared_ptr<Aggregator> aggregate;
 

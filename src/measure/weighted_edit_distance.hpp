@@ -30,11 +30,9 @@ namespace resembla {
 template<typename CostFunction = FixedCost>
 struct WeightedEditDistance
 {
-    const std::string name;
     CostFunction cost;
 
-    WeightedEditDistance(const std::string& name = "edit", CostFunction cost = CostFunction()):
-            name(name), cost(cost) {}
+    WeightedEditDistance(CostFunction cost = CostFunction()): cost(cost) {}
 
     template<typename sequence_type>
     double operator()(const sequence_type& a, const sequence_type& b) const

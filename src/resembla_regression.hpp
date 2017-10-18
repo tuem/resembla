@@ -110,7 +110,7 @@ public:
         for(const auto& r: reranker.rerank(input_data,
                 std::begin(candidate_features), std::end(candidate_features),
                 *score_func, threshold, max_response)){
-            results.push_back({r.first, score_func->name, std::max(std::min(r.second, 1.0), 0.0)});
+            results.push_back({r.first, std::max(std::min(r.second, 1.0), 0.0)});
         }
 
         return results;
