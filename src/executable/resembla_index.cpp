@@ -53,7 +53,7 @@ limitations under the License.
 using namespace resembla;
 
 template<typename Indexer, typename Preprocessor>
-void create_index(const std::string corpus_path, const std::string db_path, const std::string index_path,
+void create_index(const std::string& corpus_path, const std::string& db_path, const std::string& index_path,
         int n, std::shared_ptr<Indexer> index_func, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
