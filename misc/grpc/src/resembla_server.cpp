@@ -25,6 +25,7 @@ limitations under the License.
 #include <paramset.hpp>
 
 #include "resembla_util.hpp"
+#include "resembla_with_id.hpp"
 #include "resembla.grpc.pb.h"
 
 using namespace resembla;
@@ -37,12 +38,12 @@ using grpc::Status;
 class ResemblaServiceImpl: public server::ResemblaService::Service
 {
 protected:
-    const std::shared_ptr<ResemblaInterface> resembla;
+    const std::shared_ptr<ResemblaWithId<int>> resembla;
     const size_t max_response;
     const double threshold;
 
 public:
-    ResemblaServiceImpl(std::shared_ptr<ResemblaInterface>& resembla, size_t max_response, double threshold):
+    ResemblaServiceImpl(std::shared_ptr<ResemblaWithId<int>>& resembla, size_t max_response, double threshold):
         server::ResemblaService::Service(),
         resembla(resembla), max_response(max_response), threshold(threshold)
     {}
@@ -53,6 +54,7 @@ public:
         for(const auto& r: resembla->find(cast_string<string_type>(request->query()), threshold, max_response)){
             response->add_results();
             auto* result = response->mutable_results(j++);
+            result->set_id(r.id);
             result->set_text(cast_string<std::string>(r.text));
             result->set_score(static_cast<float>(r.score));
         }
@@ -69,6 +71,7 @@ public:
         for(const auto& r: resembla->eval(cast_string<string_type>(request->query()), candidates, threshold, max_response)){
             response->add_results();
             auto* result = response->mutable_results(j++);
+            result->set_id(0);
             result->set_text(cast_string<std::string>(r.text));
             result->set_score(static_cast<float>(r.score));
         }
@@ -76,7 +79,7 @@ public:
     }
 };
 
-void RunServer(const std::string& server_address, std::shared_ptr<ResemblaInterface> resembla, size_t max_response, double threshold)
+void RunServer(const std::string& server_address, std::shared_ptr<ResemblaWithId<int>> resembla, size_t max_response, double threshold)
 {
     ResemblaServiceImpl service(resembla, max_response, threshold);
 
@@ -334,7 +337,9 @@ int main(int argc, char** argv) {
             std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
         }
 
-        auto resembla = construct_resembla(pm);
+        auto resembla = std::make_shared<ResemblaWithId<int>>(construct_resembla(pm),
+                pm.get<std::string>("corpus_path"), pm.get<int>("id_col"), pm.get<int>("text_col"));
+
         RunServer(pm.get<std::string>("grpc_server_address"), resembla,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }
