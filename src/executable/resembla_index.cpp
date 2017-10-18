@@ -53,7 +53,7 @@ limitations under the License.
 using namespace resembla;
 
 template<typename Indexer, typename Preprocessor>
-void create_index(const std::string corpus_path, const std::string db_path, const std::string inverse_path,
+void create_index(const std::string corpus_path, const std::string db_path, const std::string index_path,
         int n, std::shared_ptr<Indexer> index_func, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
         std::shared_ptr<StringNormalizer> normalize)
 {
@@ -82,7 +82,7 @@ void create_index(const std::string corpus_path, const std::string db_path, cons
     dbw.close();
 
     std::basic_ofstream<string_type::value_type> ofs;
-    ofs.open(inverse_path);
+    ofs.open(index_path);
     for(auto p: inserted){
         for(auto original: p.second){
             auto columns = split(original, delimiter);
@@ -283,11 +283,11 @@ int main(int argc, char* argv[])
 
         for(auto resembla_measure: resembla_measures){
             std::string db_path = db_path_from_resembla_measure(corpus_path, resembla_measure);
-            std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
+            std::string index_path = inverse_path_from_resembla_measure(corpus_path, resembla_measure);
 
             if(resembla_measure == edit_distance){
                 auto preprocessor = std::make_shared<AsIsPreprocessor<string_type>>();
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("ed_simstring_ngram_unit"),
+                create_index(corpus_path, db_path, index_path, pm.get<int>("ed_simstring_ngram_unit"),
                         preprocessor, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_word_edit_distance){
@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
                     std::make_shared<WordWeight>(pm.get<double>("wwed_base_weight"),
                         pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                         pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient")));
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wwed_simstring_ngram_unit"),
+                create_index(corpus_path, db_path, index_path, pm.get<int>("wwed_simstring_ngram_unit"),
                         indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_pronunciation_edit_distance){
@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
                     indexer,
                     std::make_shared<LetterWeight<string_type>>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
                         pm.get<std::string>("wped_letter_weight_path")));
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wped_simstring_ngram_unit"),
+                create_index(corpus_path, db_path, index_path, pm.get<int>("wped_simstring_ngram_unit"),
                         indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == weighted_romaji_edit_distance){
@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
                     std::make_shared<RomajiWeight>(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
+                create_index(corpus_path, db_path, index_path, pm.get<int>("wred_simstring_ngram_unit"),
                         indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == keyword_match){
@@ -327,7 +327,7 @@ int main(int argc, char* argv[])
                     std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
                         pm.get<int>("index_romaji_mecab_feature_pos"),
                         pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks")));
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("km_simstring_ngram_unit"),
+                create_index(corpus_path, db_path, index_path, pm.get<int>("km_simstring_ngram_unit"),
                         indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
             else if(resembla_measure == svr){
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
                         throw std::runtime_error("unknown feature extractor type: " + feature_extractor_type);
                     }
                 }
-                create_index(corpus_path, db_path, inverse_path, pm.get<int>("simstring_ngram_unit"),
+                create_index(corpus_path, db_path, index_path, pm.get<int>("simstring_ngram_unit"),
                         indexer, extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
@@ -371,12 +371,12 @@ int main(int argc, char* argv[])
 
         if(use_ensemble){
             std::string db_path = db_path_from_resembla_measure(corpus_path, ensemble);
-            std::string inverse_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
+            std::string index_path = inverse_path_from_resembla_measure(corpus_path, ensemble);
 
             auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
                     pm.get<int>("index_romaji_mecab_feature_pos"),
                     pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"));
-            create_index(corpus_path, db_path, inverse_path, pm.get<int>("wred_simstring_ngram_unit"),
+            create_index(corpus_path, db_path, index_path, pm.get<int>("wred_simstring_ngram_unit"),
                     indexer, std::shared_ptr<RomajiPreprocessor>(), pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
 
             std::cerr << "database saved to " << db_path << std::endl;
