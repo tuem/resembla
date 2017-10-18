@@ -38,7 +38,7 @@ public:
     using output_type = Feature::real_type;
 
     SVRPredictor(const std::vector<Feature::key_type>& feature_definitions,
-            const std::string model_file_path);
+            const std::string& model_file_path);
     SVRPredictor(const SVRPredictor& obj);
     virtual ~SVRPredictor();
 

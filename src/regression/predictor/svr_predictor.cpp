@@ -25,7 +25,7 @@ limitations under the License.
 namespace resembla {
 
 SVRPredictor::SVRPredictor(const std::vector<Feature::key_type>& feature_definitions,
-        const std::string model_file_path):
+        const std::string& model_file_path):
     feature_definitions(feature_definitions), model(svm_load_model(model_file_path.c_str()))
 {}
 

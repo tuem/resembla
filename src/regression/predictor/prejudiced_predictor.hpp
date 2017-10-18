@@ -34,10 +34,7 @@ public:
 
     static const std::string DEFAULT_KEY;
 
-    const std::string name;
-
     PrejudicedPredictor(const std::string& key = DEFAULT_KEY);
-    PrejudicedPredictor(const std::string& name, const std::string& key);
 
     output_type operator()(const input_type& x) const;
 
