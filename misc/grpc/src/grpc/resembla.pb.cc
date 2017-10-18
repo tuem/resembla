@@ -53,6 +53,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, id_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, text_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ResemblaResponse_Result, score_),
   ~0u,  // no _has_bits_
@@ -66,7 +67,7 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] = {
   { 0, -1, sizeof(ResemblaRequest)},
   { 5, -1, sizeof(ResemblaOnDemandRequest)},
   { 11, -1, sizeof(ResemblaResponse_Result)},
-  { 17, -1, sizeof(ResemblaResponse)},
+  { 18, -1, sizeof(ResemblaResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -130,18 +131,18 @@ void AddDescriptorsImpl() {
       "\n\016resembla.proto\022\017resembla.server\" \n\017Res"
       "emblaRequest\022\r\n\005query\030\001 \001(\t\"<\n\027ResemblaO"
       "nDemandRequest\022\r\n\005query\030\001 \001(\t\022\022\n\ncandida"
-      "tes\030\002 \003(\t\"t\n\020ResemblaResponse\0229\n\007results"
-      "\030\001 \003(\0132(.resembla.server.ResemblaRespons"
-      "e.Result\032%\n\006Result\022\014\n\004text\030\001 \001(\t\022\r\n\005scor"
-      "e\030\002 \001(\0022\267\001\n\017ResemblaService\022M\n\004find\022 .re"
-      "sembla.server.ResemblaRequest\032!.resembla"
-      ".server.ResemblaResponse\"\000\022U\n\004eval\022(.res"
-      "embla.server.ResemblaOnDemandRequest\032!.r"
-      "esembla.server.ResemblaResponse\"\000b\006proto"
-      "3"
+      "tes\030\002 \003(\t\"\200\001\n\020ResemblaResponse\0229\n\007result"
+      "s\030\001 \003(\0132(.resembla.server.ResemblaRespon"
+      "se.Result\0321\n\006Result\022\n\n\002id\030\001 \001(\005\022\014\n\004text\030"
+      "\002 \001(\t\022\r\n\005score\030\003 \001(\0022\267\001\n\017ResemblaService"
+      "\022M\n\004find\022 .resembla.server.ResemblaReque"
+      "st\032!.resembla.server.ResemblaResponse\"\000\022"
+      "U\n\004eval\022(.resembla.server.ResemblaOnDema"
+      "ndRequest\032!.resembla.server.ResemblaResp"
+      "onse\"\000b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 441);
+      descriptor, 454);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "resembla.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -830,6 +831,7 @@ ResemblaOnDemandRequest::mutable_candidates() {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int ResemblaResponse_Result::kIdFieldNumber;
 const int ResemblaResponse_Result::kTextFieldNumber;
 const int ResemblaResponse_Result::kScoreFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -851,13 +853,16 @@ ResemblaResponse_Result::ResemblaResponse_Result(const ResemblaResponse_Result& 
   if (from.text().size() > 0) {
     text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
   }
-  score_ = from.score_;
+  ::memcpy(&id_, &from.id_,
+    reinterpret_cast<char*>(&score_) -
+    reinterpret_cast<char*>(&id_) + sizeof(score_));
   // @@protoc_insertion_point(copy_constructor:resembla.server.ResemblaResponse.Result)
 }
 
 void ResemblaResponse_Result::SharedCtor() {
   text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  score_ = 0;
+  ::memset(&id_, 0, reinterpret_cast<char*>(&score_) -
+    reinterpret_cast<char*>(&id_) + sizeof(score_));
   _cached_size_ = 0;
 }
 
@@ -896,7 +901,8 @@ ResemblaResponse_Result* ResemblaResponse_Result::New(::google::protobuf::Arena*
 void ResemblaResponse_Result::Clear() {
 // @@protoc_insertion_point(message_clear_start:resembla.server.ResemblaResponse.Result)
   text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  score_ = 0;
+  ::memset(&id_, 0, reinterpret_cast<char*>(&score_) -
+    reinterpret_cast<char*>(&id_) + sizeof(score_));
 }
 
 bool ResemblaResponse_Result::MergePartialFromCodedStream(
@@ -909,9 +915,22 @@ bool ResemblaResponse_Result::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string text = 1;
+      // int32 id = 1;
       case 1: {
-        if (tag == 10u) {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &id_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string text = 2;
+      case 2: {
+        if (tag == 18u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_text()));
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
@@ -924,9 +943,9 @@ bool ResemblaResponse_Result::MergePartialFromCodedStream(
         break;
       }
 
-      // float score = 2;
-      case 2: {
-        if (tag == 21u) {
+      // float score = 3;
+      case 3: {
+        if (tag == 29u) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
@@ -961,19 +980,24 @@ failure:
 void ResemblaResponse_Result::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:resembla.server.ResemblaResponse.Result)
-  // string text = 1;
+  // int32 id = 1;
+  if (this->id() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->id(), output);
+  }
+
+  // string text = 2;
   if (this->text().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->text().data(), this->text().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
       "resembla.server.ResemblaResponse.Result.text");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->text(), output);
+      2, this->text(), output);
   }
 
-  // float score = 2;
+  // float score = 3;
   if (this->score() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->score(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->score(), output);
   }
 
   // @@protoc_insertion_point(serialize_end:resembla.server.ResemblaResponse.Result)
@@ -983,7 +1007,12 @@ void ResemblaResponse_Result::SerializeWithCachedSizes(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic;  // Unused
   // @@protoc_insertion_point(serialize_to_array_start:resembla.server.ResemblaResponse.Result)
-  // string text = 1;
+  // int32 id = 1;
+  if (this->id() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->id(), target);
+  }
+
+  // string text = 2;
   if (this->text().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
       this->text().data(), this->text().length(),
@@ -991,12 +1020,12 @@ void ResemblaResponse_Result::SerializeWithCachedSizes(
       "resembla.server.ResemblaResponse.Result.text");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->text(), target);
+        2, this->text(), target);
   }
 
-  // float score = 2;
+  // float score = 3;
   if (this->score() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->score(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->score(), target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:resembla.server.ResemblaResponse.Result)
@@ -1007,14 +1036,21 @@ size_t ResemblaResponse_Result::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:resembla.server.ResemblaResponse.Result)
   size_t total_size = 0;
 
-  // string text = 1;
+  // string text = 2;
   if (this->text().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->text());
   }
 
-  // float score = 2;
+  // int32 id = 1;
+  if (this->id() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->id());
+  }
+
+  // float score = 3;
   if (this->score() != 0) {
     total_size += 1 + 4;
   }
@@ -1049,6 +1085,9 @@ void ResemblaResponse_Result::MergeFrom(const ResemblaResponse_Result& from) {
 
     text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.text_);
   }
+  if (from.id() != 0) {
+    set_id(from.id());
+  }
   if (from.score() != 0) {
     set_score(from.score());
   }
@@ -1078,6 +1117,7 @@ void ResemblaResponse_Result::Swap(ResemblaResponse_Result* other) {
 }
 void ResemblaResponse_Result::InternalSwap(ResemblaResponse_Result* other) {
   text_.Swap(&other->text_);
+  std::swap(id_, other->id_);
   std::swap(score_, other->score_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -1090,7 +1130,21 @@ void ResemblaResponse_Result::InternalSwap(ResemblaResponse_Result* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // ResemblaResponse_Result
 
-// string text = 1;
+// int32 id = 1;
+void ResemblaResponse_Result::clear_id() {
+  id_ = 0;
+}
+::google::protobuf::int32 ResemblaResponse_Result::id() const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.Result.id)
+  return id_;
+}
+void ResemblaResponse_Result::set_id(::google::protobuf::int32 value) {
+  
+  id_ = value;
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.Result.id)
+}
+
+// string text = 2;
 void ResemblaResponse_Result::clear_text() {
   text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1142,7 +1196,7 @@ void ResemblaResponse_Result::set_allocated_text(::std::string* text) {
   // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.Result.text)
 }
 
-// float score = 2;
+// float score = 3;
 void ResemblaResponse_Result::clear_score() {
   score_ = 0;
 }

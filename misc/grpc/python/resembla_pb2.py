@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='resembla.proto',
   package='resembla.server',
   syntax='proto3',
-  serialized_pb=_b('\n\x0eresembla.proto\x12\x0fresembla.server\" \n\x0fResemblaRequest\x12\r\n\x05query\x18\x01 \x01(\t\"<\n\x17ResemblaOnDemandRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x12\n\ncandidates\x18\x02 \x03(\t\"t\n\x10ResemblaResponse\x12\x39\n\x07results\x18\x01 \x03(\x0b\x32(.resembla.server.ResemblaResponse.Result\x1a%\n\x06Result\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\r\n\x05score\x18\x02 \x01(\x02\x32\xb7\x01\n\x0fResemblaService\x12M\n\x04\x66ind\x12 .resembla.server.ResemblaRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x12U\n\x04\x65val\x12(.resembla.server.ResemblaOnDemandRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x0eresembla.proto\x12\x0fresembla.server\" \n\x0fResemblaRequest\x12\r\n\x05query\x18\x01 \x01(\t\"<\n\x17ResemblaOnDemandRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x12\n\ncandidates\x18\x02 \x03(\t\"\x80\x01\n\x10ResemblaResponse\x12\x39\n\x07results\x18\x01 \x03(\x0b\x32(.resembla.server.ResemblaResponse.Result\x1a\x31\n\x06Result\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\r\n\x05score\x18\x03 \x01(\x02\x32\xb7\x01\n\x0fResemblaService\x12M\n\x04\x66ind\x12 .resembla.server.ResemblaRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x12U\n\x04\x65val\x12(.resembla.server.ResemblaOnDemandRequest\x1a!.resembla.server.ResemblaResponse\"\x00\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -103,15 +103,22 @@ _RESEMBLARESPONSE_RESULT = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='text', full_name='resembla.server.ResemblaResponse.Result.text', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      name='id', full_name='resembla.server.ResemblaResponse.Result.id', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='text', full_name='resembla.server.ResemblaResponse.Result.text', index=1,
+      number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='score', full_name='resembla.server.ResemblaResponse.Result.score', index=1,
-      number=2, type=2, cpp_type=6, label=1,
+      name='score', full_name='resembla.server.ResemblaResponse.Result.score', index=2,
+      number=3, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -128,8 +135,8 @@ _RESEMBLARESPONSE_RESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=210,
-  serialized_end=247,
+  serialized_start=211,
+  serialized_end=260,
 )
 
 _RESEMBLARESPONSE = _descriptor.Descriptor(
@@ -158,8 +165,8 @@ _RESEMBLARESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=131,
-  serialized_end=247,
+  serialized_start=132,
+  serialized_end=260,
 )
 
 _RESEMBLARESPONSE_RESULT.containing_type = _RESEMBLARESPONSE

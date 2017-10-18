@@ -15,8 +15,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     repeated :results, :message, 1, "resembla.server.ResemblaResponse.Result"
   end
   add_message "resembla.server.ResemblaResponse.Result" do
-    optional :text, :string, 1
-    optional :score, :float, 2
+    optional :id, :int32, 1
+    optional :text, :string, 2
+    optional :score, :float, 3
   end
 end
 

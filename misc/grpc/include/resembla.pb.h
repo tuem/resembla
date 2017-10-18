@@ -328,9 +328,9 @@ class ResemblaResponse_Result : public ::google::protobuf::Message /* @@protoc_i
 
   // accessors -------------------------------------------------------
 
-  // string text = 1;
+  // string text = 2;
   void clear_text();
-  static const int kTextFieldNumber = 1;
+  static const int kTextFieldNumber = 2;
   const ::std::string& text() const;
   void set_text(const ::std::string& value);
   #if LANG_CXX11
@@ -342,9 +342,15 @@ class ResemblaResponse_Result : public ::google::protobuf::Message /* @@protoc_i
   ::std::string* release_text();
   void set_allocated_text(::std::string* text);
 
-  // float score = 2;
+  // int32 id = 1;
+  void clear_id();
+  static const int kIdFieldNumber = 1;
+  ::google::protobuf::int32 id() const;
+  void set_id(::google::protobuf::int32 value);
+
+  // float score = 3;
   void clear_score();
-  static const int kScoreFieldNumber = 2;
+  static const int kScoreFieldNumber = 3;
   float score() const;
   void set_score(float value);
 
@@ -353,6 +359,7 @@ class ResemblaResponse_Result : public ::google::protobuf::Message /* @@protoc_i
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::ArenaStringPtr text_;
+  ::google::protobuf::int32 id_;
   float score_;
   mutable int _cached_size_;
   friend struct  protobuf_resembla_2eproto::TableStruct;
@@ -623,7 +630,21 @@ ResemblaOnDemandRequest::mutable_candidates() {
 
 // ResemblaResponse_Result
 
-// string text = 1;
+// int32 id = 1;
+inline void ResemblaResponse_Result::clear_id() {
+  id_ = 0;
+}
+inline ::google::protobuf::int32 ResemblaResponse_Result::id() const {
+  // @@protoc_insertion_point(field_get:resembla.server.ResemblaResponse.Result.id)
+  return id_;
+}
+inline void ResemblaResponse_Result::set_id(::google::protobuf::int32 value) {
+  
+  id_ = value;
+  // @@protoc_insertion_point(field_set:resembla.server.ResemblaResponse.Result.id)
+}
+
+// string text = 2;
 inline void ResemblaResponse_Result::clear_text() {
   text_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -675,7 +696,7 @@ inline void ResemblaResponse_Result::set_allocated_text(::std::string* text) {
   // @@protoc_insertion_point(field_set_allocated:resembla.server.ResemblaResponse.Result.text)
 }
 
-// float score = 2;
+// float score = 3;
 inline void ResemblaResponse_Result::clear_score() {
   score_ = 0;
 }
