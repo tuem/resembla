@@ -38,7 +38,7 @@ public:
     using token_type = Word<string_type>;
     using output_type = std::vector<token_type>;
 
-    WordPreprocessor(const std::string mecab_options = "", size_t min_feature_size = 9):
+    WordPreprocessor(const std::string& mecab_options = "", size_t min_feature_size = 9):
             tagger(MeCab::createTagger(mecab_options.c_str())), min_feature_size(min_feature_size){}
     WordPreprocessor(const WordPreprocessor& obj) = default;
 
