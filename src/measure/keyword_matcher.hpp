@@ -33,10 +33,6 @@ struct KeywordMatcher
 public:
     using string_type = typename StringPreprocessor::output_type;
 
-    const std::string name;
-
-    KeywordMatcher(const std::string name): name(name){}
-
     double operator()(const typename KeywordMatchPreprocessor<StringPreprocessor>::output_type& target,
             const typename KeywordMatchPreprocessor<StringPreprocessor>::output_type& reference) const
     {

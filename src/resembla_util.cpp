@@ -340,7 +340,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                         std::make_shared<RomajiPreprocessor>(pm.get<std::string>("index_romaji_mecab_options"),
                             pm.get<int>("index_romaji_mecab_feature_pos"),
                             pm.get<std::string>("index_romaji_mecab_pronunciation_of_marks"))),
-                    std::make_shared<KeywordMatcher<RomajiPreprocessor>>(STR(keyword_match)),
+                    std::make_shared<KeywordMatcher<RomajiPreprocessor>>(),
                     pm.get<int>("km_max_reranking_num"), resembla_index_path, true);
                 break;
             case ensemble:
