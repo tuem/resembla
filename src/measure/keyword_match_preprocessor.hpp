@@ -27,6 +27,7 @@ limitations under the License.
 #include <json.hpp>
 
 #include "../string_util.hpp"
+#include "asis_preprocessor.hpp"
 #include "romaji_preprocessor.hpp"
 
 #ifdef DEBUG
@@ -92,6 +93,10 @@ protected:
 };
 
 // TODO: implement as template functions
+void to_json(nlohmann::json& j,
+        const typename KeywordMatchPreprocessor<AsIsPreprocessor<string_type>>::output_type& o);
+void from_json(const nlohmann::json& j,
+        typename KeywordMatchPreprocessor<AsIsPreprocessor<string_type>>::output_type& o);
 void to_json(nlohmann::json& j,
         const typename KeywordMatchPreprocessor<RomajiPreprocessor>::output_type& o);
 void from_json(const nlohmann::json& j,

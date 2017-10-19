@@ -51,14 +51,14 @@ TEST_CASE( "serialize and deserialize output data of asis sequence builder", "[s
 TEST_CASE( "serialize and deserialize output data of keyword match preprocessor", "[serialization]" ) {
     init_locale();
 
-    KeywordMatchPreprocessor<string_type>::output_type o0 = {L"テキスト!", {L"キーワード0", L"キーワード1"}};
+    KeywordMatchPreprocessor<AsIsPreprocessor<string_type>>::output_type o0 = {L"テキスト!", {L"キーワード0", L"キーワード1"}};
 
     json j0 = o0;
     const std::string s = j0.dump();
     CHECK(s == "{\"k\":[\"キーワード0\",\"キーワード1\"],\"t\":\"テキスト!\"}");
 
     json j1 = json::parse(s);
-    KeywordMatchPreprocessor<string_type>::output_type o1 = j1;
+    KeywordMatchPreprocessor<AsIsPreprocessor<string_type>>::output_type o1 = j1;
     CHECK(o1.text == o0.text);
     CHECK(o1.keywords == o0.keywords);
 }
