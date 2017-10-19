@@ -40,7 +40,7 @@ struct EditDistance
             return b.empty() ? 1.0 : 0.0;
         }
         else if(b.empty()){
-            return 1.0;
+            return 0.0;
         }
 
         // prepare work table
