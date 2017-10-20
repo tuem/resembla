@@ -61,6 +61,7 @@ public:
                 preprocessed_corpus[original] = preprocessed;
             }
             else{
+                // generate preprocessed data here
                 preprocessed_corpus[original] = (*preprocess)(original, true);
             }
         }
