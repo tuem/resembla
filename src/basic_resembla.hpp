@@ -55,9 +55,9 @@ public:
 
             if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
                     !columns[preprocessed_data_col - 1].empty()){
-                nlohmann::json j = nlohmann::json::parse(
+                // string => JSON => preprocessed data
+                typename Preprocessor::output_type preprocessed = nlohmann::json::parse(
                         cast_string<std::string>(columns[preprocessed_data_col - 1]));
-                typename Preprocessor::output_type preprocessed = j;
                 preprocessed_corpus[original] = std::make_pair(original, preprocessed);
             }
             else{
