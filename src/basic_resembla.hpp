@@ -58,10 +58,10 @@ public:
                 // string => JSON => preprocessed data
                 typename Preprocessor::output_type preprocessed = nlohmann::json::parse(
                         cast_string<std::string>(columns[preprocessed_data_col - 1]));
-                preprocessed_corpus[original] = std::make_pair(original, preprocessed);
+                preprocessed_corpus[original] = preprocessed;
             }
             else{
-                preprocessed_corpus[original] = std::make_pair(original, (*preprocess)(original, true));
+                preprocessed_corpus[original] = (*preprocess)(original, true);
             }
         }
     }
@@ -77,11 +77,11 @@ public:
     std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        std::vector<WorkData> work;
+        std::vector<std::pair<string_type, WorkData>> work;
         for(const auto& t: candidates){
             const auto i = preprocessed_corpus.find(t);
             if(i != std::end(preprocessed_corpus)){
-                work.push_back(i->second);
+                work.push_back(*i);
             }
             else{
                 work.push_back(std::make_pair(
@@ -101,7 +101,7 @@ public:
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
+    using WorkData = typename Preprocessor::output_type;
 
     std::unordered_map<string_type, WorkData> preprocessed_corpus;
 
