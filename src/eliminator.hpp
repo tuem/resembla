@@ -48,7 +48,7 @@ struct Eliminator
             return;
         }
 
-        pattern_length = pattern.size();
+        pattern_length = pattern.length();
         block_size = ((pattern_length - 1) >> bitOffset<bitvector_type>()) + 1;
         rest_bits = pattern_length - (block_size - 1) * bitWidth<bitvector_type>();
         sink = bitvector_type{1} << (rest_bits - 1);
@@ -63,7 +63,7 @@ struct Eliminator
     {
         using index_distance = std::pair<size_type, distance_type>;
 
-        // calculate scores
+        // compute scores
         std::vector<index_distance> work(candidates.size());
         for(size_type i = 0; i < work.size(); ++i){
             work[i].first = i;
