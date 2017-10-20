@@ -59,9 +59,9 @@ public:
             if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
                     !columns[preprocessed_data_col - 1].empty()){
                 const auto& features = columns[preprocessed_data_col - 1];
-                nlohmann::json j = nlohmann::json::parse(features);
+                auto json = nlohmann::json::parse(features);
                 typename FeatureExtractor::output_type preprocessed;
-                for(nlohmann::json::iterator i = std::begin(j); i != std::end(j); ++i){
+                for(auto i = std::begin(json); i != std::end(json); ++i){
                     preprocessed[i.key()] = i.value();
                 }
                 corpus_features[original] = preprocessed;
