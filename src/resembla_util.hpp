@@ -80,7 +80,7 @@ std::shared_ptr<ResemblaInterface> construct_basic_resembla(
             max_candidate, index_path, preprocess_corpus);
 }
 
-std::shared_ptr<ResemblaRegression<SimStringDatabase<string_type, RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>
+std::shared_ptr<ResemblaRegression<SimStringDatabase<RomajiPreprocessor>, Composition<FeatureAggregator, SVRPredictor>>>
 construct_resembla_regression(const std::string& simstring_db_path, const std::string& resembla_index_path,
         const paramset::manager& pm, const std::shared_ptr<ResemblaInterface> resembla);
 
