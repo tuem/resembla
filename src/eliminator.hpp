@@ -83,7 +83,7 @@ struct Eliminator
                     return a.second < b.second;
                 });
             // expand k so that work[l] < work[k] for all l > k
-            while(k < work.size() - 1 && work[k] == work[k + 1]){
+            while(k < work.size() - 1 && work[k - 1] == work[k]){
                 ++k;
             }
         }
