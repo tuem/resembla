@@ -60,7 +60,7 @@ public:
                     !columns[preprocessed_data_col - 1].empty()){
                 const auto& features = columns[preprocessed_data_col - 1];
                 auto json = nlohmann::json::parse(features);
-                typename FeatureExtractor::output_type preprocessed;
+                WorkData preprocessed;
                 for(auto i = std::begin(json); i != std::end(json); ++i){
                     preprocessed[i.key()] = i.value();
                 }
@@ -105,8 +105,8 @@ public:
             }
         }
 
-        WorkData input_data = std::make_pair(query, (*preprocess)(query));
-        std::vector<ResemblaInterface::output_type> results;
+        auto input_data = std::make_pair(query, (*preprocess)(query));
+        std::vector<output_type> results;
         for(const auto& r: reranker.rerank(input_data,
                 std::begin(candidate_features), std::end(candidate_features),
                 *score_func, threshold, max_response)){
@@ -117,9 +117,9 @@ public:
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename FeatureExtractor::output_type>;
+    using WorkData = typename FeatureExtractor::output_type;
 
-    std::unordered_map<string_type, typename FeatureExtractor::output_type> corpus_features;
+    std::unordered_map<string_type, WorkData> corpus_features;
 
     const std::shared_ptr<Database> database;
     const std::shared_ptr<FeatureExtractor> preprocess;
