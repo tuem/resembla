@@ -63,11 +63,7 @@ struct KanaMismatchCost
         }
 
         auto p = letter_similarities.find(a < b ? string_type({a, b}) : string_type({b, a}));
-        if(p != std::end(letter_similarities)){
-            return p->second;
-        }
-
-        return 1.0;
+        return p != std::end(letter_similarities) ? p->second : 1.0;
     }
 
 protected:
