@@ -19,31 +19,18 @@ limitations under the License.
 
 #include "text_classification_feature_extractor.hpp"
 
-#include <fstream>
-#include <stdexcept>
+#include "../../string_util.hpp"
+#include "../../csv_reader.hpp"
 
 namespace resembla {
 
 TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
         const std::string& mecab_options, const std::string& dict_path, const std::string& model_path):
+    tagger(MeCab::createTagger(mecab_options.c_str())),
     model(svm_load_model(model_path.c_str()))
 {
-    std::ifstream ifs(dict_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + dict_path);
-    }
-
-    while(ifs.good()){
-        std::string line;
-        std::getline(ifs, line);
-        if(ifs.eof()){
-            break;
-        }
-
-        auto i = line.find(column_delimiter<>());
-        if(i != std::string::npos){
-            word_ids[line.substr(0, i)] = std::stoi(line.substr(i + 1));
-        }
+    for(const auto& columns: CsvReader<>(dict_path, 2)){
+        dictionary[columns[0]] = std::stoi(columns[1]);
     }
 }
 
@@ -55,38 +42,41 @@ Feature::text_type TextClassificationFeatureExtractor::operator()(const string_t
         std::lock_guard<std::mutex> lock(mutex_model);
         s = svm_predict(model, &nodes[0]);
     }
-    return s;
+    return Feature::toText(s);
 }
 
 std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_type& text) const
 {
-    std::unordered_map<int, int> word_counts;
+    const auto text_string = cast_string<std::string>(text);
+    BoW bow;
     {
         std::lock_guard<std::mutex> lock(mutex_tagger);
-        for(const MeCab::Node* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
+        for(const auto* node = tagger->parseToNode(text_string.c_str()); node; node = node->next){
             // skip BOS/EOS nodes
             if(node->stat == MECAB_BOS_NODE || node->stat == MECAB_EOS_NODE){
                 continue;
             }
 
-            auto i = word_ids.find(std::string(node->surface, node->surface + node->length));
-            if(i != word_ids.end()){
-                auto j = word_counts.find(*i);
-                if(j == word_counts.end()){
-                    word_counts[*i] = 1;
-                }
-                else{
-                    ++*j;
-                }
+            auto i = dictionary.find(std::string(node->surface, node->surface + node->length));
+            if(i == dictionary.end()){
+                continue;
+            }
+
+            auto j = bow.find(i->second);
+            if(j == bow.end()){
+                bow[i->second] = 1;
+            }
+            else{
+                ++j->second;
             }
         }
     }
 
-    std::vector<svm_node> nodes(word_counts.size() + 1);
+    std::vector<svm_node> nodes(bow.size() + 1);
     size_t i = 0;
-    for(const auto j: word_counts){
-        nodes[j].index = j.first;
-        nodes[j].value = static_cast<double>(j.second);
+    for(const auto& j: bow){
+        nodes[j.first].index = j.first;
+        nodes[j.first].value = static_cast<double>(j.second);
         ++i;
     }
     nodes[i].index = -1; // end of features

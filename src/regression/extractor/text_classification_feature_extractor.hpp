@@ -23,6 +23,7 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 #include <mutex>
 
 #include <mecab.h>
@@ -40,8 +41,9 @@ struct TextClassificationFeatureExtractor: public FeatureExtractor::Function
     Feature::text_type operator()(const string_type& text) const;
 
 protected:
-    using std::unordered_map<std::string, id_type> = word_ids;
-    word_id_map word_ids;
+    using BoW = std::unordered_map<int, int>;
+
+    std::unordered_map<std::string, int> dictionary;
 
     std::shared_ptr<MeCab::Tagger> tagger;
     mutable std::mutex mutex_tagger;
