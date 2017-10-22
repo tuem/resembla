@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -19,8 +19,9 @@ limitations under the License.
 
 #include "romaji_mismatch_cost.hpp"
 
-#include <fstream>
 #include <algorithm>
+
+#include "../csv_reader.hpp"
 
 namespace resembla {
 
@@ -41,52 +42,29 @@ const std::unordered_set<string_type> RomajiMismatchCost::DEFAULT_SIMILAR_LETTER
     L"-o",
 };
 
-RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar_letter_cost): 
+RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path,
+        double case_mismatch_cost):
     case_mismatch_cost(case_mismatch_cost)
 {
-    for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
-        letter_similarities[p] = similar_letter_cost;
-    }
-}
-
-RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path, double case_mismatch_cost):
-    case_mismatch_cost(case_mismatch_cost)
-{
-    std::basic_ifstream<string_type::value_type> ifs(letter_similarity_file_path);
-    if(ifs.fail()){
-        throw std::runtime_error("input file is not available: " + letter_similarity_file_path);
-    }
-    while(ifs.good()){
-        string_type line;
-        std::getline(ifs, line);
-        if(ifs.eof() || line.length() == 0){
-            break;
-        }
-
-        auto columns = split(line, column_delimiter<string_type::value_type>());
-        if(columns.size() < 2){
-            throw std::runtime_error("invalid line in " + letter_similarity_file_path + ": " + cast_string<std::string>(line));
-        }
-        auto letters= columns[0];
+    for(const auto& columns: CsvReader<>(letter_similarity_file_path, 2)){
+        auto letters = cast_string<string_type>(columns[0]);
         auto cost = std::stod(columns[1]);
 
         std::sort(std::begin(letters), std::end(letters));
         for(size_t i = 0; i < letters.size(); ++i){
             string_type p(1, letters[i]);
-            for(size_t j = i + 1; i < letters.size(); ++i){
+            for(size_t j = i + 1; j < letters.size(); ++j){
                 letter_similarities[p + letters[j]] = cost;
             }
         }
     }
 }
 
-RomajiMismatchCost::value_type RomajiMismatchCost::toLower(value_type a) const
+RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar_letter_cost):
+    case_mismatch_cost(case_mismatch_cost)
 {
-    if(L'A' <= a && a <= L'Z'){
-        return a + (L'a' - L'A');
-    }
-    else{
-        return a;
+    for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
+        letter_similarities[p] = similar_letter_cost;
     }
 }
 
@@ -121,6 +99,16 @@ double RomajiMismatchCost::operator()(const value_type a, const value_type b) co
     }
 
     return result;
+}
+
+RomajiMismatchCost::value_type RomajiMismatchCost::toLower(value_type a) const
+{
+    if(L'A' <= a && a <= L'Z'){
+        return a + (L'a' - L'A');
+    }
+    else{
+        return a;
+    }
 }
 
 }

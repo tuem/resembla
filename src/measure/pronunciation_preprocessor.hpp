@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_PRONUNCIATION_SEQUENCE_BUILDER_HPP
-#define RESEMBLA_PRONUNCIATION_SEQUENCE_BUILDER_HPP
+#ifndef RESEMBLA_PRONUNCIATION_PREPROCESSOR_HPP
+#define RESEMBLA_PRONUNCIATION_PREPROCESSOR_HPP
 
 #include <memory>
 #include <string>
@@ -31,30 +31,30 @@ limitations under the License.
 
 namespace resembla {
 
-class PronunciationSequenceBuilder
+struct PronunciationPreprocessor
 {
-public:
+    using string_type = resembla::string_type;
     using token_type = string_type::value_type;
     using output_type = string_type;
 
-    PronunciationSequenceBuilder(const std::string mecab_options = "", const size_t mecab_feature_pos = 7, const std::string mecab_pronunciation_of_marks = "");
-    PronunciationSequenceBuilder(const PronunciationSequenceBuilder& obj);
-    virtual ~PronunciationSequenceBuilder();
+    PronunciationPreprocessor(const std::string& mecab_options = "",
+            size_t mecab_feature_pos = 7, const std::string& mecab_pronunciation_of_marks = "");
+    PronunciationPreprocessor(const PronunciationPreprocessor& obj) = default;
+    virtual ~PronunciationPreprocessor() = default;
 
     output_type operator()(const string_type& text, bool is_original = false) const;
-    string_type index(const string_type& text) const;
 
 protected:
     static const std::unordered_map<token_type, string_type> KANA_MAP;
 
     std::shared_ptr<MeCab::Tagger> tagger;
+    mutable std::mutex mutex_tagger;
+
     const size_t mecab_feature_pos;
     string_type mecab_pronunciation_of_marks;
 
     bool isKanaWord(const string_type& w) const;
     string_type estimatePronunciation(const string_type& w) const;
-
-    mutable std::mutex mutex_tagger;
 };
 
 }

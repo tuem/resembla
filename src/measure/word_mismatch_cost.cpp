@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -24,7 +24,7 @@ limitations under the License.
 
 namespace resembla {
 
-double WordMismatchCost::operator()(const Word& reference, const Word& target) const
+double WordMismatchCost::operator()(const Word<string_type>& reference, const Word<string_type>& target) const
 {
     if(reference.surface == target.surface){
         return 0.0;

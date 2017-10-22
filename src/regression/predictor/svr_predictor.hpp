@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -37,12 +37,8 @@ public:
     using input_type = FeatureMap;
     using output_type = Feature::real_type;
 
-    static const std::string DEFAULT_NAME;
-
-    const std::string name;
-
     SVRPredictor(const std::vector<Feature::key_type>& feature_definitions,
-            const std::string model_file_path, const std::string name = DEFAULT_NAME);
+            const std::string& model_file_path);
     SVRPredictor(const SVRPredictor& obj);
     virtual ~SVRPredictor();
 

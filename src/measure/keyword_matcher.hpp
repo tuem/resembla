@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -27,16 +27,14 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type>
+template<typename StringPreprocessor>
 struct KeywordMatcher
 {
 public:
-    const std::string name;
+    using string_type = typename StringPreprocessor::output_type;
 
-    KeywordMatcher(const std::string name): name(name){}
-
-    double operator()(const typename KeywordMatchPreprocessor<string_type>::output_type& target,
-            const typename KeywordMatchPreprocessor<string_type>::output_type& reference) const
+    double operator()(const typename KeywordMatchPreprocessor<StringPreprocessor>::output_type& target,
+            const typename KeywordMatchPreprocessor<StringPreprocessor>::output_type& reference) const
     {
         // TODO: use synonyms
         if(reference.keywords.empty()){

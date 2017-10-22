@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace resembla {
 
@@ -47,7 +48,12 @@ dest_type cast_string(const src_type& src)
     return desc;
 }
 
-// TODO: use constexpr
+template<typename dest_type>
+dest_type cast_string(const char* src)
+{
+    return cast_string<dest_type>(std::string(src));
+}
+
 template<typename char_type = char>
 constexpr char_type column_delimiter();
 // TODO: implement by a generic template function like this:
@@ -66,16 +72,16 @@ constexpr wchar_t column_delimiter()
 }
 
 template<typename char_type = char>
-constexpr char_type feature_delimiter();
+constexpr char_type attribute_delimiter();
 
 template<>
-constexpr char feature_delimiter()
+constexpr char attribute_delimiter()
 {
     return '&';
 }
 
 template<>
-constexpr wchar_t feature_delimiter()
+constexpr wchar_t attribute_delimiter()
 {
     return L'&';
 }
@@ -110,15 +116,37 @@ constexpr wchar_t value_delimiter()
     return L',';
 }
 
-// split text by delimiter
+template<typename char_type = char>
+constexpr char_type comment_prefix();
+
+template<>
+constexpr char comment_prefix()
+{
+    return '#';
+}
+
+template<>
+constexpr wchar_t comment_prefix()
+{
+    return L'#';
+}
+
 template<typename string_type>
-std::vector<string_type> split(const string_type& text, const typename string_type::value_type delimiter)
+std::vector<string_type> split(const string_type& text,
+        typename string_type::value_type delimiter = column_delimiter<typename string_type::value_type>(),
+        size_t max = 0)
 {
     std::vector<string_type> result;
     bool finished = false;
     for(size_t start = 0, end; start < text.length();){
-        end = text.find(delimiter, start);
-        if(end == string_type::npos){
+        if(max == 0 || result.size() + 1 < max){
+            end = text.find(delimiter, start);
+            if(end == string_type::npos){
+                end = text.length();
+                finished = true;
+            }
+        }
+        else{
             end = text.length();
             finished = true;
         }
@@ -127,6 +155,23 @@ std::vector<string_type> split(const string_type& text, const typename string_ty
     }
     if(!finished){
         result.push_back(string_type());
+    }
+    return result;
+}
+
+template<typename string_type>
+std::unordered_map<string_type, string_type> splitToKeyValueMap(const string_type& text,
+        typename string_type::value_type delim = attribute_delimiter<typename string_type::value_type>(),
+        typename string_type::value_type delim_kv = keyvalue_delimiter<typename string_type::value_type>())
+{
+    std::unordered_map<string_type, string_type> result;
+    if(!text.empty()){
+        for(const auto& s: split<string_type>(text, delim)){
+            auto kv = split<string_type>(s, delim_kv, 2);
+            if(kv.size() == 2){
+                result[kv[0]] = kv[1];
+            }
+        }
     }
     return result;
 }

@@ -1,9 +1,15 @@
 # Resembla: Word-based Japanese similar sentence search library
 
+## Features
+- Candidate elimination using N-gram index and bit-parallel edit distance computation
+- Word, kana and romaji-based edit distance variables and their ensemble
+- Support vector regression with linguistic features
+
 ## Requirements
 - [MeCab](http://taku910.github.io/mecab/)
 - [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvm/)
 - [ICU](http://site.icu-project.org/)
+- C++11 compiler
 
 ### Other included libraries
 - [Catch](https://github.com/philsquared/Catch)
@@ -12,47 +18,10 @@
 - [SimString](https://github.com/chokkan/simstring)
 - [paramset](https://github.com/tuem/paramset)
 
-## Install on CentOS 7
+## Running example
 
-- install g++ 5.x
-  - http://linuxpitstop.com/install-and-use-red-hat-developer-toolset-4-1-on-centos-7/
-```sh
-sudo yum install centos-release-scl
-sudo yum install devtoolset-4
-scl enable devtoolset-4 bash
-```
-
-- setup environment
-```sh
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-```
-
-- install MeCab
-  - URL: http://qiita.com/ikenyal/items/275ca3096002822e8cd6
-```sh
-sudo rpm -ivh http://packages.groonga.org/centos/groonga-release-1.1.0-1.noarch.rpm
-sudo yum makecache
-sudo yum install mecab mecab-ipadic mecab-devel
-```
-
-- install LIBSVM
-```sh
-sudo yum install epel-release
-sudo yum install libsvm-devel
-```
-
-- install ICU
-```sh
-cd /var/tmp
-wget 'https://downloads.sourceforge.net/project/icu/ICU4C/59.1/icu4c-59_1-src.tgz?r=http%3A%2F%2Fapps.icu-project.org%2Ficu-jsp%2FdownloadSection.jsp%3Fver%3D59.1%26base%3Dcs%26svn%3Drelease-59-1&ts=1497872621&use_mirror=jaist' -O icu4c-59_1-src.tgz
-tar zxf icu4c-59_1-src.tgz
-cd icu/source
-./configure
-make
-sudo make install
-sudo /sbin/ldconfig
-```
+- install MeCab, LIBSVM, ICU and a C++11 compiler
+  - if you use CentOS 7, see [Wiki](../../wiki/Installation-on-CentOS-7)
 
 - clone, build and install Resembla
 ```sh
@@ -71,10 +40,17 @@ cd /var/tmp/resembla/misc/mecab_dic/mecab-unidic-neologd/
 ./install-mecab-unidic-neologd.sh
 ```
 
-- run sample program
+- run with example files
 ```sh
 # on src/executable
-./resembla_index -c ../../example/conf/address.tsv
-./resembla_cli -c ../../example/conf/address.tsv
-# input some text like '京都北区'
+./resembla_index -c ../../example/conf/name.json
+./resembla_cli -c ../../example/conf/name.json
+# input some names like 'タケダ'
+./resembla_index -c ../../example/conf/address.json
+./resembla_cli -c ../../example/conf/address.json
+# input some addresses like '京都北区'
+# you may need to run install-unidic.sh or edit configuration file
+./resembla_index -c ../../example/conf/apple.json
+./resembla_cli -c ../../example/conf/apple.json
+# input some sentences like 'りんごおいしくねえ'
 ```

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -20,13 +20,11 @@ limitations under the License.
 #ifndef RESEMBLA_WORD_HPP
 #define RESEMBLA_WORD_HPP
 
-#include <string>
 #include <vector>
-
-#include "string_util.hpp"
 
 namespace resembla {
 
+template<typename string_type>
 struct Word
 {
     string_type surface;

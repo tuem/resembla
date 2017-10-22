@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -19,13 +19,15 @@ limitations under the License.
 
 #include "feature_extractor.hpp"
 
-#include <iostream>
-
 #include "../../string_util.hpp"
+
+#ifdef DEBUG
+#include <iostream>
+#endif
 
 namespace resembla {
 
-FeatureExtractor::FeatureExtractor(const std::string base_similarity_key): 
+FeatureExtractor::FeatureExtractor(const std::string& base_similarity_key): 
     base_similarity_key(base_similarity_key)
 {}
 
@@ -42,7 +44,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
     (void)raw_text;
 #endif
     output_type features;
-    for(const auto& f: split(raw_features, feature_delimiter<>())){
+    for(const auto& f: split(raw_features, attribute_delimiter<>())){
         auto kv = split(f, keyvalue_delimiter<>());
         if(kv.size() == 2){
             auto i = functions.find(kv[0]);
@@ -67,7 +69,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const std::string& ra
 }
 
 FeatureExtractor::output_type FeatureExtractor::operator()(
-        const resembla::ResemblaResponse& data, const output_type& given_features) const
+        const resembla::ResemblaInterface::output_type& data, const output_type& given_features) const
 {
     output_type features(given_features);
     // TODO: remove this code. FeatureExtractor should accept multiple base similarities
@@ -110,7 +112,7 @@ FeatureExtractor::output_type FeatureExtractor::operator()(const string_type& te
         auto columns = split(raw_text, column_delimiter<>());
         if(columns.size() > 1){
             raw_text = columns[0];
-            for(const auto& f: split(columns[1], feature_delimiter<>())){
+            for(const auto& f: split(columns[1], attribute_delimiter<>())){
                 auto kv = split(f, keyvalue_delimiter<>());
                 if(kv.size() == 2){
                     auto i = functions.find(kv[0]);

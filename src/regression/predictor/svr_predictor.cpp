@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -24,15 +24,13 @@ limitations under the License.
 
 namespace resembla {
 
-const std::string SVRPredictor::DEFAULT_NAME = "svr";
-
 SVRPredictor::SVRPredictor(const std::vector<Feature::key_type>& feature_definitions,
-        const std::string model_file_path, const std::string name):
-    name(name), feature_definitions(feature_definitions), model(svm_load_model(model_file_path.c_str()))
+        const std::string& model_file_path):
+    feature_definitions(feature_definitions), model(svm_load_model(model_file_path.c_str()))
 {}
 
 SVRPredictor::SVRPredictor(const SVRPredictor& obj):
-    name(obj.name), feature_definitions(obj.feature_definitions), model(obj.model), mutex_model()
+    feature_definitions(obj.feature_definitions), model(obj.model), mutex_model()
 {}
 
 SVRPredictor::~SVRPredictor()

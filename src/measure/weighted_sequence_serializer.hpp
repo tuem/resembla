@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -24,11 +24,11 @@ limitations under the License.
 
 #include "weighted_sequence_builder.hpp"
 
-#include "word_sequence_builder.hpp"
+#include "word_preprocessor.hpp"
 #include "word_weight.hpp"
-#include "pronunciation_sequence_builder.hpp"
+#include "pronunciation_preprocessor.hpp"
 #include "letter_weight.hpp"
-#include "romaji_sequence_builder.hpp"
+#include "romaji_preprocessor.hpp"
 #include "romaji_weight.hpp"
 
 namespace resembla {
@@ -46,14 +46,14 @@ void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<Sequenc
 }
 */
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o);
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordSequenceBuilder, WordWeight>::token_type& o);
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<WordPreprocessor<string_type>, WordWeight>::token_type& o);
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<WordPreprocessor<string_type>, WordWeight>::token_type& o);
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>::token_type& o);
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<PronunciationSequenceBuilder, LetterWeight<string_type>>::token_type& o);
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<PronunciationPreprocessor, LetterWeight<string_type>>::token_type& o);
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<PronunciationPreprocessor, LetterWeight<string_type>>::token_type& o);
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight>::token_type& o);
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<RomajiSequenceBuilder, RomajiWeight>::token_type& o);
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>::token_type& o);
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>::token_type& o);
 
 }
 #endif

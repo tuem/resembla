@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -19,8 +19,11 @@ limitations under the License.
 
 #include <iostream>
 #include <string>
+#include <memory>
+#include <vector>
+#include <stdexcept>
 
-#include "paramset.hpp"
+#include <paramset.hpp>
 
 #include "string_normalizer.hpp"
 
@@ -40,6 +43,9 @@ int main(int argc, char* argv[])
         {"resembla_max_reranking_num", 1000, {"resembla", "max_reranking_num"}, "max-reranking-num", 'r', "max number of reranking texts in Resembla"},
         {"simstring_measure_str", "cosine", {"simstring", "measure"}, "simstring-measure", 's', "SimString measure"},
         {"simstring_threshold", 0.2, {"simstring", "threshold"}, "simstring-threshold", 'T', "SimString threshold"},
+        {"index_romaji_mecab_options", "", {"index", "romaji", "mecab_options"}, "index-romaji-mecab-options", 0, "MeCab options for romaji indexer"},
+        {"index_romaji_mecab_feature_pos", 7, {"index", "romaji", "mecab_feature_pos"}, "index-romaji-mecab-feature-pos", 0, "Position of pronunciation in feature for romaji indexer"},
+        {"index_romaji_mecab_pronunciation_of_marks", "", {"index", "romaji", "mecab_pronunciation_of_marks"}, "index-romaji-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"ed_simstring_threshold", -1, {"edit_distance", "simstring_threshold"}, "ed-simstring-threshold", 0, "SimString threshold for edit distance"},
         {"ed_max_reranking_num", -1, {"edit_distance", "max_reranking_num"}, "ed-max-reranking-num", 0, "max number of reranking texts for edit distance"},
         {"ed_ensemble_weight", 0, {"edit_distance", "ensemble_weight"}, "ed-ensemble-weight", 0, "weight coefficient for edit distance in ensemble mode"},
@@ -80,7 +86,10 @@ int main(int argc, char* argv[])
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
-        {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
+        {"ensemble_simstring_threshold", -1, {"ensemble", "simstring_threshold"}, "ensemble-simstring-threshold", 0, "SimString threshold for ensemble"},
+        {"ensemble_max_candidate", 100, {"ensemble", "max_candidate"}, "ensemble-max-candidate", 0, "max number of candidates for ensemble method"},
+        {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
+        {"svr_max_candidate", 100, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
         {"svr_model_path", "model", {"svr", "model_path"}, "svr-model-path", 0, "LibSVM model file"},
@@ -102,7 +111,14 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
+        if(pm.rest.size() > 0){
+            pm["corpus_path"] = pm.rest.front().as<std::string>();
+        }
+        if(pm.get<std::string>("corpus_path").empty()){
+            throw std::invalid_argument("no corpus file specified");
+        }
+
+        pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
         if(pm.get<double>("ed_simstring_threshold") == -1){
             pm["ed_simstring_threshold"] = pm.get<double>("simstring_threshold");
@@ -118,6 +134,12 @@ int main(int argc, char* argv[])
         }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("ensemble_simstring_threshold") == -1){
+            pm["ensemble_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("svr_simstring_threshold") == -1){
+            pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
 
         int max_response = pm["resembla_max_response"];
@@ -137,12 +159,28 @@ int main(int argc, char* argv[])
         if(pm.get<int>("km_max_reranking_num") == -1){
             pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
-        auto measures = split_to_resembla_measures(pm["resembla_measure"]);
+
+        auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int ensemble_count = 0;
+        for(auto resembla_measure: resembla_measures){
+            switch(resembla_measure){
+                case edit_distance:
+                case weighted_word_edit_distance:
+                case weighted_pronunciation_edit_distance:
+                case weighted_romaji_edit_distance:
+                case keyword_match:
+                    ++ensemble_count;
+                    break;
+                default:
+                    break;
+            }
+        }
+        bool use_ensemble = ensemble_count > 1;
 
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
-            std::cerr << "    corpus_path=" << corpus_path << std::endl;
+            std::cerr << "    corpus_path=" << pm.get<std::string>("corpus_path") << std::endl;
             std::cerr << "    id_col=" << pm.get<int>("id_col") << std::endl;
             std::cerr << "    text_col=" << pm.get<int>("text_col") << std::endl;
             std::cerr << "    features_col=" << pm.get<int>("features_col") << std::endl;
@@ -161,7 +199,12 @@ int main(int argc, char* argv[])
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
             std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
-            for(const auto& measure: measures){
+            if(use_ensemble){
+                std::cerr << "  Ensemble:" << std::endl;
+                std::cerr << "    simstring_threshold=" << pm.get<double>("ensemble_simstring_threshold") << std::endl;
+                std::cerr << "    max_candidate=" << pm.get<int>("ensemble_max_candidate") << std::endl;
+            }
+            for(const auto& measure: resembla_measures){
                 if(measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                     std::cerr << "  Edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << pm.get<double>("ed_simstring_threshold") << std::endl;
@@ -218,6 +261,7 @@ int main(int argc, char* argv[])
                 }
                 else if(measure == svr){
                     std::cerr << "  SVR:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("svr_simstring_threshold") << std::endl;
                     std::cerr << "    max_candidate=" << pm.get<int>("svr_max_candidate") << std::endl;
                     std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                     std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
@@ -235,20 +279,21 @@ int main(int argc, char* argv[])
                 pm.get<std::string>("icu_transliteration_path"),
                 pm.get<bool>("icu_to_lower"));
         }
-        auto resembla = construct_resembla(corpus_path, pm);
-        std::shared_ptr<ResemblaWithId> resembla_with_id;
+
+        auto resembla = construct_resembla(pm);
+        std::shared_ptr<ResemblaWithId<>> resembla_with_id;
         if(pm.get<int>("id_col") != 0){
-            size_t id_col = pm.get<int>("id_col");
-            size_t text_col = pm.get<int>("text_col");
-            resembla_with_id = std::make_shared<ResemblaWithId>(resembla, corpus_path, id_col, text_col);
+            resembla_with_id = std::make_shared<ResemblaWithId<>>(resembla,
+                    pm.get<std::string>("corpus_path"), pm.get<int>("id_col"), pm.get<int>("text_col"));
         }
+
         while(true){
             std::string raw_input;
             std::getline(std::cin, raw_input);
             if(std::cin.eof() || raw_input == "exit" || raw_input == "quit" || raw_input == "bye"){
                 break;
             }
-            else if(raw_input.length() == 0){
+            else if(raw_input.empty()){
                 continue;
             }
 
@@ -258,9 +303,9 @@ int main(int argc, char* argv[])
             }
 
             bool ondemand = false;
-            auto tmp = split(input, '/');
+            auto tmp = split(input, '/', 2);
             std::vector<string_type> candidates;
-            if(tmp.size() > 1){
+            if(tmp.size() == 2){
                 ondemand = true;
                 input = tmp[0];
                 for(const auto& c: split(tmp[1], ',')){
@@ -269,7 +314,7 @@ int main(int argc, char* argv[])
             }
 
             if(resembla_with_id != nullptr){
-                std::vector<ResemblaWithId::output_type> result = ondemand ?
+                std::vector<ResemblaWithId<>::output_type> result = ondemand ?
                     resembla_with_id->eval(cast_string<string_type>(input), candidates, threshold, max_response) :
                     resembla_with_id->find(cast_string<string_type>(input), threshold, max_response);
                 if(result.empty()){
@@ -277,7 +322,7 @@ int main(int argc, char* argv[])
                 }
                 else{
                     for(const auto& r: result){
-                        std::cout << r.id << ", " << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
+                        std::cout << r.id << "\t" << cast_string<std::string>(r.text) << "\t" << r.score << std::endl;
                     }
                 }
             }
@@ -290,7 +335,7 @@ int main(int argc, char* argv[])
                 }
                 else{
                     for(const auto& r: result){
-                        std::cout << cast_string<std::string>(r.text) << ", " << r.score << std::endl;
+                        std::cout << cast_string<std::string>(r.text) << "\t" << r.score << std::endl;
                     }
                 }
             }

@@ -13,7 +13,7 @@
     },
     "resembla": {
         "measure": "edit_distance,weighted_pronunciation_edit_distance,weighted_romaji_edit_distance",
-        "max_reranking_num": 10000,
+        "max_reranking_num": 100,
         "max_response": 20,
         "threshold": 0.5
     },
@@ -21,6 +21,11 @@
         "simstring_ngram_unit": 1,
         "simstring_threshold": 0.1,
         "ensemble_weight": 0.01
+    },
+    "ensemble": {
+        "simstring_ngram_unit": 1,
+        "simstring_threshold": 0.25,
+        "max_candidate": 100
     },
     "weighted_pronunciation_edit_distance": {
         "simstring_ngram_unit": 1,

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -20,10 +20,14 @@ limitations under the License.
 #ifndef RESEMBLA_RERANKER_HPP
 #define RESEMBLA_RERANKER_HPP
 
-#include <iostream>
 #include <vector>
 #include <algorithm>
+
+#ifdef DEBUG
 #include <string>
+#include <iostream>
+#include "string_util.hpp"
+#endif
 
 namespace resembla {
 
@@ -33,17 +37,12 @@ class Reranker
 public:
     using output_type = std::pair<Original, double>;
 
-    template<
-        typename Iterator,
-        typename ScoreFunction
-    >
+    template<typename Iterator, typename ScoreFunction>
     std::vector<output_type> rerank(
         const typename std::iterator_traits<Iterator>::value_type& target,
-        const Iterator begin,
-        const Iterator end,
+        Iterator begin, Iterator end,
         const ScoreFunction& score_func,
-        double threshold = 0.0,
-        size_t max_output = 0
+        double threshold = 0.0, size_t max_output = 0
     ) const
     {
 #ifdef DEBUG
@@ -61,14 +60,18 @@ public:
                 result.push_back(std::make_pair(i->first, score));
             }
         }
-        std::sort(std::begin(result), std::end(result), Sorter());
+
         if(max_output != 0 && result.size() > max_output){
+            std::partial_sort(std::begin(result), std::begin(result) + max_output, std::end(result), Sorter());
             result.erase(std::begin(result) + max_output, std::end(result));
+        }
+        else{
+            std::sort(std::begin(result), std::end(result), Sorter());
         }
 #ifdef DEBUG
         std::cerr << "DEBUG: " << "===========after reranking=============" << std::endl;
-        for(auto i = std::begin(result); i != std::end(result); ++i){
-            std::cerr << "DEBUG: " << "text=" << cast_string<std::string>(i->first) << ", score=" << i->second << std::endl;
+        for(const auto& r: result){
+            std::cerr << "DEBUG: " << "text=" << cast_string<std::string>(r.first) << ", score=" << r.second << std::endl;
         }
 #endif
         return result;

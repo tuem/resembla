@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -21,13 +21,17 @@ limitations under the License.
 
 namespace resembla {
 
-WordWeight::WordWeight(double base_weight, double delete_insert_ratio, double noun_coefficient, double verb_coefficient, double adj_coefficient):
-    base_weight(base_weight), delete_insert_ratio(delete_insert_ratio), noun_coefficient(noun_coefficient), verb_coefficient(verb_coefficient), adj_coefficient(adj_coefficient) {}
+WordWeight::WordWeight(double base_weight, double delete_insert_ratio,
+        double noun_coefficient, double verb_coefficient, double adj_coefficient):
+    base_weight(base_weight), delete_insert_ratio(delete_insert_ratio),
+    noun_coefficient(noun_coefficient), verb_coefficient(verb_coefficient),
+    adj_coefficient(adj_coefficient) {}
 
-double WordWeight::operator()(const Word& word, bool is_original, size_t, size_t) const
+double WordWeight::operator()(const Word<string_type>& word, bool is_original, size_t, size_t) const
 {
     double weight = base_weight;
 
+    // TODO: parameterize values
     if(word.feature[7].empty() || word.feature[7] == L"*"){
         weight *= word.surface.length();
     }
@@ -39,7 +43,8 @@ double WordWeight::operator()(const Word& word, bool is_original, size_t, size_t
         weight *= delete_insert_ratio;
     }
 
-    if(word.feature[0] == L"名詞" && word.feature[1] != L"接尾" && word.feature[1] != L"非自立" && word.feature[1] != L"副詞可能" && word.feature[1] != L"代名詞"){
+    if(word.feature[0] == L"名詞" && word.feature[1] != L"接尾" && word.feature[1] != L"非自立" &&
+            word.feature[1] != L"副詞可能" && word.feature[1] != L"代名詞"){
         weight *= noun_coefficient;
     }
     else if(word.feature[0] == L"動詞" && word.feature[1] != L"接尾" && word.feature[1] != L"非自立"){
@@ -48,6 +53,7 @@ double WordWeight::operator()(const Word& word, bool is_original, size_t, size_t
     else if(word.feature[0] == L"形容詞"){
         weight *= adj_coefficient;
     }
+
     return weight;
 }
 

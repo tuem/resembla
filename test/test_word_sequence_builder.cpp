@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -20,7 +20,8 @@ limitations under the License.
 #include <string>
 #include <iostream>
 #include <codecvt>
-#include "measure/word_sequence_builder.hpp"
+#include "measure/word_preprocessor.hpp"
+#include "string_util.hpp"
 
 #include "Catch/catch.hpp"
 
@@ -35,7 +36,7 @@ TEST_CASE( "parse a word", "[language]" ) {
     std::wcerr.imbue(std::locale());
 
     std::string mecab_options = "";
-    WordSequenceBuilder preprocess(mecab_options);
+    WordPreprocessor<string_type> preprocess(mecab_options);
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
     std::wstring text = L"テスト";
@@ -60,7 +61,7 @@ TEST_CASE( "parse words", "[language]" ) {
     std::wcerr.imbue(std::locale());
 
     std::string mecab_options = "";
-    WordSequenceBuilder preprocess(mecab_options);
+    WordPreprocessor<string_type> preprocess(mecab_options);
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 
     std::wstring text = L"私は考える";

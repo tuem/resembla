@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -20,7 +20,6 @@ limitations under the License.
 #ifndef RESEMBLA_COMPOSITION_HPP
 #define RESEMBLA_COMPOSITION_HPP
 
-#include <string>
 #include <memory>
 
 namespace resembla {
@@ -32,10 +31,8 @@ public:
     using input_type = typename F::input_type;
     using output_type = typename G::output_type;
 
-    const std::string name;
-
-    Composition(const std::shared_ptr<F> f, const std::shared_ptr<G> g, std::string name = ""):
-        name(!name.empty() ? name : g->name), f(f), g(g)
+    Composition(const std::shared_ptr<F> f, const std::shared_ptr<G> g):
+        f(f), g(g)
     {}
 
     output_type operator()(const input_type& a, const input_type& b) const

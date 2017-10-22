@@ -12,8 +12,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     repeated :candidates, :string, 2
   end
   add_message "resembla.server.ResemblaResponse" do
-    optional :text, :string, 1
-    optional :score, :float, 2
+    repeated :results, :message, 1, "resembla.server.ResemblaResponse.Result"
+  end
+  add_message "resembla.server.ResemblaResponse.Result" do
+    optional :id, :int32, 1
+    optional :text, :string, 2
+    optional :score, :float, 3
   end
 end
 
@@ -22,5 +26,6 @@ module Resembla
     ResemblaRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("resembla.server.ResemblaRequest").msgclass
     ResemblaOnDemandRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("resembla.server.ResemblaOnDemandRequest").msgclass
     ResemblaResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("resembla.server.ResemblaResponse").msgclass
+    ResemblaResponse::Result = Google::Protobuf::DescriptorPool.generated_pool.lookup("resembla.server.ResemblaResponse.Result").msgclass
   end
 end

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -20,39 +20,79 @@ limitations under the License.
 #ifndef RESEMBLA_RESEMBLA_ENSEMBLE_HPP
 #define RESEMBLA_RESEMBLA_ENSEMBLE_HPP
 
-#include <string>
 #include <vector>
-#include <memory>
 #include <unordered_map>
+#include <memory>
+#include <algorithm>
 
 #include "resembla_interface.hpp"
 
 namespace resembla {
 
+template<typename Database, typename Aggregator>
 class ResemblaEnsemble: public ResemblaInterface
 {
 public:
-    ResemblaEnsemble(const std::string& measure_name, const size_t max_reranking_num = 0);
+    ResemblaEnsemble(std::shared_ptr<Database> database,
+            std::shared_ptr<Aggregator> aggregate, size_t max_candidate):
+        database(database), aggregate(aggregate),
+        max_candidate(max_candidate)
+    {}
 
-    void append(const std::shared_ptr<ResemblaInterface> resembla, const double weight = 1.0);
+    void append(const std::shared_ptr<ResemblaInterface> resembla, double weight = 1.0)
+    {
+        children.push_back(resembla);
+        weights.push_back(weight);
+    }
 
-    std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0) const;
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
-            double threshold = 0.0, size_t max_response = 0) const;
+    std::vector<output_type> find(const string_type& query,
+            double threshold = 0.0, size_t max_response = 0) const
+    {
+        return eval(query, database->search(query,
+                max_candidate == 0 ? max_candidate : std::max(max_candidate, max_response)),
+                threshold, max_response);
+    }
+
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
+            double threshold = 0.0, size_t max_response = 0) const
+    {
+        std::unordered_map<string_type, std::vector<double>> work;
+        for(const auto& resembla: children){
+            for(const auto& r: resembla->eval(query, candidates, 0.0, 0)){
+                auto p = work.insert(std::pair<string_type, std::vector<double>>(r.text, {r.score}));
+                if(!p.second){
+                    p.first->second.push_back(r.score);
+                }
+            }
+        }
+
+        std::vector<output_type> results;
+        for(const auto& p: work){
+            double score = (*aggregate)(weights, p.second);
+            if(score >= threshold){
+                results.push_back({p.first, score});
+            }
+        }
+
+        if(max_response != 0 && results.size() > max_response){
+            std::partial_sort(std::begin(results), std::begin(results) + max_response, std::end(results));
+            results.erase(std::begin(results) + max_response, std::end(results));
+        }
+        else{
+            std::sort(std::begin(results), std::end(results));
+        }
+
+        return results;
+    }
 
 protected:
-    // name to be used in response
-    const std::string measure_name;
+    const std::shared_ptr<Database> database;
+    const std::shared_ptr<Aggregator> aggregate;
 
-    const size_t max_reranking_num;
+    std::vector<std::shared_ptr<ResemblaInterface>> children;
+    std::vector<double> weights;
 
-    double total_weight;
-
-    // pairs of Resembla and its weight
-    std::vector<std::pair<std::shared_ptr<ResemblaInterface>, double>> resemblas;
-
-    std::vector<output_type> eval(const std::unordered_map<string_type, double>& aggregated,
-            double threshold, size_t max_response) const;
+    const size_t max_candidate;
 };
 
 }

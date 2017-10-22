@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -19,8 +19,12 @@ limitations under the License.
 
 #include "flag_feature_aggregator.hpp"
 
+#include <cmath>
 #include <algorithm>
+
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 namespace resembla {
 

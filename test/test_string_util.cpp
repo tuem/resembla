@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -88,4 +88,15 @@ TEST_CASE( "wstring to string", "[language]" ) {
     test_cast_string_wstring_string(L"テスト", "テスト");
     test_cast_string_wstring_string(L"漢字", "漢字");
     test_cast_string_wstring_string(L"このﾃｽﾄはcast_stringを実行します。", "このﾃｽﾄはcast_stringを実行します。");
+}
+
+TEST_CASE( "split strings", "[language]" ) {
+    std::string line = "abc\tpqr\txyz";
+    CHECK(split(line) == std::vector<std::string>({"abc", "pqr", "xyz"}));
+    line = "abc,pqr,xyz";
+    CHECK(split(line) == std::vector<std::string>({"abc,pqr,xyz"}));
+    CHECK(split(line, ',') == std::vector<std::string>({"abc", "pqr", "xyz"}));
+    CHECK(split(line, ',', 2) == std::vector<std::string>({"abc", "pqr,xyz"}));
+    line = "abc,xyz,";
+    CHECK(split(line, ',') == std::vector<std::string>({"abc", "xyz", ""}));
 }

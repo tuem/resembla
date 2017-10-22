@@ -14,12 +14,12 @@ class ResemblaServiceStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.find = channel.unary_stream(
+    self.find = channel.unary_unary(
         '/resembla.server.ResemblaService/find',
         request_serializer=resembla__pb2.ResemblaRequest.SerializeToString,
         response_deserializer=resembla__pb2.ResemblaResponse.FromString,
         )
-    self.eval = channel.unary_stream(
+    self.eval = channel.unary_unary(
         '/resembla.server.ResemblaService/eval',
         request_serializer=resembla__pb2.ResemblaOnDemandRequest.SerializeToString,
         response_deserializer=resembla__pb2.ResemblaResponse.FromString,
@@ -41,12 +41,12 @@ class ResemblaServiceServicer(object):
 
 def add_ResemblaServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'find': grpc.unary_stream_rpc_method_handler(
+      'find': grpc.unary_unary_rpc_method_handler(
           servicer.find,
           request_deserializer=resembla__pb2.ResemblaRequest.FromString,
           response_serializer=resembla__pb2.ResemblaResponse.SerializeToString,
       ),
-      'eval': grpc.unary_stream_rpc_method_handler(
+      'eval': grpc.unary_unary_rpc_method_handler(
           servicer.eval,
           request_deserializer=resembla__pb2.ResemblaOnDemandRequest.FromString,
           response_serializer=resembla__pb2.ResemblaResponse.SerializeToString,

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -23,16 +23,18 @@ limitations under the License.
 #include <vector>
 
 #include "resembla_response.hpp"
+#include "string_util.hpp"
 
 namespace resembla {
 
 class ResemblaInterface
 {
 public:
-    using output_type = ResemblaResponse;
+    using output_type = ResemblaResponse<string_type>;
 
-    virtual ~ResemblaInterface();
-    virtual std::vector<output_type> find(const string_type& input, double threshold = 0.0, size_t max_response = 0) const = 0;
+    virtual ~ResemblaInterface() = default;
+    virtual std::vector<output_type> find(const string_type& input,
+            double threshold = 0.0, size_t max_response = 0) const = 0;
     virtual std::vector<output_type> eval(const string_type& input, const std::vector<string_type>& candidates,
             double threshold = 0.0, size_t max_response = 0) const = 0;
 };

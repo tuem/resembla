@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -25,6 +25,9 @@ limitations under the License.
 #include <paramset.hpp>
 
 #include "resembla_util.hpp"
+#include "resembla_with_id.hpp"
+#include "string_normalizer.hpp"
+
 #include "resembla.grpc.pb.h"
 
 using namespace resembla;
@@ -32,52 +35,69 @@ using namespace resembla;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
-using grpc::ServerWriter;
 using grpc::Status;
 
 class ResemblaServiceImpl: public server::ResemblaService::Service
 {
 protected:
-    const std::shared_ptr<ResemblaInterface> resembla;
+    const std::shared_ptr<ResemblaWithId<int>> resembla;
+    const std::shared_ptr<StringNormalizer> normalize;
     const size_t max_response;
     const double threshold;
 
 public:
-    ResemblaServiceImpl(std::shared_ptr<ResemblaInterface>& resembla, size_t max_response, double threshold):
-        server::ResemblaService::Service(),
-        resembla(resembla), max_response(max_response), threshold(threshold)
+    ResemblaServiceImpl(std::shared_ptr<ResemblaWithId<int>>& resembla,
+            const std::shared_ptr<StringNormalizer> normalize,
+            size_t max_response, double threshold):
+        server::ResemblaService::Service(), resembla(resembla),
+        normalize(normalize), max_response(max_response), threshold(threshold)
     {}
 
-    Status find(ServerContext*, const server::ResemblaRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
+    Status find(ServerContext*, const server::ResemblaRequest* request, server::ResemblaResponse* response) override
     {
-        for(const auto& r: resembla->find(cast_string<string_type>(request->query()), threshold, max_response)){
-            server::ResemblaResponse response;
-            response.set_text(cast_string<std::string>(r.text));
-            response.set_score(static_cast<float>(r.score));
-            writer->Write(response);
+        auto query = cast_string<string_type>(request->query());
+        if(normalize != nullptr){
+            query = (*normalize)(query);
+        }
+
+        size_t j = 0;
+        for(const auto& r: resembla->find(query, threshold, max_response)){
+            response->add_results();
+            auto* result = response->mutable_results(j++);
+            result->set_id(r.id);
+            result->set_text(cast_string<std::string>(r.text));
+            result->set_score(static_cast<float>(r.score));
         }
         return Status::OK;
     }
 
-    Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, ServerWriter<server::ResemblaResponse>* writer) override
+    Status eval(ServerContext*, const server::ResemblaOnDemandRequest* request, server::ResemblaResponse* response) override
     {
+        auto query = cast_string<string_type>(request->query());
+        if(normalize != nullptr){
+            query = (*normalize)(query);
+        }
+
         std::vector<string_type> candidates;
         for(const auto& c: request->candidates()){
             candidates.push_back(cast_string<string_type>(c));
         }
-        for(const auto& r: resembla->eval(cast_string<string_type>(request->query()), candidates, threshold, max_response)){
-            server::ResemblaResponse response;
-            response.set_text(cast_string<std::string>(r.text));
-            response.set_score(static_cast<float>(r.score));
-            writer->Write(response);
+        size_t j = 0;
+        for(const auto& r: resembla->eval(query, candidates, threshold, max_response)){
+            response->add_results();
+            auto* result = response->mutable_results(j++);
+            result->set_id(0);
+            result->set_text(cast_string<std::string>(r.text));
+            result->set_score(static_cast<float>(r.score));
         }
         return Status::OK;
     }
 };
 
-void RunServer(const std::string& server_address, std::shared_ptr<ResemblaInterface> resembla, size_t max_response, double threshold)
+void RunServer(const std::string& server_address, std::shared_ptr<ResemblaWithId<int>> resembla,
+        const std::shared_ptr<StringNormalizer> normalize, size_t max_response, double threshold)
 {
-    ResemblaServiceImpl service(resembla, max_response, threshold);
+    ResemblaServiceImpl service(resembla, normalize, max_response, threshold);
 
     ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
@@ -104,6 +124,9 @@ int main(int argc, char** argv) {
         {"resembla_max_reranking_num", 1000, {"resembla", "max_reranking_num"}, "max-reranking-num", 'r', "max number of reranking texts in Resembla"},
         {"simstring_measure_str", "cosine", {"simstring", "measure"}, "simstring-measure", 's', "SimString measure"},
         {"simstring_threshold", 0.2, {"simstring", "threshold"}, "simstring-threshold", 'T', "SimString threshold"},
+        {"index_romaji_mecab_options", "", {"index", "romaji", "mecab_options"}, "index-romaji-mecab-options", 0, "MeCab options for romaji indexer"},
+        {"index_romaji_mecab_feature_pos", 7, {"index", "romaji", "mecab_feature_pos"}, "index-romaji-mecab-feature-pos", 0, "Position of pronunciation in feature for romaji indexer"},
+        {"index_romaji_mecab_pronunciation_of_marks", "", {"index", "romaji", "mecab_pronunciation_of_marks"}, "index-romaji-mecab-pronunciation-of-marks", 0, "pronunciation in MeCab features when input is a mark"},
         {"ed_simstring_threshold", -1, {"edit_distance", "simstring_threshold"}, "ed-simstring-threshold", 0, "SimString threshold for edit distance"},
         {"ed_max_reranking_num", -1, {"edit_distance", "max_reranking_num"}, "ed-max-reranking-num", 0, "max number of reranking texts for edit distance"},
         {"ed_ensemble_weight", 0.5, {"edit_distance", "ensemble_weight"}, "ed-ensemble-weight", 0, "weight coefficient for edit distance in ensemble mode"},
@@ -145,6 +168,9 @@ int main(int argc, char** argv) {
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
+        {"ensemble_simstring_threshold", -1, {"ensemble", "simstring_threshold"}, "ensemble-simstring-threshold", 0, "SimString threshold for ensemble"},
+        {"ensemble_max_candidate", 100, {"ensemble", "max_candidate"}, "ensemble-max-candidate", 0, "max number of candidates for ensemble method"},
+        {"svr_simstring_threshold", -1, {"svr", "simstring_threshold"}, "svr-simstring-threshold", 0, "SimString threshold for svr"},
         {"svr_max_candidate", 2000, {"svr", "max_candidate"}, "svr-max-candidate", 0, "max number of candidates for support vector regression"},
         {"svr_features_path", "features.tsv", {"svr", "features_path"}, "svr-features-path", 0, "feature definition file for support vector regression"},
         {"svr_patterns_home", ".", {"svr", "patterns_home"}, "svr-patterns-home", 0, "directory for pattern files for regular expression-based feature extractors"},
@@ -168,7 +194,15 @@ int main(int argc, char** argv) {
     try{
         pm.load(argc, argv, "config");
 
-        std::string corpus_path = read_value_with_rest(pm, "corpus_path", ""); // must not be empty
+        if(pm.rest.size() > 0){
+            pm["corpus_path"] = pm.rest.front().as<std::string>();
+        }
+        if(pm.get<std::string>("corpus_path").empty()){
+            throw std::invalid_argument("no corpus file specified");
+        }
+        std::string corpus_path = pm["corpus_path"];
+
+        pm["simstring_measure"] = simstring_measure_from_string(pm.get<std::string>("simstring_measure_str"));
 
         if(pm.get<double>("ed_simstring_threshold") == -1){
             pm["ed_simstring_threshold"] = pm.get<double>("simstring_threshold");
@@ -184,6 +218,9 @@ int main(int argc, char** argv) {
         }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
+        if(pm.get<double>("svr_simstring_threshold") == -1){
+            pm["svr_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
 
         if(pm.get<int>("ed_max_reranking_num") == -1){
@@ -201,7 +238,23 @@ int main(int argc, char** argv) {
         if(pm.get<int>("km_max_reranking_num") == -1){
             pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
-        auto measures = split_to_resembla_measures(pm["resembla_measure"]);
+
+        auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+        int ensemble_count = 0;
+        for(auto resembla_measure: resembla_measures){
+            switch(resembla_measure){
+                case edit_distance:
+                case weighted_word_edit_distance:
+                case weighted_pronunciation_edit_distance:
+                case weighted_romaji_edit_distance:
+                case keyword_match:
+                    ++ensemble_count;
+                    break;
+                default:
+                    break;
+            }
+        }
+        bool use_ensemble = ensemble_count > 1;
 
         if(pm.get<bool>("verbose")){
             std::cerr << "Configurations:" << std::endl;
@@ -226,7 +279,12 @@ int main(int argc, char** argv) {
             std::cerr << "    measure=" << pm.get<std::string>("resembla_measure") << std::endl;
             std::cerr << "    threshold=" << pm.get<double>("resembla_threshold") << std::endl;
             std::cerr << "    max_reranking_num=" << pm.get<int>("resembla_max_reranking_num") << std::endl;
-            for(const auto& measure: measures){
+            if(use_ensemble){
+                std::cerr << "  Ensemble:" << std::endl;
+                std::cerr << "    simstring_threshold=" << pm.get<double>("ensemble_simstring_threshold") << std::endl;
+                std::cerr << "    max_candidate=" << pm.get<int>("ensemble_max_candidate") << std::endl;
+            }
+            for(const auto& measure: resembla_measures){
                 if(measure == edit_distance && pm.get<double>("ed_ensemble_weight") > 0){
                     std::cerr << "  Edit distance:" << std::endl;
                     std::cerr << "    simstring_threshold=" << pm.get<double>("ed_simstring_threshold") << std::endl;
@@ -284,6 +342,7 @@ int main(int argc, char** argv) {
                 }
                 else if(measure == svr){
                     std::cerr << "  SVR:" << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("svr_simstring_threshold") << std::endl;
                     std::cerr << "    max_candidate=" << pm.get<int>("svr_max_candidate") << std::endl;
                     std::cerr << "    features_path=" << pm.get<std::string>("svr_features_path") << std::endl;
                     std::cerr << "    patterns_home=" << pm.get<std::string>("svr_patterns_home") << std::endl;
@@ -294,8 +353,20 @@ int main(int argc, char** argv) {
             std::cerr << "    server_address=" << pm.get<std::string>("grpc_server_address") << std::endl;
         }
 
-        auto resembla = construct_resembla(corpus_path, pm);
-        RunServer(pm.get<std::string>("grpc_server_address"), resembla,
+        std::shared_ptr<StringNormalizer> normalize;
+        if(pm.get<bool>("normalize_text")){
+            normalize = std::make_shared<StringNormalizer>(
+                pm.get<std::string>("icu_normalization_dir"),
+                pm.get<std::string>("icu_normalization_name"),
+                pm.get<std::string>("icu_predefined_normalizer"),
+                pm.get<std::string>("icu_transliteration_path"),
+                pm.get<bool>("icu_to_lower"));
+        }
+
+        auto resembla = std::make_shared<ResemblaWithId<int>>(construct_resembla(pm),
+                pm.get<std::string>("corpus_path"), pm.get<int>("id_col"), pm.get<int>("text_col"));
+
+        RunServer(pm.get<std::string>("grpc_server_address"), resembla, normalize,
                 pm.get<int>("resembla_max_response"), pm.get<double>("resembla_threshold"));
     }
     catch(const std::exception& e){

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -22,7 +22,6 @@ limitations under the License.
 
 #include <unordered_map>
 #include <memory>
-#include <initializer_list>
 
 #include "../feature.hpp"
 #include "../../string_util.hpp"
@@ -37,7 +36,7 @@ public:
 
     struct Function
     {
-        virtual ~Function(){}
+        virtual ~Function() = default;
         virtual Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const = 0;
     };
 
@@ -46,6 +45,7 @@ public:
     {
         StringsToRealFunction(){}
         StringsToRealFunction(F f): f(f){}
+        virtual ~StringsToRealFunction() = default;
 
         Feature::real_type operator()(const Feature::text_type& target, const Feature::text_type& reference) const
         {

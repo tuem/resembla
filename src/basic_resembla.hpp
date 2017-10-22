@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -21,149 +21,97 @@ limitations under the License.
 #define RESEMBLA_BASIC_RESEMBLA_HPP
 
 #include <string>
-#include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include <stdexcept>
-#include <mutex>
 
-#include <simstring/simstring.h>
 #include <json.hpp>
 
 #include "resembla_interface.hpp"
+#include "csv_reader.hpp"
 #include "reranker.hpp"
 
 namespace resembla {
 
-// Resembla with a fixed pair of preprocessor and score function
-template<
-    typename Preprocessor,
-    typename ScoreFunction
->
+template<typename Database, typename Preprocessor, typename ScoreFunction>
 class BasicResembla: public ResemblaInterface
 {
 public:
-    BasicResembla(const std::string& db_path, const std::string& inverse_path,
-            const int simstring_measure, const double simstring_threshold, const size_t max_reranking_num,
-            std::shared_ptr<Preprocessor> preprocess, std::shared_ptr<ScoreFunction> score_func,
+    BasicResembla(
+            std::shared_ptr<Database> database,
+            std::shared_ptr<Preprocessor> preprocess,
+            std::shared_ptr<ScoreFunction> score_func,
+            size_t max_candidate = 0, const std::string& index_path = "",
             bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
-        simstring_measure(simstring_measure), simstring_threshold(simstring_threshold), max_reranking_num(max_reranking_num),
-        reranker(), preprocess(preprocess), score_func(score_func), preprocess_corpus(preprocess_corpus)
+        database(database), preprocess(preprocess), score_func(score_func),
+        reranker(), max_candidate(max_candidate)
     {
-        db.open(db_path);
-        std::basic_ifstream<string_type::value_type> ifs(inverse_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + inverse_path);
+        if(index_path.empty() || !preprocess_corpus){
+            return;
         }
-        while(ifs.good()){
-            string_type line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
 
-            auto columns = split(line, column_delimiter<string_type::value_type>());
-            if(columns.size() < 2){
-                throw std::runtime_error("too few columns, corpus=" + inverse_path + ", line=" + cast_string<std::string>(line));
-            }
-            const auto& indexed = columns[0];
+        for(const auto& columns: CsvReader<string_type>(index_path, 2)){
             const auto& original = columns[1];
 
-            const auto& i = inverse.find(indexed);
-            if(i == std::end(inverse)){
-                inverse[indexed] = {original};
+            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
+                    !columns[preprocessed_data_col - 1].empty()){
+                // string => JSON => preprocessed data
+                typename Preprocessor::output_type preprocessed = nlohmann::json::parse(
+                        cast_string<std::string>(columns[preprocessed_data_col - 1]));
+                preprocessed_corpus[original] = preprocessed;
             }
             else{
-                inverse.at(indexed).push_back(original);
-            }
-
-            if(preprocess_corpus){
-                if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() && !columns[preprocessed_data_col - 1].empty()){
-                    nlohmann::json j = nlohmann::json::parse(cast_string<std::string>(columns[preprocessed_data_col - 1]));
-                    typename Preprocessor::output_type preprocessed = j;
-                    preprocessed_corpus[columns[1]] = std::make_pair(columns[1], preprocessed);
-                }
-                else{
-                    preprocessed_corpus[columns[1]] = std::make_pair(columns[1], (*preprocess)(original, true));
-                }
+                // generate preprocessed data here
+                preprocessed_corpus[original] = (*preprocess)(original, true);
             }
         }
     }
 
-    std::vector<output_type> find(const string_type& query, double threshold = 0.0, size_t max_response = 0) const
-    {
-        // search from N-gram index
-        std::vector<string_type> simstring_result;
-        {
-            std::lock_guard<std::mutex> lock(mutex_simstring);
-            string_type search_query = preprocess->index(query);
-            db.retrieve(search_query, simstring_measure, simstring_threshold, std::back_inserter(simstring_result));
-            if(simstring_result.empty()){
-                return {};
-            }
-        }
-
-        std::vector<string_type> candidate_texts;
-        for(const auto& i: simstring_result){
-            if(i.empty()){
-                continue;
-            }
-            const auto& j = inverse.at(i);
-            std::copy(std::begin(j), std::end(j), std::back_inserter(candidate_texts));
-            if(candidate_texts.size() == max_reranking_num){
-                break;
-            }
-        }
-        return eval(query, candidate_texts, threshold, max_response);
-    }
-
-    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& targets,
+    std::vector<output_type> find(const string_type& query,
             double threshold = 0.0, size_t max_response = 0) const
     {
-        // load preprocessed data if preprocessing is enabled. otherwise, process corpus texts on demand
-        std::vector<WorkData> candidates;
-        for(const auto& t: targets){
-            if(preprocess_corpus){
-                const auto i = preprocessed_corpus.find(t);
-                if(i != std::end(preprocessed_corpus)){
-                    candidates.push_back(i->second);
-                    continue;
-                }
+        return eval(query, database->search(query,
+                max_candidate == 0 ? max_candidate : std::max(max_candidate, max_response)),
+                threshold, max_response);
+    }
+
+    std::vector<output_type> eval(const string_type& query, const std::vector<string_type>& candidates,
+            double threshold = 0.0, size_t max_response = 0) const
+    {
+        std::vector<std::pair<string_type, WorkData>> work;
+        for(const auto& t: candidates){
+            const auto i = preprocessed_corpus.find(t);
+            if(i != std::end(preprocessed_corpus)){
+                work.push_back(*i);
             }
-            auto tabpos = t.find(column_delimiter<string_type::value_type>());
-            candidates.push_back(std::make_pair(
-                tabpos != string_type::npos ? t.substr(0, tabpos) : t,
-                (*preprocess)(t, true)));
+            else{
+                work.push_back(std::make_pair(
+                    split(t, column_delimiter<string_type::value_type>())[0],
+                    (*preprocess)(t, true)));
+            }
         }
 
         // execute reranking
-        WorkData input_data = std::make_pair(query, (*preprocess)(query, false));
+        auto input_data = std::make_pair(query, (*preprocess)(query, false));
         std::vector<output_type> response;
-        for(const auto& r: reranker.rerank(input_data, std::begin(candidates), std::end(candidates), *score_func, threshold, max_response)){
-            response.push_back({r.first, score_func->name, r.second});
+        for(const auto& r: reranker.rerank(input_data, std::begin(work), std::end(work),
+                *score_func, threshold, max_response)){
+            response.push_back({r.first, r.second});
         }
         return response;
     }
 
 protected:
-    using WorkData = std::pair<string_type, typename Preprocessor::output_type>;
+    using WorkData = typename Preprocessor::output_type;
 
-    mutable simstring::reader db;
-    std::unordered_map<string_type, std::vector<string_type>> inverse;
+    std::unordered_map<string_type, WorkData> preprocessed_corpus;
 
-    const int simstring_measure;
-    const double simstring_threshold;
-    const size_t max_reranking_num;
-    const Reranker<string_type> reranker;
-
+    const std::shared_ptr<Database> database;
     const std::shared_ptr<Preprocessor> preprocess;
     const std::shared_ptr<ScoreFunction> score_func;
 
-    const bool preprocess_corpus;
-    std::unordered_map<string_type, WorkData> preprocessed_corpus;
-
-    mutable std::mutex mutex_simstring;
+    const Reranker<string_type> reranker;
+    const size_t max_candidate;
 };
 
 }

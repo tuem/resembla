@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Resembla: Word-based Japanese similar sentence search library
+# Resembla
 # https://github.com/tuem/resembla
 #
 # Copyright 2017 Takashi Uemura
@@ -39,7 +39,7 @@ def run(server_address, thread_id, count, queries):
     for i in range(count):
         for query in queries:
             t0 = time_mill()
-            responses = resembla.find(resembla_pb2.ResemblaRequest(query=query), _TIMEOUT_SECONDS)
+            responses = resembla.find(resembla_pb2.ResemblaRequest(query=query), _TIMEOUT_SECONDS).results
             for response in responses:
                 pass
             t1 = time_mill()

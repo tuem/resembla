@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -21,12 +21,12 @@ limitations under the License.
 #define RESEMBLA_KANA_MISMATCH_COST_HPP
 
 #include <string>
-#include <fstream>
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
 
 #include "../string_util.hpp"
+#include "../csv_reader.hpp"
 
 namespace resembla {
 
@@ -41,24 +41,9 @@ struct KanaMismatchCost
             return;
         }
 
-        std::basic_ifstream<value_type> ifs(letter_similarity_file_path);
-        if(ifs.fail()){
-            throw std::runtime_error("input file is not available: " + letter_similarity_file_path);
-        }
-
-        while(ifs.good()){
-            string_type line;
-            std::getline(ifs, line);
-            if(ifs.eof() || line.length() == 0){
-                break;
-            }
-
-            auto columns = split(line, column_delimiter<value_type>());
-            if(columns.size() < 2){
-                throw std::runtime_error("invalid line in " + letter_similarity_file_path + ": " + cast_string<std::string>(line));
-            }
-            auto letters= columns[0];
-            auto cost = std::stod(columns[1]);
+        for(const auto& columns: CsvReader<>(letter_similarity_file_path, 2)){
+            auto letters = cast_string<string_type>(columns[0]);
+            const auto cost = std::stod(columns[1]);
 
             std::sort(std::begin(letters), std::end(letters));
             for(size_t i = 0; i < letters.size() - 1; ++i){
@@ -78,11 +63,7 @@ struct KanaMismatchCost
         }
 
         auto p = letter_similarities.find(a < b ? string_type({a, b}) : string_type({b, a}));
-        if(p != std::end(letter_similarities)){
-            return p->second;
-        }
-
-        return 1.0;
+        return p != std::end(letter_similarities) ? p->second : 1.0;
     }
 
 protected:

@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -17,28 +17,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_ASIS_SEQUENCE_BUILDER_HPP
-#define RESEMBLA_ASIS_SEQUENCE_BUILDER_HPP
-
-#include "../string_util.hpp"
+#ifndef RESEMBLA_FIXED_COST_HPP
+#define RESEMBLA_FIXED_COST_HPP
 
 namespace resembla {
 
-template<typename string_type>
-class AsIsSequenceBuilder
+struct FixedCost
 {
-public:
-    using token_type = typename string_type::value_type;
-    using output_type = string_type;
-
-    output_type operator()(const string_type& text, bool is_original) const
+    template<typename value_type>
+    double operator()(const value_type a, const value_type b) const
     {
-        return is_original ? split(text, column_delimiter<token_type>())[0] : text;
-    }
-
-    string_type index(const string_type& text) const
-    {
-        return text;
+        return a == b ? 0.0 : 1.0;
     }
 };
 

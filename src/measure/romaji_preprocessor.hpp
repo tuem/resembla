@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -17,25 +17,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_ROMAJI_SEQUENCE_BUILDER_HPP
-#define RESEMBLA_ROMAJI_SEQUENCE_BUILDER_HPP
+#ifndef RESEMBLA_ROMAJI_PREPROCESSOR_HPP
+#define RESEMBLA_ROMAJI_PREPROCESSOR_HPP
 
-#include <string>
-#include <unordered_map>
-
-#include "pronunciation_sequence_builder.hpp"
+#include "pronunciation_preprocessor.hpp"
 
 namespace resembla {
 
-class RomajiSequenceBuilder: public PronunciationSequenceBuilder
+struct RomajiPreprocessor: public PronunciationPreprocessor
 {
-public:
-    RomajiSequenceBuilder(const std::string mecab_options = "", const size_t mecab_feature_pos = 7,
-            const std::string mecab_pronunciation_of_marks = "", bool keep_case = false);
+    RomajiPreprocessor(const std::string& mecab_options = "", size_t mecab_feature_pos = 7,
+            const std::string& mecab_pronunciation_of_marks = "", bool keep_case = false);
+    virtual ~RomajiPreprocessor() = default;
 
     output_type operator()(const string_type& text, bool is_original = false) const;
-
-    string_type index(const string_type& text) const;
 
 protected:
     static const std::unordered_map<string_type, string_type> ROMAJI_MAP;

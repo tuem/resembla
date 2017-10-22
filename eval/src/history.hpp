@@ -1,5 +1,5 @@
 /*
-Resembla: Word-based Japanese similar sentence search library
+Resembla
 https://github.com/tuem/resembla
 
 Copyright 2017 Takashi Uemura
@@ -17,10 +17,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "resembla_interface.hpp"
+#ifndef RESEMBLA_HISTORY_HPP
+#define RESEMBLA_HISTORY_HPP
+
+#include <time.h>
+#include <chrono>
+#include <string>
+#include <vector>
+#include <iostream>
 
 namespace resembla {
 
-ResemblaInterface::~ResemblaInterface(){}
+class History
+{
+public:
+    History();
+
+    void record(const std::string& task, int count = 1);
+
+    void dump(std::ostream& os = std::cout,
+            bool show_header = true, bool show_count = false) const;
+
+private:
+    struct TimeRecord
+    {
+        std::chrono::system_clock::time_point time;
+        std::string task;
+        int count;
+    };
+
+    std::vector<TimeRecord> time_records;
+};
 
 }
+#endif
