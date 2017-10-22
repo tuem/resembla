@@ -20,7 +20,7 @@ limitations under the License.
 #include "text_classification_feature_extractor.hpp"
 
 #include <fstream>
-#include <vector>
+#include <stdexcept>
 
 namespace resembla {
 
@@ -94,4 +94,3 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
 }
 
 }
-#endif

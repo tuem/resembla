@@ -22,8 +22,10 @@ limitations under the License.
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <mutex>
 
+#include <mecab.h>
 #include <libsvm/svm.h>
 
 #include "feature_extractor.hpp"
@@ -38,7 +40,7 @@ struct TextClassificationFeatureExtractor: public FeatureExtractor::Function
     Feature::text_type operator()(const string_type& text) const;
 
 protected:
-    using std::unordered_map<std::string, id_type> = word_id_map;
+    using std::unordered_map<std::string, id_type> = word_ids;
     word_id_map word_ids;
 
     std::shared_ptr<MeCab::Tagger> tagger;
@@ -47,7 +49,7 @@ protected:
     svm_model *model;
     mutable std::mutex mutex_model;
 
-    std::vector<svm_node> toNodes(const input_type& x) const;
+    std::vector<svm_node> toNodes(const string_type& x) const;
 };
 
 }
