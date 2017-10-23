@@ -30,7 +30,7 @@ TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
     model(svm_load_model(model_path.c_str()))
 {
     for(const auto& columns: CsvReader<>(dict_path, 2)){
-        dictionary[columns[0]] = std::stoi(columns[1]);
+        dictionary[columns[1]] = std::stoi(columns[0]);
     }
 }
 
@@ -75,8 +75,8 @@ std::vector<svm_node> TextClassificationFeatureExtractor::toNodes(const string_t
     std::vector<svm_node> nodes(bow.size() + 1);
     size_t i = 0;
     for(const auto& j: bow){
-        nodes[j.first].index = j.first;
-        nodes[j.first].value = static_cast<double>(j.second);
+        nodes[i].index = j.first;
+        nodes[i].value = static_cast<double>(j.second);
         ++i;
     }
     nodes[i].index = -1; // end of features
