@@ -37,10 +37,12 @@ TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
 Feature::text_type TextClassificationFeatureExtractor::operator()(const string_type& text) const
 {
     auto nodes = toNodes(text);
-    double s;
-    {
-        std::lock_guard<std::mutex> lock(mutex_model);
-        s = svm_predict(model, &nodes[0]);
+    double s = 0.0;
+    if(!nodes.empty()){
+        {
+            std::lock_guard<std::mutex> lock(mutex_model);
+            s = svm_predict(model, &nodes[0]);
+        }
     }
     return Feature::toText(s);
 }
