@@ -35,9 +35,10 @@ std::string validate_mecab_options(const std::string& mecab_options)
         }
 
         if(dict_option_found){
-            std::ifstream ifs(token);
+            std::string dict_path = token + "/dicrc";
+            std::ifstream ifs(dict_path);
             if(ifs.fail()){
-                throw std::runtime_error("MeCab dictionary is not available: " + token);
+                throw std::runtime_error("MeCab dictionary is not available: " + dict_path);
             }
             dict_option_found = false;
             break;
