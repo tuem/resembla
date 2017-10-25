@@ -54,8 +54,8 @@ using namespace resembla;
 
 template<typename Indexer, typename Preprocessor>
 void create_index(const std::string& corpus_path, const std::string& db_path, const std::string& index_path,
-        int n, std::shared_ptr<Indexer> index_func, std::shared_ptr<Preprocessor> preprocess, size_t text_col, size_t features_col,
-        std::shared_ptr<StringNormalizer> normalize)
+        int n, std::shared_ptr<Indexer> index_func, std::shared_ptr<Preprocessor> preprocess,
+        size_t text_col, size_t features_col, std::shared_ptr<StringNormalizer> normalize)
 {
     constexpr auto delimiter = column_delimiter<string_type::value_type>();
     std::unordered_map<string_type, std::set<string_type>> inserted;
@@ -305,8 +305,8 @@ int main(int argc, char* argv[])
                         pm.get<int>("wped_mecab_feature_pos"), pm.get<std::string>("wped_mecab_pronunciation_of_marks"));
                 auto preprocessor = std::make_shared<WeightedSequenceBuilder<PronunciationPreprocessor, LetterWeight<string_type>>>(
                     indexer,
-                    std::make_shared<LetterWeight<string_type>>(pm.get<double>("wped_base_weight"), pm.get<double>("wped_delete_insert_ratio"),
-                        pm.get<std::string>("wped_letter_weight_path")));
+                    std::make_shared<LetterWeight<string_type>>(pm.get<double>("wped_base_weight"),
+                        pm.get<double>("wped_delete_insert_ratio"), pm.get<std::string>("wped_letter_weight_path")));
                 create_index(corpus_path, db_path, index_path, pm.get<int>("wped_simstring_ngram_unit"),
                         indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
@@ -350,7 +350,8 @@ int main(int argc, char* argv[])
 
                     const auto& feature_extractor_type = feature[1];
                     if(feature_extractor_type == "re"){
-                        extractor->append(name, std::make_shared<RegexFeatureExtractor>(pm.get<std::string>("svr_patterns_home") + "/" + name + ".tsv"));
+                        extractor->append(name, std::make_shared<RegexFeatureExtractor>(
+                                pm.get<std::string>("svr_patterns_home") + "/" + name + ".tsv"));
                     }
                     else if(feature_extractor_type == "date_period"){
                         extractor->append(name, std::make_shared<DatePeriodFeatureExtractor>());
@@ -366,7 +367,7 @@ int main(int argc, char* argv[])
                         indexer, extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
-            std::cerr << "database saved to " << db_path << std::endl;
+            std::cerr << "indexe saved to " << index_path << std::endl;
         }
 
         if(use_ensemble){
@@ -379,7 +380,7 @@ int main(int argc, char* argv[])
             create_index(corpus_path, db_path, index_path, pm.get<int>("wred_simstring_ngram_unit"),
                     indexer, std::shared_ptr<RomajiPreprocessor>(), pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
 
-            std::cerr << "database saved to " << db_path << std::endl;
+            std::cerr << "index saved to " << index_path << std::endl;
         }
     }
     catch(const std::exception& e){
