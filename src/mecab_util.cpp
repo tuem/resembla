@@ -43,7 +43,7 @@ std::string validate_mecab_options(const std::string& mecab_options)
             dict_option_found = false;
             break;
         }
-        else if(token == "-d"){
+        else if(token == "-d" || token == "--dicdir"){
             dict_option_found = true;
         }
     }

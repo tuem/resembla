@@ -31,26 +31,15 @@ limitations under the License.
 
 using namespace resembla;
 
-/*
-    try{
-    }
-    catch(const std::exception& e){
-        std::cerr << "error: " << e.what() << std::endl;
-        exit(1);
-    }
-
-    return 0;
-}
-*/
-
 TEST_CASE( "validate MeCab options", "[MeCab]" ) {
     REQUIRE_NOTHROW(validate_mecab_options(""));
     REQUIRE_NOTHROW(validate_mecab_options("-Odump  "));
     REQUIRE_NOTHROW(validate_mecab_options("-d ./dummy_dict "));
+    REQUIRE_NOTHROW(validate_mecab_options("--dicdir ./dummy_dict "));
     REQUIRE_NOTHROW(validate_mecab_options("-Odump  -d dummy_dict"));
     REQUIRE_NOTHROW(validate_mecab_options("-d  ./dummy_dict/ -Odump"));
     REQUIRE_THROWS(validate_mecab_options("-Odump -d /invalid_dict"));
-    REQUIRE_THROWS(validate_mecab_options("-d ./invalid_dict -Odump"));
+    REQUIRE_THROWS(validate_mecab_options("--dicdir ./invalid_dict -Odump"));
     REQUIRE_THROWS(validate_mecab_options("-d"));
     REQUIRE_THROWS(validate_mecab_options("-Odump -d"));
 }
