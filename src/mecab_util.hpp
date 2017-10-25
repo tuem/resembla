@@ -24,7 +24,7 @@ limitations under the License.
 
 namespace resembla {
 
-std::string validate_mecab_options(const std::string& mecab_options);
+const std::string& validate_mecab_options(const std::string& mecab_options);
 
 }
 #endif

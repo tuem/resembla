@@ -26,7 +26,7 @@ limitations under the License.
 
 namespace resembla {
 
-std::string validate_mecab_options(const std::string& mecab_options)
+const std::string& validate_mecab_options(const std::string& mecab_options)
 {
     bool dict_option_found = false;
     for(const auto& token: split(mecab_options, ' ')){
