@@ -22,6 +22,7 @@ limitations under the License.
 #include <vector>
 
 #include "../string_util.hpp"
+#include "../mecab_util.hpp"
 
 namespace resembla {
 
@@ -240,8 +241,10 @@ string_type PronunciationPreprocessor::estimatePronunciation(const string_type& 
 PronunciationPreprocessor::PronunciationPreprocessor(
         const std::string& mecab_options, size_t mecab_feature_pos,
         const std::string& mecab_pronunciation_of_marks):
-    tagger(MeCab::createTagger(mecab_options.c_str())), mecab_feature_pos(mecab_feature_pos),
-    mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks)) {}
+    tagger(MeCab::createTagger(validate_mecab_options(mecab_options).c_str())),
+    mecab_feature_pos(mecab_feature_pos),
+    mecab_pronunciation_of_marks(cast_string<string_type>(mecab_pronunciation_of_marks))
+{}
 
 PronunciationPreprocessor::output_type PronunciationPreprocessor::operator()(
         const string_type& text, bool is_original) const

@@ -20,13 +20,14 @@ limitations under the License.
 #include "text_classification_feature_extractor.hpp"
 
 #include "../../string_util.hpp"
+#include "../../mecab_util.hpp"
 #include "../../csv_reader.hpp"
 
 namespace resembla {
 
 TextClassificationFeatureExtractor::TextClassificationFeatureExtractor(
         const std::string& mecab_options, const std::string& dict_path, const std::string& model_path):
-    tagger(MeCab::createTagger(mecab_options.c_str())),
+    tagger(MeCab::createTagger(validate_mecab_options(mecab_options).c_str())),
     model(svm_load_model(model_path.c_str()))
 {
     for(const auto& columns: CsvReader<>(dict_path, 2)){
