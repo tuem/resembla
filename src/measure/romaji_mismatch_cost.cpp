@@ -25,23 +25,6 @@ limitations under the License.
 
 namespace resembla {
 
-const std::unordered_set<string_type> RomajiMismatchCost::DEFAULT_SIMILAR_LETTER_PAIRS = {
-    L"bv",
-    L"ck",
-    L"cq",
-    L"kq",
-    L"cs",
-    L"fh",
-    L"lr",
-    L"jz",
-    L"xz",
-    L"-a",
-    L"-i",
-    L"-u",
-    L"-e",
-    L"-o",
-};
-
 RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file_path,
         double case_mismatch_cost):
     case_mismatch_cost(case_mismatch_cost)
@@ -57,14 +40,6 @@ RomajiMismatchCost::RomajiMismatchCost(const std::string& letter_similarity_file
                 letter_similarities[p + letters[j]] = cost;
             }
         }
-    }
-}
-
-RomajiMismatchCost::RomajiMismatchCost(double case_mismatch_cost, double similar_letter_cost):
-    case_mismatch_cost(case_mismatch_cost)
-{
-    for(const auto& p: DEFAULT_SIMILAR_LETTER_PAIRS){
-        letter_similarities[p] = similar_letter_cost;
     }
 }
 

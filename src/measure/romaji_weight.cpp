@@ -85,7 +85,8 @@ RomajiWeight::RomajiWeight(double base_weight, double delete_insert_ratio,
         double vowel_coefficient, double consonant_coefficient):
     base_weight(base_weight), delete_insert_ratio(delete_insert_ratio),
     uppercase_coefficient(uppercase_coefficient), lowercase_coefficient(lowercase_coefficient),
-    vowel_coefficient(vowel_coefficient), consonant_coefficient(consonant_coefficient) {}
+    vowel_coefficient(vowel_coefficient), consonant_coefficient(consonant_coefficient)
+{}
 
 double RomajiWeight::operator()(const value_type c, bool is_original, size_t, size_t) const
 {
