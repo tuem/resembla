@@ -30,7 +30,7 @@ std::string validate_mecab_options(const std::string& mecab_options)
 {
     bool dict_option_found = false;
     for(const auto& token: split(mecab_options, ' ')){
-        if(token == " "){
+        if(token.empty()){
             continue;
         }
 
