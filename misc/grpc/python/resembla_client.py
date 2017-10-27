@@ -35,7 +35,7 @@ def run(server_address, queries):
     for response in responses:
       print ('  response.id=%d' % response.id)
       print ('  response.text=%s' % response.text)
-      print ('  response.score=%s' % response.score)
+      print ('  response.score=%f' % response.score)
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:
