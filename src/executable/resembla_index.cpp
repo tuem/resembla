@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
     try{
         pm.load(argc, argv, "config");
 
-        if(pm.rest.size() > 0){
+        if(!pm.rest.empty()){
             pm["corpus_path"] = pm.rest.front().as<std::string>();
         }
         if(pm.get<std::string>("corpus_path").empty()){
