@@ -239,24 +239,25 @@ int main(int argc, char** argv) {
             pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
 
-        auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
-        int ensemble_count = 0;
-        for(auto resembla_measure: resembla_measures){
-            switch(resembla_measure){
-                case edit_distance:
-                case weighted_word_edit_distance:
-                case weighted_pronunciation_edit_distance:
-                case weighted_romaji_edit_distance:
-                case keyword_match:
-                    ++ensemble_count;
-                    break;
-                default:
-                    break;
-            }
-        }
-        bool use_ensemble = ensemble_count > 1;
-
         if(pm.get<bool>("verbose")){
+            auto resembla_measures = split_to_resembla_measures(pm["resembla_measure"]);
+
+            int ensemble_count = 0;
+            for(auto resembla_measure: resembla_measures){
+                switch(resembla_measure){
+                    case edit_distance:
+                    case weighted_word_edit_distance:
+                    case weighted_pronunciation_edit_distance:
+                    case weighted_romaji_edit_distance:
+                    case keyword_match:
+                        ++ensemble_count;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            bool use_ensemble = ensemble_count > 1;
+
             std::cerr << "Configurations:" << std::endl;
             std::cerr << "  Common:" << std::endl;
             std::cerr << "    corpus_path=" << corpus_path << std::endl;
