@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
                         indexer, extractor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }
 
-            std::cerr << "indexe saved to " << index_path << std::endl;
+            std::cerr << "index saved to " << index_path << std::endl;
         }
 
         if(use_ensemble){
