@@ -39,16 +39,14 @@ def run(server_address, thread_id, count, queries):
     for i in range(count):
         for query in queries:
             t0 = time_mill()
-            responses = resembla.find(resembla_pb2.ResemblaRequest(query=query), _TIMEOUT_SECONDS).results
-            for response in responses:
-                pass
+            response = resembla.find(resembla_pb2.ResemblaRequest(query=query), _TIMEOUT_SECONDS)
             t1 = time_mill()
             results.append((thread_id, 'query/' + query, str(t1 - t0)))
     t_end = time_mill()
-    t_average = 0
+    t_sum = 0
     for r in results:
-        t_average = t_average + float(r[2])
-    t_average = t_average / len(results)
+        t_sum = t_sum + float(r[2])
+    t_average = t_sum / len(results)
     results.append((thread_id, 'total', str(t_end - t_start)))
     results.append((thread_id, 'average', str(t_average)))
     for r in results:
