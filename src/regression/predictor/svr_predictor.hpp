@@ -30,7 +30,7 @@ limitations under the License.
 
 namespace resembla {
 
-// LibSVM wrapper for Resembla
+// LIBSVM wrapper for Resembla
 class SVRPredictor
 {
 public:
@@ -46,8 +46,8 @@ public:
 
 protected:
     const std::vector<Feature::key_type> feature_definitions;
-    svm_model *model;
 
+    svm_model *model;
     mutable std::mutex mutex_model;
 
     std::vector<svm_node> toNodes(const input_type& x) const;
