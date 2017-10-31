@@ -20,7 +20,10 @@ limitations under the License.
 #include "svr_predictor.hpp"
 
 #include <algorithm>
+
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 namespace resembla {
 
