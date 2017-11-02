@@ -347,7 +347,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                 break;
         }
     }
-    if(basic_resemblas.size() == 0 && keyword_resembla == nullptr){
+    if(basic_resemblas.empty() && keyword_resembla == nullptr){
         throw std::runtime_error("at least one BasicResembla instance is needed: " + resembla_measure_all);
     }
 
@@ -357,7 +357,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
     }
 
     std::shared_ptr<ResemblaInterface> base_resembla;
-    if(basic_resemblas.size() > 0){
+    if(!basic_resemblas.empty()){
         if(basic_resemblas.size() == 1){
             base_resembla = basic_resemblas[0].first;
         }
