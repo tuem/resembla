@@ -41,12 +41,11 @@ public:
             std::shared_ptr<Database> database,
             std::shared_ptr<Preprocessor> preprocess,
             std::shared_ptr<ScoreFunction> score_func,
-            size_t max_candidate = 0, const std::string& index_path = "",
-            bool preprocess_corpus = true):
+            size_t max_candidate = 0, const std::string& index_path = ""):
         database(database), preprocess(preprocess), score_func(score_func),
         reranker(), max_candidate(max_candidate)
     {
-        if(index_path.empty() || !preprocess_corpus){
+        if(index_path.empty()){
             return;
         }
 
