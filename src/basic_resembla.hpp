@@ -42,7 +42,7 @@ public:
             std::shared_ptr<Preprocessor> preprocess,
             std::shared_ptr<ScoreFunction> score_func,
             size_t max_candidate = 0, const std::string& index_path = "",
-            bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
+            bool preprocess_corpus = true):
         database(database), preprocess(preprocess), score_func(score_func),
         reranker(), max_candidate(max_candidate)
     {
@@ -53,11 +53,10 @@ public:
         for(const auto& columns: CsvReader<string_type>(index_path, 2)){
             const auto& original = columns[1];
 
-            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
-                    !columns[preprocessed_data_col - 1].empty()){
+            if(columns.size() > 2 && !columns[2].empty()){
                 // string => JSON => preprocessed data
-                typename Preprocessor::output_type preprocessed = nlohmann::json::parse(
-                        cast_string<std::string>(columns[preprocessed_data_col - 1]));
+                typename Preprocessor::output_type preprocessed =
+                        nlohmann::json::parse(cast_string<std::string>(columns[2]));
                 preprocessed_corpus[original] = preprocessed;
             }
             else{
