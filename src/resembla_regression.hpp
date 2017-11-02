@@ -44,21 +44,19 @@ public:
             std::shared_ptr<Database> database,
             std::shared_ptr<FeatureExtractor> feature_extractor,
             std::shared_ptr<ScoreFunction> score_func,
-            size_t max_candidate = 0, const std::string& index_path = "",
-            bool preprocess_corpus = true, size_t preprocessed_data_col = 3):
+            size_t max_candidate = 0, const std::string& index_path = ""):
         database(database), preprocess(feature_extractor), score_func(score_func),
         reranker(), max_candidate(max_candidate)
     {
-        if(index_path.empty() || !preprocess_corpus){
+        if(index_path.empty()){
             return;
         }
 
         for(const auto& columns: CsvReader<std::string>(index_path, 2)){
             const auto& original = cast_string<string_type>(columns[1]);
 
-            if(preprocessed_data_col > 0 && preprocessed_data_col - 1 < columns.size() &&
-                    !columns[preprocessed_data_col - 1].empty()){
-                const auto& features = columns[preprocessed_data_col - 1];
+            if(columns.size() > 2 && !columns[2].empty()){
+                const auto& features = columns[2];
                 auto json = nlohmann::json::parse(features);
                 WorkData preprocessed;
                 for(auto i = std::begin(json); i != std::end(json); ++i){
