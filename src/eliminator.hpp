@@ -75,9 +75,8 @@ struct Eliminator
                 return a.second < b.second;
             });
         if(keep_tie){
-            auto s = work[k - 1].second;
             for(auto i = k; i < work.size(); ++i){
-                if(s == work[i].second){
+                if(work[k - 1].second == work[i].second){
                     std::swap(work[k++], work[i]);
                 }
             }
