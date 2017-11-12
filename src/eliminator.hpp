@@ -70,21 +70,16 @@ struct Eliminator
             work[i].second = distance(candidates[i]);
         }
 
+        std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
+            [](const index_distance& a, const index_distance& b) -> bool{
+                return a.second < b.second;
+            });
         if(keep_tie){
-            // sort partially to obtain top-k elements
-            std::nth_element(std::begin(work), std::begin(work) + k, std::end(work),
-                [](const index_distance& a, const index_distance& b) -> bool{
-                    return a.second < b.second;
-                });
-        }
-        else{
-            std::sort(std::begin(work), std::end(work),
-                [](const index_distance& a, const index_distance& b) -> bool{
-                    return a.second < b.second;
-                });
-            // expand k so that work[l] < work[k] for all l > k
-            while(k < work.size() - 1 && work[k - 1] == work[k]){
-                ++k;
+            auto s = work[k - 1].second;
+            for(auto i = k; i < work.size(); ++i){
+                if(s == work[i].second){
+                    std::swap(work[k++], work[i]);
+                }
             }
         }
 
