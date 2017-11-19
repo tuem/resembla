@@ -38,6 +38,7 @@ template<typename Indexer>
 class SimStringDatabase
 {
 public:
+    using simstring_string_type = std::wstring;
     using string_type = typename Indexer::output_type;
 
     SimStringDatabase(const std::string& simstring_db_path, int measure, double threshold,
@@ -46,11 +47,11 @@ public:
     {
         db.open(simstring_db_path);
 
-        for(const auto& columns: CsvReader<string_type>(index_path, 2)){
-            const auto& indexed = columns[0];
-            const auto& original = columns[1];
+        for(const auto& columns: CsvReader<std::string>(index_path, 2)){
+            const auto& indexed = cast_string<simstring_string_type>(columns[0]);
+            const auto& original = cast_string<string_type>(columns[1]);
 
-            const auto& p = originals.insert(std::pair<string_type,
+            const auto& p = originals.insert(std::pair<simstring_string_type,
                     std::vector<string_type>>(indexed, {original}));
             if(!p.second){
                 p.first->second.push_back(original);
@@ -65,8 +66,8 @@ public:
         std::vector<string_type> simstring_result;
         {
             std::lock_guard<std::mutex> lock(mutex_simstring);
-            db.retrieve(search_query, measure, threshold,
-                    std::back_inserter(simstring_result));
+            db.retrieve(cast_string<simstring_string_type>(search_query),
+                    measure, threshold, std::back_inserter(simstring_result));
         }
         if(max_output != 0 && simstring_result.size() > max_output){
             Eliminator<string_type> eliminate(search_query);
