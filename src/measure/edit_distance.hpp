@@ -45,9 +45,8 @@ struct EditDistance
 
         // prepare work table
         std::vector<double> D(a.size() + 1);
-        D[0] = 0;
-        for(size_t i = 1; i < a.size() + 1; ++i){
-            D[i] = D[i - 1] + 1.0;
+        for(size_t i = 0; i < a.size() + 1; ++i){
+            D[i] = i;
         }
 
         // compute edit distance
