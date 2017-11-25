@@ -57,12 +57,12 @@ void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<Pronunc
     o.weight = j.at("w").get<double>();
 }
 
-void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>::token_type& o)
+void to_json(nlohmann::json& j, const typename WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight<string_type>>::token_type& o)
 {
     j = nlohmann::json{{"t", cast_string<std::string>(string_type(1, o.token))}, {"w", o.weight}};
 }
 
-void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>::token_type& o)
+void from_json(const nlohmann::json& j, typename WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight<string_type>>::token_type& o)
 {
     o.token = cast_string<RomajiPreprocessor::output_type>(j.at("t").get<std::string>())[0];
     o.weight = j.at("w").get<double>();

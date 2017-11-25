@@ -319,9 +319,11 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                         std::make_shared<SimStringDatabase<RomajiPreprocessor>>(simstring_db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("wred_simstring_threshold"),
                             romaji_preprocessor, resembla_index_path),
-                        std::make_shared<WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>>(
+                        std::make_shared<WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight<string_type>>>(
                             romaji_preprocessor, 
-                            std::make_shared<RomajiWeight>(
+                            std::make_shared<RomajiWeight<string_type>>(
+                                cast_string<string_type>(std::string("")),
+                                cast_string<string_type>(std::string("")),
                                 pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                                 pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                                 pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient"))),
