@@ -72,8 +72,8 @@ struct LetterWeight
     }
 
 protected:
-    double base_weight;
-    double delete_insert_ratio;
+    const double base_weight;
+    const double delete_insert_ratio;
 
     std::unordered_map<value_type, double> letter_weights;
 };
