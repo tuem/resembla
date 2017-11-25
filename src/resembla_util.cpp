@@ -290,7 +290,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                             std::make_shared<WordWeight>(pm.get<double>("wwed_base_weight"),
                                 pm.get<double>("wwed_delete_insert_ratio"), pm.get<double>("wwed_noun_coefficient"),
                                 pm.get<double>("wwed_verb_coefficient"), pm.get<double>("wwed_adj_coefficient"))),
-                        std::make_shared<WeightedEditDistance<WordMismatchCost>>(),
+                        std::make_shared<WeightedEditDistance<WordMismatchCost<string_type>>>(),
                         pm.get<int>("wwed_max_reranking_num"), resembla_index_path),
                     pm.get<double>("wwed_ensemble_weight")));
                 break;
