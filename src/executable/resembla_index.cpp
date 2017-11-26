@@ -313,9 +313,12 @@ int main(int argc, char* argv[])
             else if(resembla_measure == weighted_romaji_edit_distance){
                 auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("wred_mecab_options"),
                     pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
-                auto preprocessor = std::make_shared<WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight>>(
+                auto preprocessor = std::make_shared<WeightedSequenceBuilder<RomajiPreprocessor, RomajiWeight<string_type>>>(
                     indexer,
-                    std::make_shared<RomajiWeight>(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
+                    std::make_shared<RomajiWeight<string_type>>(
+                        cast_string<string_type>(std::string("AEIOUaeiou-")),
+                        cast_string<string_type>(std::string("BCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxyz")),
+                        pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
                 create_index(corpus_path, db_path, index_path, pm.get<int>("wred_simstring_ngram_unit"),
