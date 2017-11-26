@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef RESEMBLA_WORD_MISMATCH_COST_HPP
-#define RESEMBLA_WORD_MISMATCH_COST_HPP
+#ifndef RESEMBLA_WORD_VECTOR_MISMATCH_COST_HPP
+#define RESEMBLA_WORD_VECTOR_MISMATCH_COST_HPP
 
 #include <algorithm>
 #include <iterator>
