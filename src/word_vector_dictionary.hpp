@@ -65,7 +65,7 @@ public:
     id_type id(const string_type& surface)
     {
         auto i = surface_ids.find(surface);
-        return i != std::end(surface_ids) ? *i : -1;
+        return i != std::end(surface_ids) ? i->second : -1;
     }
 
     const WordVector<string_type, value_type, id_type>& vector(id_type id)
