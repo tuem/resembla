@@ -33,7 +33,7 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename value_type = double, typename id_type = unsigned long>
+template<typename string_type, typename value_type = double, typename id_type = long>
 class WordVectorPreprocessor final
 {
 public:
@@ -67,11 +67,11 @@ public:
 
                 // extract surface and features
                 auto surface = cast_string<string_type>(std::string(node->surface, node->surface + node->length));
-                auto id = dictionary.id(surface);
+                auto id = dictionary->id(surface);
                 if(id == -1){
                     continue;
                 }
-                sequence.push_back(dictionary.vector(id));
+                sequence.push_back(dictionary->vector(id));
             }
         }
         return sequence;
