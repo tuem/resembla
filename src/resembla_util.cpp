@@ -351,7 +351,7 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
                         std::make_shared<SimStringDatabase<RomajiPreprocessor>>(simstring_db_path,
-                            pm.get<int>("simstring_measure"), pm.get<double>("wred_simstring_threshold"),
+                            pm.get<int>("simstring_measure"), pm.get<double>("wved_simstring_threshold"),
                             romaji_preprocessor, resembla_index_path),
                         word_vector_preprocessor,
                         std::make_shared<EditDistance<WordVectorMismatchCost<string_type>>>(),
