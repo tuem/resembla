@@ -38,13 +38,11 @@ public:
             return 0.0;
         }
 
-        double sum = 0.0, sum_r = 0.0, sum_t = 0.0;
+        double sum = 0.0;
         for(size_t i = 0; i < reference.values.size(); ++i){
             sum += reference.values[i] * target.values[i];
-            sum_r += reference.values[i] * reference.values[i];
-            sum_t += target.values[i] * target.values[i];
         }
-        return sm / (sum_r * sum_t);
+        return sum / (reference.norm * target.norm);
     }
 
 private:

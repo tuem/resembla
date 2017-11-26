@@ -30,6 +30,7 @@ struct WordVector
     id_type id;
     string_type surface;
     std::vector<value_type> values;
+    value_type norm;
 };
 
 }
