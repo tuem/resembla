@@ -37,6 +37,7 @@ limitations under the License.
 #include "measure/pronunciation_preprocessor.hpp"
 #include "measure/romaji_preprocessor.hpp"
 #include "measure/weighted_sequence_builder.hpp"
+#include "measure/word_vector_preprocessor.hpp"
 #include "measure/keyword_match_preprocessor.hpp"
 
 #include "measure/word_weight.hpp"
@@ -141,6 +142,8 @@ int main(int argc, char* argv[])
         {"wred_case_mismatch_cost", 1L, {"weighted_romaji_edit_distance", "case_mismatch_cost"}, "wred-case-mismatch-cost", 0, "cost to replace case mismatches for weighted romaji edit distance"},
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_mismatch_cost_path", "", {"weighted_romaji_edit_distance", "mismatch_cost_path"}, "wred-mismatch-cost-path", 0, "costs to replace similar letters for weighted romaji edit distance"},
+        {"wved_dictionary_path", "", {"word_vector_edit_distance", "dictionary_path"}, "wved-dictionary-path", 0, "file path for word vector dictionary"},
+        {"wved_mecab_options", "", {"word_vector_edit_distance", "mecab_options"}, "wved-mecab-options", 0, "MeCab options for word vector edit distance"},
         {"km_simstring_ngram_unit", -1, {"keyword_match", "simstring_ngram_unit"}, "km-simstring-ngram-unit", 0, "Unit of N-gram for input text"},
         {"ensemble_simstring_ngram_unit", -1, {"ensemble", "simstring_ngram_unit"}, "ensemble-simstring-ngram-unit", 0, "Unit of N-gram for romaji notation of input text"},
         {"svr_simstring_ngram_unit", -1, {"svr", "simstring_ngram_unit"}, "svr-simstring-ngram-unit", 0, "Unit of N-gram for romaji notation of input text"},
@@ -318,6 +321,15 @@ int main(int argc, char* argv[])
                     std::make_shared<RomajiWeight>(pm.get<double>("wred_base_weight"), pm.get<double>("wred_delete_insert_ratio"),
                         pm.get<double>("wred_uppercase_coefficient"), pm.get<double>("wred_lowercase_coefficient"),
                         pm.get<double>("wred_vowel_coefficient"), pm.get<double>("wred_consonant_coefficient")));
+                create_index(corpus_path, db_path, index_path, pm.get<int>("wred_simstring_ngram_unit"),
+                        indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
+            }
+            else if(resembla_measure == word_vector_edit_distance){
+                auto indexer = std::make_shared<RomajiPreprocessor>(pm.get<std::string>("wred_mecab_options"),
+                    pm.get<int>("wred_mecab_feature_pos"), pm.get<std::string>("wred_mecab_pronunciation_of_marks"));
+                auto preprocessor = std::make_shared<WordVectorPreprocessor<string_type>>(
+                    std::make_shared<WordVectorDictionary<string_type>>(pm.get<std::string>("wved_dictionary_path")),
+                    pm.get<std::string>("wved_mecab_options"));
                 create_index(corpus_path, db_path, index_path, pm.get<int>("wred_simstring_ngram_unit"),
                         indexer, preprocessor, pm.get<int>("text_col"), pm.get<int>("features_col"), normalize);
             }

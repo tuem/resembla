@@ -83,6 +83,11 @@ int main(int argc, char* argv[])
         {"wred_similar_letter_cost", 1L, {"weighted_romaji_edit_distance", "similar_letter_cost"}, "wred-similar-letter-cost", 0, "cost to replace similar letters for weighted romaji edit distance"},
         {"wred_mismatch_cost_path", "", {"weighted_romaji_edit_distance", "mismatch_cost_path"}, "wred-mismatch-cost-path", 0, "costs to replace similar letters for weighted romaji edit distance"},
         {"wred_ensemble_weight", 0.5, {"weighted_romaji_edit_distance", "ensemble_weight"}, "wred-ensemble-weight", 0, "weight coefficient for weighted romaji edit distance in ensemble mode"},
+        {"wved_dictionary_path", "", {"word_vector_edit_distance", "dictionary_path"}, "wved-dictionary-path", 0, "file path for word vector dictionary"},
+        {"wved_simstring_threshold", -1, {"word_vector_edit_distance", "simstring_threshold"}, "wved-simstring-threshold", 0, "SimString threshold for word vector edit distance"},
+        {"wved_mecab_options", "", {"word_vector_edit_distance", "mecab_options"}, "wved-mecab-options", 0, "MeCab options for word vector edit distance"},
+        {"wved_max_reranking_num", -1, {"word_vector_edit_distance", "max_reranking_num"}, "wved-max-reranking-num", 0, "max number of reranking texts for word vector edit distance"},
+        {"wved_ensemble_weight", 0.5, {"word_vector_edit_distance", "ensemble_weight"}, "wved-ensemble-weight", 0, "weight coefficient for word vector edit distance in ensemble mode"},
         {"km_simstring_threshold", -1, {"keyword_match", "simstring_threshold"}, "km-simstring-threshold", 0, "SimString threshold for keyword match"},
         {"km_max_reranking_num", -1, {"keyword_match", "max_reranking_num"}, "km-max-reranking-num", 0, "max number of reranking texts for keyword match"},
         {"km_ensemble_weight", 0.2, {"keyword_match", "ensemble_weight"}, "km-ensemble-weight", 0, "weight coefficient for keyword match in ensemble mode"},
@@ -132,6 +137,9 @@ int main(int argc, char* argv[])
         if(pm.get<double>("wred_simstring_threshold") == -1){
             pm["wred_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
+        if(pm.get<double>("wved_simstring_threshold") == -1){
+            pm["wved_simstring_threshold"] = pm.get<double>("simstring_threshold");
+        }
         if(pm.get<double>("km_simstring_threshold") == -1){
             pm["km_simstring_threshold"] = pm.get<double>("simstring_threshold");
         }
@@ -156,6 +164,9 @@ int main(int argc, char* argv[])
         if(pm.get<int>("wred_max_reranking_num") == -1){
             pm["wred_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
+        if(pm.get<int>("wved_max_reranking_num") == -1){
+            pm["wved_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
+        }
         if(pm.get<int>("km_max_reranking_num") == -1){
             pm["km_max_reranking_num"] = pm.get<int>("resembla_max_reranking_num");
         }
@@ -170,6 +181,7 @@ int main(int argc, char* argv[])
                     case weighted_word_edit_distance:
                     case weighted_pronunciation_edit_distance:
                     case weighted_romaji_edit_distance:
+                    case word_vector_edit_distance:
                     case keyword_match:
                         ++ensemble_count;
                         break;
@@ -254,6 +266,14 @@ int main(int argc, char* argv[])
                     std::cerr << "    similar_letter_cost=" << pm.get<double>("wred_similar_letter_cost") << std::endl;
                     std::cerr << "    mismatch_cost_path=" << pm.get<std::string>("wred_mismatch_cost_path") << std::endl;
                     std::cerr << "    ensemble_weight=" << pm.get<double>("wred_ensemble_weight") << std::endl;
+                }
+                else if(measure == word_vector_edit_distance && pm.get<double>("wved_ensemble_weight") > 0){
+                    std::cerr << "  Word vector edit distance:" << std::endl;
+                    std::cerr << "    dictionary_path=" << pm.get<double>("wved_dictionary_path") << std::endl;
+                    std::cerr << "    simstring_threshold=" << pm.get<double>("wved_simstring_threshold") << std::endl;
+                    std::cerr << "    max_reranking_num=" << pm.get<int>("wved_max_reranking_num") << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wved_mecab_options") << std::endl;
+                    std::cerr << "    ensemble_weight=" << pm.get<double>("wved_ensemble_weight") << std::endl;
                 }
                 else if(measure == keyword_match && pm.get<double>("km_ensemble_weight") > 0){
                     std::cerr << "  Keyword matching:" << std::endl;
