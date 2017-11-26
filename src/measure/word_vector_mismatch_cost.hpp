@@ -44,9 +44,6 @@ public:
         }
         return sum / (reference.norm * target.norm);
     }
-
-private:
-    const double homonym_cost;
 };
 
 }
