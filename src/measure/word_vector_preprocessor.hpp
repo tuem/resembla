@@ -87,9 +87,9 @@ protected:
 
 // TODO: implement as template functions
 void to_json(nlohmann::json& j,
-        const typename WordVectorPreprocessor<resembla::string_type, double, unsigned long>::token_type& o);
+        const typename WordVectorPreprocessor<resembla::string_type, double, long>::token_type& o);
 void from_json(const nlohmann::json& j,
-        typename WordVectorPreprocessor<resembla::string_type, double, unsigned long>::token_type& o);
+        typename WordVectorPreprocessor<resembla::string_type, double, long>::token_type& o);
 
 }
 #endif
