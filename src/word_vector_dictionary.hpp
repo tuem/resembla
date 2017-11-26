@@ -21,6 +21,7 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 #include <fstream>
+#include <cmath>
 
 #include "word_vector.hpp"
 #include "string_util.hpp"
