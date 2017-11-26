@@ -24,10 +24,10 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename value_type = double>
+template<typename string_type, typename value_type = double, typename id_type = unsigned long>
 struct WordVector
 {
-    unsigned long id;
+    id_type id;
     string_type surface;
     std::vector<value_type> values;
 };
