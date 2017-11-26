@@ -27,7 +27,7 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename value_type, typename id_type>
+template<typename string_type, typename value_type = double, typename id_type = unsigned long>
 class WordVectorMismatchCost
 {
 public:
