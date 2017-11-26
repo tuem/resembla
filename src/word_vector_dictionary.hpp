@@ -46,7 +46,7 @@ public:
                 break;
             }
 
-            raw_values = split(line, ' ');
+            auto raw_values = split(line, ' ');
             string_type surface = cast_string<string_type>(raw_values[0]);
             std::vector<value_type> values;
             double square_sum = 0.0;
