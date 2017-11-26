@@ -39,10 +39,10 @@ public:
         }
 
         double sum = 0.0, sum_r = 0.0, sum_t = 0.0;
-        for(size_t i = 0; i < reference.v.size(); ++i){
-            sum += reference[i] * target[i];
-            sum_r += reference[i] * reference[i];
-            sum_t += target[i] * target[i];
+        for(size_t i = 0; i < reference.values.size(); ++i){
+            sum += reference.values[i] * target.values[i];
+            sum_r += reference.values[i] * reference.values[i];
+            sum_t += target.values[i] * target.values[i];
         }
         return sm / (sum_r * sum_t);
     }
