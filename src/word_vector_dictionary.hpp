@@ -22,6 +22,7 @@ limitations under the License.
 #include <unordered_map>
 #include <fstream>
 
+#include "word_vector.hpp"
 #include "string_util.hpp"
 
 namespace resembla {
