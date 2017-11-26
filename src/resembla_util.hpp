@@ -50,6 +50,7 @@ enum measure: int
     weighted_word_edit_distance,
     weighted_pronunciation_edit_distance,
     weighted_romaji_edit_distance,
+    word_vector_edit_distance,
     keyword_match,
     ensemble,
     svr
