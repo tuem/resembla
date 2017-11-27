@@ -76,15 +76,15 @@ public:
 #endif
     }
 
-    id_type id(const string_type& surface)
+    id_type id(const string_type& surface) const
     {
         auto i = surface_ids.find(surface);
         return i != std::end(surface_ids) ? i->second : -1;
     }
 
-    const WordVector<string_type, value_type, id_type>& vector(id_type id)
+    const WordVector<string_type, value_type, id_type>& vector(id_type id) const
     {
-        return dictionary[id];
+        return dictionary.at(id);
     }
 
 private:
