@@ -25,6 +25,11 @@ limitations under the License.
 
 #include "../word_vector.hpp"
 
+#ifdef DEBUG
+#include "../string_util.hpp"
+#include <iostream>
+#endif
+
 namespace resembla {
 
 template<typename string_type, typename value_type = double, typename id_type = long>
@@ -42,6 +47,11 @@ public:
         for(size_t i = 0; i < reference.values.size(); ++i){
             sum += reference.values[i] * target.values[i];
         }
+#ifdef DEBUG
+        std::cerr << "WordVectorMismatchCost('" << cast_string<std::string>(reference.surface) <<
+            "', '" << cast_string<std::string>(target.surface) << "') = " <<
+            (sum / (reference.norm * target.norm)) << std::endl;
+#endif
         return sum / (reference.norm * target.norm);
     }
 };
