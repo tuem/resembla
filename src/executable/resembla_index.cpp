@@ -261,6 +261,11 @@ int main(int argc, char* argv[])
                     std::cerr << "    mecab_feature_pos=" << pm.get<int>("wred_mecab_feature_pos") << std::endl;
                     std::cerr << "    mecab_pronunciation_of_marks=" << pm.get<std::string>("wred_mecab_pronunciation_of_marks") << std::endl;
                 }
+                else if(resembla_measure == word_vector_edit_distance){
+                    std::cerr << "  measure=" << STR(word_vector_edit_distance) << std::endl;
+                    std::cerr << "    mecab_options=" << pm.get<std::string>("wved_mecab_options") << std::endl;
+                    std::cerr << "    dictionary_path=" << pm.get<std::string>("wved_dictionary_path") << std::endl;
+                }
                 else if(resembla_measure == keyword_match){
                     std::cerr << "  measure=" << STR(keyword_match) << std::endl;
                     std::cerr << "    simstring_ngram_unit=" << pm.get<int>("km_simstring_ngram_unit") << std::endl;
