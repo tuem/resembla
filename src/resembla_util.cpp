@@ -345,15 +345,18 @@ std::shared_ptr<ResemblaInterface> construct_resembla(const paramset::manager& p
                     pm.get<double>("wred_ensemble_weight")));
                 break;
             case word_vector_edit_distance:
-                word_vector_preprocessor = std::make_shared<WordVectorPreprocessor<string_type>>(
-                    std::make_shared<WordVectorDictionary<string_type>>(pm.get<std::string>("wved_dictionary_path")),
-                    pm.get<std::string>("wved_mecab_options"));
                 basic_resemblas.push_back(std::make_pair(
                     construct_basic_resembla(
                         std::make_shared<SimStringDatabase<RomajiPreprocessor>>(simstring_db_path,
                             pm.get<int>("simstring_measure"), pm.get<double>("wved_simstring_threshold"),
-                            romaji_preprocessor, resembla_index_path),
-                        word_vector_preprocessor,
+                            std::make_shared<RomajiPreprocessor>(pm.get<std::string>("wred_mecab_options"),
+                                pm.get<int>("wred_mecab_feature_pos"),
+                                pm.get<std::string>("wred_mecab_pronunciation_of_marks")),
+                            resembla_index_path),
+                        std::make_shared<WordVectorPreprocessor<string_type>>(
+                            std::make_shared<WordVectorDictionary<string_type>>(
+                                pm.get<std::string>("wved_dictionary_path")),
+                            pm.get<std::string>("wved_mecab_options")),
                         std::make_shared<EditDistance<WordVectorMismatchCost<string_type>>>(),
                         pm.get<int>("wved_max_reranking_num"), resembla_index_path),
                     pm.get<double>("wved_ensemble_weight")));
