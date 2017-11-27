@@ -26,6 +26,10 @@ limitations under the License.
 #include "word_vector.hpp"
 #include "string_util.hpp"
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 namespace resembla {
 
 template<typename string_type, typename value_type = double, typename id_type = long>
@@ -34,6 +38,9 @@ class WordVectorDictionary
 public:
     WordVectorDictionary(const std::string& dictionary_path)
     {
+#ifdef DEBUG
+        std::cerr << "load word vector dictionary: " << dictionary_path << std::endl;
+#endif
         std::ifstream ifs(dictionary_path);
         if(ifs.fail()){
             throw std::runtime_error("input file is not available: " + dictionary_path);
@@ -48,6 +55,9 @@ public:
             }
 
             auto raw_values = split(line, ' ');
+            while(raw_values.back().empty()){
+                raw_values.pop_back();
+            }
             string_type surface = cast_string<string_type>(raw_values[0]);
             std::vector<value_type> values;
             double square_sum = 0.0;
@@ -57,9 +67,13 @@ public:
                 values.push_back(static_cast<value_type>(v));
             }
 
+            surface_ids[surface] = i;
             dictionary[i] = {i, surface, values, static_cast<value_type>(std::sqrt(square_sum))};
             ++i;
         }
+#ifdef DEBUG
+        std::cerr << "done" << std::endl;
+#endif
     }
 
     id_type id(const string_type& surface)
