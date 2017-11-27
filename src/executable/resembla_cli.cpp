@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
                 }
                 else if(measure == word_vector_edit_distance && pm.get<double>("wved_ensemble_weight") > 0){
                     std::cerr << "  Word vector edit distance:" << std::endl;
-                    std::cerr << "    dictionary_path=" << pm.get<double>("wved_dictionary_path") << std::endl;
+                    std::cerr << "    dictionary_path=" << pm.get<std::string>("wved_dictionary_path") << std::endl;
                     std::cerr << "    simstring_threshold=" << pm.get<double>("wved_simstring_threshold") << std::endl;
                     std::cerr << "    max_reranking_num=" << pm.get<int>("wved_max_reranking_num") << std::endl;
                     std::cerr << "    mecab_options=" << pm.get<std::string>("wved_mecab_options") << std::endl;
