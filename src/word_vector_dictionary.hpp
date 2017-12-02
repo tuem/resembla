@@ -57,7 +57,7 @@ public:
             while(raw_values.back().empty()){
                 raw_values.pop_back();
             }
-            string_type surface = cast_string<string_type>(raw_values[0]);
+            string_type word = cast_string<string_type>(raw_values[0]);
             std::vector<value_type> values;
             double square_sum = 0.0;
             for(size_t j = 1; j < raw_values.size(); ++j){
@@ -66,18 +66,18 @@ public:
                 values.push_back(static_cast<value_type>(v));
             }
 
-            surface_ids[surface] = i;
-            dictionary[i] = {i, surface, values, static_cast<value_type>(std::sqrt(square_sum))};
+            word_ids[word] = i;
+            dictionary[i] = {i, word, values, static_cast<value_type>(std::sqrt(square_sum))};
         }
 #ifdef DEBUG
         std::cerr << "done" << std::endl;
 #endif
     }
 
-    id_type id(const string_type& surface) const
+    id_type id(const string_type& word) const
     {
-        auto i = surface_ids.find(surface);
-        return i != std::end(surface_ids) ? i->second : -1;
+        auto i = word_ids.find(word);
+        return i != std::end(word_ids) ? i->second : -1;
     }
 
     const WordVector<string_type, value_type, id_type>& vector(id_type id) const
@@ -86,7 +86,7 @@ public:
     }
 
 private:
-    std::unordered_map<string_type, id_type> surface_ids;
+    std::unordered_map<string_type, id_type> word_ids;
     std::unordered_map<id_type, WordVector<string_type, value_type, id_type>> dictionary;
 };
 
