@@ -42,10 +42,9 @@ public:
 
     WordVectorPreprocessor(
             std::shared_ptr<WordVectorDictionary<string_type, value_type, id_type>> dictionary,
-            const std::string& mecab_options = "", size_t min_feature_size = 9):
+            const std::string& mecab_options = ""):
         dictionary(dictionary),
-        tagger(MeCab::createTagger(validate_mecab_options(mecab_options).c_str())),
-        min_feature_size(min_feature_size)
+        tagger(MeCab::createTagger(validate_mecab_options(mecab_options).c_str()))
     {}
 
     WordVectorPreprocessor(const WordVectorPreprocessor& obj) = default;
@@ -82,8 +81,6 @@ protected:
     std::shared_ptr<WordVectorDictionary<string_type, value_type, id_type>> dictionary;
     std::shared_ptr<MeCab::Tagger> tagger;
     mutable std::mutex mutex_tagger;
-
-    const size_t min_feature_size;
 };
 
 // TODO: implement as template functions
