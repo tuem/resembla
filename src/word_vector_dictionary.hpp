@@ -88,8 +88,6 @@ public:
     }
 
 private:
-    size_t dimension;
-
     std::unordered_map<string_type, id_type> surface_ids;
     std::unordered_map<id_type, WordVector<string_type, value_type, id_type>> dictionary;
 };
