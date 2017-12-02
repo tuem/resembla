@@ -46,8 +46,7 @@ public:
             throw std::runtime_error("input file is not available: " + dictionary_path);
         }
 
-        id_type i = 0;
-        while(true){
+        for(id_type i = 0; ; ++i){
             std::string line;
             std::getline(ifs, line);
             if(ifs.eof()){
@@ -61,15 +60,14 @@ public:
             string_type surface = cast_string<string_type>(raw_values[0]);
             std::vector<value_type> values;
             double square_sum = 0.0;
-            for(const auto& raw_value: raw_values){
-                auto v = std::stod(raw_value);
+            for(size_t j = 1; j < raw_values.size(); ++j){
+                auto v = std::stod(raw_values[j]);
                 square_sum += v * v;
                 values.push_back(static_cast<value_type>(v));
             }
 
             surface_ids[surface] = i;
             dictionary[i] = {i, surface, values, static_cast<value_type>(std::sqrt(square_sum))};
-            ++i;
         }
 #ifdef DEBUG
         std::cerr << "done" << std::endl;
