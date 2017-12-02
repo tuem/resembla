@@ -61,8 +61,8 @@ public:
             string_type surface = cast_string<string_type>(raw_values[0]);
             std::vector<value_type> values;
             double square_sum = 0.0;
-            for(size_t i = 1; i < raw_values.size(); ++i){
-                auto v = std::stod(raw_values[i]);
+            for(const auto& raw_value: raw_values){
+                auto v = std::stod(raw_value);
                 square_sum += v * v;
                 values.push_back(static_cast<value_type>(v));
             }
