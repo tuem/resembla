@@ -42,9 +42,10 @@ public:
 
     WordVectorPreprocessor(
             std::shared_ptr<WordVectorDictionary<string_type, value_type, id_type>> dictionary,
-            const std::string& mecab_options = ""):
+            const std::string& mecab_options = "", int word_pos = -1):
         dictionary(dictionary),
-        tagger(MeCab::createTagger(validate_mecab_options(mecab_options).c_str()))
+        tagger(MeCab::createTagger(validate_mecab_options(mecab_options).c_str())),
+        word_pos(word_pos)
     {}
 
     WordVectorPreprocessor(const WordVectorPreprocessor& obj) = default;
@@ -65,9 +66,27 @@ public:
                     continue;
                 }
 
-                // extract surface and features
-                auto surface = cast_string<string_type>(std::string(node->surface, node->surface + node->length));
-                auto id = dictionary->id(surface);
+                std::string word;
+                if(word_pos == -1){
+                    word = std::string(node->surface, node->surface + node->length);
+                }
+                else{
+                    const char *start = node->feature;
+                    int i = 0;
+                    for(const char* end = start; *end != '\0'; ++end){
+                        if(*end == ','){
+                            if(i++ == word_pos){
+                                word = std::string(start, end);
+                                break;
+                            }
+                            start = end + 1;
+                        }
+                    }
+                    if(i == word_pos && *start != '\0'){
+                        word = std::string(start);
+                    }
+                }
+                auto id = dictionary->id(cast_string<string_type>(word));
                 if(id == -1){
                     continue;
                 }
@@ -81,6 +100,8 @@ protected:
     std::shared_ptr<WordVectorDictionary<string_type, value_type, id_type>> dictionary;
     std::shared_ptr<MeCab::Tagger> tagger;
     mutable std::mutex mutex_tagger;
+
+    const int word_pos;
 };
 
 // TODO: implement as template functions
