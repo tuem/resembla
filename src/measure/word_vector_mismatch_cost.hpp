@@ -50,7 +50,7 @@ public:
 #ifdef DEBUG
         std::cerr << "WordVectorMismatchCost('" << cast_string<std::string>(reference.surface) <<
             "', '" << cast_string<std::string>(target.surface) << "') = " <<
-            (1.0 - sum / (reference.norm * target.norm)) << std::endl;
+            (1.0 - std::min(1.0, std::max(0.0, sum / (reference.norm * target.norm)))) << std::endl;
 #endif
         return 1.0 - std::min(1.0, std::max(0.0, sum / (reference.norm * target.norm)));
     }
