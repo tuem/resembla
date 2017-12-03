@@ -55,7 +55,7 @@ public:
     {
         (void)is_original;
 
-        std::string text_string = cast_string<std::string>(
+        auto text_string = cast_string<std::string>(
                 is_original ? split(text, column_delimiter<typename string_type::value_type>())[0] : text);
         output_type sequence;
         {
