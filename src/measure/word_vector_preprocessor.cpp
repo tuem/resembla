@@ -22,18 +22,18 @@ limitations under the License.
 namespace resembla {
 
 void to_json(nlohmann::json& j,
-        const typename WordVectorPreprocessor<resembla::string_type, double, long>::token_type& o)
+        const typename WordVectorPreprocessor<resembla::string_type, float, long>::token_type& o)
 {
     j = nlohmann::json{{"i", o.id}, {"s", cast_string<std::string>(o.surface)}, {"v", o.values}, {"n", o.norm}};
 }
 
 void from_json(const nlohmann::json& j,
-        typename WordVectorPreprocessor<resembla::string_type, double, long>::token_type& o)
+        typename WordVectorPreprocessor<resembla::string_type, float, long>::token_type& o)
 {
     o.id = j.at("i").get<int>();
     o.surface = cast_string<string_type>(j.at("s").get<std::string>());
-    o.values = j.at("v").get<std::vector<double>>();
-    o.norm = j.at("n").get<double>();
+    o.values = j.at("v").get<std::vector<float>>();
+    o.norm = j.at("n").get<float>();
 }
 
 }

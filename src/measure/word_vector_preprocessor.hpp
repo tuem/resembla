@@ -33,7 +33,7 @@ limitations under the License.
 
 namespace resembla {
 
-template<typename string_type, typename value_type = double, typename id_type = long>
+template<typename string_type, typename value_type = float, typename id_type = long>
 class WordVectorPreprocessor final
 {
 public:
@@ -106,9 +106,9 @@ protected:
 
 // TODO: implement as template functions
 void to_json(nlohmann::json& j,
-        const typename WordVectorPreprocessor<resembla::string_type, double, long>::token_type& o);
+        const typename WordVectorPreprocessor<resembla::string_type, float, long>::token_type& o);
 void from_json(const nlohmann::json& j,
-        typename WordVectorPreprocessor<resembla::string_type, double, long>::token_type& o);
+        typename WordVectorPreprocessor<resembla::string_type, float, long>::token_type& o);
 
 }
 #endif
