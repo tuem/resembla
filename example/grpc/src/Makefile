@@ -21,7 +21,8 @@ all: $(BIN)
 
 CXX := g++
 CXXFLAGS := -Wall -Wextra -O3 -std=c++11 `pkg-config --cflags grpc++ grpc` -isystem../include -I../../../src -isystem../../../include -isystem../../../include/json -isystem../../../include/cmdline -isystem../../../include/paramset
-CXXLIBS := `pkg-config --libs icu-uc icu-i18n` `pkg-config --libs protobuf grpc++ grpc` -lgrpc++_reflection -lpthread -ldl -lresembla
+CXXLIBS := -lresembla `pkg-config --libs icu-uc icu-i18n` `pkg-config --libs protobuf grpc++ grpc` -lgrpc++_reflection -ldl -lsvm `mecab-config --libs`
+
 
 SUBDIRS = grpc
 
@@ -38,7 +39,7 @@ _grpc:
 	$(MAKE) -C grpc
 
 resembla_server: resembla_server.o _grpc
-	$(CXX) $(CXXLIBS) -o $@ resembla_server.o $(RESEMBLA_GRPC_OBJS)
+	$(CXX) resembla_server.o $(RESEMBLA_GRPC_OBJS) $(CXXLIBS) -o $@
 
 
 clean: $(SUBDIRS)
