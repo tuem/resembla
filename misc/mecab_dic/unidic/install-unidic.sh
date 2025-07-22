@@ -24,8 +24,9 @@ if [ $# -ge 1 ]; then
     DEST=$1
 fi
 
-UNIDIC=unidic-mecab-2.1.2_bin
-UNIDIC_URL=https://ja.osdn.net/dl/unidic/$UNIDIC.zip
+UNIDIC_VERSION=2.1.2
+UNIDIC=unidic-mecab-${UNIDIC_VERSION}_bin
+UNIDIC_URL=https://clrd.ninjal.ac.jp/unidic_archive/cwj/$UNIDIC_VERSION/$UNIDIC.zip
 TMP=./tmp.zip
 
 wget -O $TMP $UNIDIC_URL
