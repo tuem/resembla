@@ -20,6 +20,7 @@ limitations under the License.
 #ifndef RESEMBLA_ROMAJI_WEIGHT_HPP
 #define RESEMBLA_ROMAJI_WEIGHT_HPP
 
+#include <cstddef>
 #include <unordered_set>
 
 namespace resembla {
