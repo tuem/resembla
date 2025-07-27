@@ -45,7 +45,7 @@ public:
         }
 
         UErrorCode error_code = U_ZERO_ERROR;
-        auto work = cast_string<UnicodeString>(input);
+        auto work = cast_string<icu::UnicodeString>(input);
         if(normalizer_resembla != nullptr){
             work = normalizer_resembla->normalize(work, error_code);
             if(U_FAILURE(error_code)){
