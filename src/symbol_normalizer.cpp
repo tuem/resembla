@@ -30,12 +30,12 @@ SymbolNormalizer::SymbolNormalizer(const std::string& nrm_dir, const std::string
 {
     UErrorCode error_code = U_ZERO_ERROR;
     normalizer_resembla = !nrm_dir.empty() ?
-        Normalizer2::getInstance(nrm_dir.c_str(), nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
+        icu::Normalizer2::getInstance(nrm_dir.c_str(), nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
     if(normalizer_resembla != nullptr && U_FAILURE(error_code)) {
         throw std::runtime_error("failed to initialize normalizer");
     }
     normalizer_nfkc = !predefined_nrm_name.empty() ?
-        Normalizer2::getInstance(NULL, predefined_nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
+        icu::Normalizer2::getInstance(NULL, predefined_nrm_name.c_str(), UNORM2_COMPOSE, error_code) : nullptr;
     if(normalizer_nfkc != nullptr && U_FAILURE(error_code)) {
         throw std::runtime_error("failed to initialize normalizer");
     }

@@ -46,8 +46,8 @@ StringNormalizer::StringNormalizer(const std::string& nrm_dir, const std::string
 
         UParseError parse_error;
         UErrorCode error_code = U_ZERO_ERROR;
-        transliterator.reset(Transliterator::createFromRules("resembla_transliteration",
-                UnicodeString(rules.c_str()), UTRANS_FORWARD, parse_error, error_code));
+        transliterator.reset(icu::Transliterator::createFromRules("resembla_transliteration",
+                icu::UnicodeString(rules.c_str()), UTRANS_FORWARD, parse_error, error_code));
         if(U_FAILURE(error_code)){
             throw std::runtime_error("failed to normalize input");
         }

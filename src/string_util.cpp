@@ -61,25 +61,25 @@ void cast_string(const std::wstring& src, std::string& dest)
 }
 
 template<>
-void cast_string(const std::string& src, UnicodeString& dest)
+void cast_string(const std::string& src, icu::UnicodeString& dest)
 {
-    dest = UnicodeString::fromUTF8(src);
+    dest = icu::UnicodeString::fromUTF8(src);
 }
 
 template<>
-void cast_string(const UnicodeString& src, std::string& dest)
+void cast_string(const icu::UnicodeString& src, std::string& dest)
 {
     src.toUTF8String(dest);
 }
 
 template<>
-void cast_string(const std::wstring& src, UnicodeString& dest)
+void cast_string(const std::wstring& src, icu::UnicodeString& dest)
 {
-    dest = UnicodeString::fromUTF8(cast_string<std::string>(src));
+    dest = icu::UnicodeString::fromUTF8(cast_string<std::string>(src));
 }
 
 template<>
-void cast_string(const UnicodeString& src, std::wstring& dest)
+void cast_string(const icu::UnicodeString& src, std::wstring& dest)
 {
     std::string tmp;
     src.toUTF8String(tmp);
